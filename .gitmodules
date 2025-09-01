@@ -1,0 +1,4 @@
+[submodule "third_party/pointcept"]
+	path = third_party/pointcept
+	url = https://github.com/Pointcept/Pointcept.git
+	branch = main
