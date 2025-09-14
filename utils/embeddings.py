@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from transformers import AutoTokenizer, AutoModel
+
 
 class Cross_Attention(nn.Module):
     def __init__(self, embed_dim, num_heads,k_d=None,v_d=None, dropout=0.1,batch_first=True):
@@ -20,31 +22,27 @@ class Cross_Attention(nn.Module):
 
 
 
-class Text_Embedding(nn.Module):
-    def __init__(self, vocab_size, embed_dim, padding_idx=0):
-        super(Text_Embedding, self).__init__()
-        self.embedding = nn.Embedding(vocab_size, embed_dim, padding_idx=padding_idx)
 
-    def forward(self, x):
-        return self.embedding(x)
-    
+# Text Tokenizer into subwords
 class Text_Tokenizer:
-    def __init__(self, vocab):
-        self.vocab = vocab
-        self.word2idx = {word: idx for idx, word in enumerate(vocab)}
-        self.idx2word = {idx: word for idx, word in enumerate(vocab)}
+    def __init__(self):
+      self.tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
 
     def tokenize(self, text):
-        return [self.word2idx.get(word, self.word2idx['<unk>']) for word in text.split()]
+        # Maps each word to its index
+        return self.tokenizer.encode(text, add_special_tokens=False)
 
     def detokenize(self, indices):
-        return ' '.join([self.idx2word.get(idx, '<unk>') for idx in indices])
+        # Maps each index back to its word
+        return self.tokenizer.decode(indices)
+
     
+   
+   
 ### test tokenizer ###
 if __name__ == "__main__":
-      vocab = ['<pad>', '<unk>', 'hello', 'world', 'unknown']
-      tokenizer = Text_Tokenizer(vocab)
-      text = "hello unknown world"
+      tokenizer = Text_Tokenizer()
+      text = "Testing tokenization and detokenization."
       tokens = tokenizer.tokenize(text)
       print("Tokens:", tokens)
       detokenized = tokenizer.detokenize(tokens)
