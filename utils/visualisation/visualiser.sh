@@ -84,12 +84,12 @@ fi
 # -------- Select script by visualiser (unless user explicitly set a custom one) --------
 if [[ "$VIS_CHOICE" == "simple" ]]; then
   if [[ "$PYTHON_SCRIPT" == "scannet_scene_visualiser.py" || ! -f "$PYTHON_SCRIPT" ]]; then
-    PYTHON_SCRIPT="scannet_scene_visualiser.py"
+    PYTHON_SCRIPT="utils/visualisation/scannet_scene_visualiser.py"
   fi
 else
   # advanced viewer (VisualizerWithKeyCallback)
   if [[ "$PYTHON_SCRIPT" == "scannet_scene_visualiser.py" || ! -f "$PYTHON_SCRIPT" ]]; then
-    PYTHON_SCRIPT="scannet_advanced_visualiser.py"
+    PYTHON_SCRIPT="utils/visualisation/scannet_advanced_visualiser.py"
   fi
 fi
 
@@ -116,3 +116,5 @@ if [[ "$MODE_CHOICE" == "wsl" ]]; then
 else
   "${CMD[@]}"
 fi
+
+#  ./utils/visualisation/visualiser.sh -i data/scannet/train/scene0000_00

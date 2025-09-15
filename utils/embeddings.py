@@ -20,25 +20,27 @@ class Cross_Attention(nn.Module):
     
 ### Example usage? How to test it? ###
 
-
-
-
 # Text Tokenizer into subwords
 class Text_Tokenizer:
     def __init__(self):
       self.tokenizer = AutoTokenizer.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
-
     def tokenize(self, text):
         # Maps each word to its index
         return self.tokenizer.encode(text, add_special_tokens=False)
-
     def detokenize(self, indices):
         # Maps each index back to its word
         return self.tokenizer.decode(indices)
 
-    
-   
-   
+class Text_Embedder:
+    def __init__(self):
+        self.model = AutoModel.from_pretrained('sentence-transformers/all-MiniLM-L6-v2')
+        self.embed_layer = torch.nn.Embedding(self.model.config.vocab_size, self.model.config.hidden_size, padding_idx=self.model.config.pad_token_id)
+    def embed(self, token_ids):
+        # Convert token IDs to embeddings
+        with torch.no_grad():
+            embeddings = self.embed_layer(torch.tensor(token_ids).unsqueeze(0))  
+        return embeddings
+
 ### test tokenizer ###
 if __name__ == "__main__":
       tokenizer = Text_Tokenizer()
@@ -47,5 +49,12 @@ if __name__ == "__main__":
       print("Tokens:", tokens)
       detokenized = tokenizer.detokenize(tokens)
       print("Detokenized:", detokenized)
+      # Find vocabulary size
+      vocab_size = tokenizer.tokenizer.vocab_size
+      print("Vocabulary Size:", vocab_size)
+      embedder = Text_Embedder()
+      embeddings = embedder.embed(tokens)
+      print("Embeddings shape:", embeddings.shape)
+      print("Embeddings:", embeddings)
    
       

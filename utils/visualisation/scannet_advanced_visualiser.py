@@ -164,7 +164,7 @@ def main(scene_dir, save_ply=None, estimate_normals=False,
     normals = load_array(normal_path) if os.path.isfile(normal_path) else None
 
     instance = segment20 = segment200 = None
-    if scene_dir.startswith(("scannet/val/", "scannet/train/")):
+    if scene_dir.startswith(("data/scannet/val/", "data/scannet/train/")):
         inst_p = os.path.join(scene_dir, "instance.npy")
         s20_p  = os.path.join(scene_dir, "segment20.npy")
         s200_p = os.path.join(scene_dir, "segment200.npy")
@@ -464,5 +464,7 @@ if __name__ == "__main__":
     ap.add_argument("--axis-thickness", type=float, default=0.002,
                 help="Axis radius as a fraction of axis size (default: 0.002)")
     args = ap.parse_args()
+    print(f"[info] Loading scene from: {args.scene_dir}")
+    
     main(args.scene_dir, args.save, args.est, args.fast_down,
          args.pt, args.axis, args.axis_size,args.axis_thickness)
