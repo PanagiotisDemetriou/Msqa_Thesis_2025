@@ -2,3 +2,6 @@
 	path = third_party/pointcept
 	url = https://github.com/Pointcept/Pointcept.git
 	branch = main
+[submodule "third_party/MSR3D"]
+	path = third_party/MSR3D
+	url = https://github.com/MSR3D/MSR3D.git

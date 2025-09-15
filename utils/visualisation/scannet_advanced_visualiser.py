@@ -94,7 +94,7 @@ def build_instance_bboxes(xyz, instance, color_from_instance=True):
         if not np.any(mask):
             continue
         pts = xyz[mask]
-        # Safety (skip degenerate instances)
+        
         # Make orientation to be alligned with orientation of each object
         if pts.shape[0] < 2:
             continue
@@ -135,6 +135,7 @@ def make_thin_axis(size=0.5, thickness=0.02):
         )
         a.paint_uniform_color(color)
         a.rotate(R, center=(0, 0, 0))
+        
         return a
 
     
