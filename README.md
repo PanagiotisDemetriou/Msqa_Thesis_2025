@@ -50,29 +50,29 @@ The OSE3DSituation module is a core component in MSR3D for modeling objects in a
          - v1_balanced_sqa_annotations_scannetv2.json
          - v1_balanced_sqa_questions_scannetv2.json
 2. scan_data
-   - instance_id_to_label#
+   - instance_id_to_label
 
    - pcd_with_global_alignment
       - pcd_with_global_alignment
          Contains the .pth files with the scenes pointclouds. Point's (X, Y, Z) (no RGB).
       - instance_id_to_label
-         Contains the id of each object in each scene and its label in the form 
-            Key 0: type=<class 'str'>
+         - Contains the id of each object in each scene and its label in the form 
+            - Key 0: type=<class 'str'>
             preview: window
-            Key 1: type=<class 'str'>
+            - Key 1: type=<class 'str'>
             preview: window
-            Key 2: type=<class 'str'>
+            - Key 2: type=<class 'str'>
             preview: table
-   - instance_id_to_name **Missing**
-      Contains json files
-   - instance_id_to_loc **Missing**
-      Contains npy files  
-   - instance_id_to_gmm_color **Missing**
-      Contains json files
+   - instance_id_to_name - **Missing**
+      - Contains json files
+   - instance_id_to_loc - **Missing**
+      - Contains npy files  
+   - instance_id_to_gmm_color - **Missing**
+      - Contains json files
 ##### obj_imgs
 ###### ScanNet
    1. scannet
-      Contains the images of each object for each scene
+      - Contains the images of each object for each scene
 ##### text_annotations
    1. msnn
       - scannet
