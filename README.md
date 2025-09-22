@@ -27,4 +27,59 @@ Backbone2D is a thin wrapper around a 2D visual backbone with optional global po
 (Can also use BLIP2 Model from huggin Face)
 #### Situation Encoder
 The OSE3DSituation module is a core component in MSR3D for modeling objects in a 3D scene under a specific “situation” or context. Its purpose is to take object-level features (from point clouds or semantic encoders), enrich them with additional information (location, size, orientation, type). Depending on configuration, the module can apply different forms of situation modeling: adding location/size embeddings, injecting an anchor’s orientation and position, transforming objects into the agent’s coordinate system, or applying cross-attention/DiT-style attention between objects and the situation embedding.
+#### Data Diagram for MSR3D
+##### MSR3D_v2_pcds
+###### Scannet-Base
+1. annotations
+   - splits
+      Contains train/test/val splits in txt files and json files with the order of the test/val split scenes
+   - meta-data
+      - scannetv2_raw_categories.json
+      - scannetv2-labels.compined.tsv
+      Resolved: Found from a github repository 
+   - refer - **Missing**
+      - scanrefer.jsonl
+      - ssg_ref_.json
+      - ssg_caption_.json
+   - qa - **Missing**
+      - ScanQA_v1.0_train.json
+      - ScanQA_v1.0_val.json
+   - sqa task - **Missing**
+      - answer_dict.json
+      - balanced
+         - v1_balanced_sqa_annotations_scannetv2.json
+         - v1_balanced_sqa_questions_scannetv2.json
+2. scan_data
+   - instance_id_to_label#
 
+   - pcd_with_global_alignment
+      - pcd_with_global_alignment
+         Contains the .pth files with the scenes pointclouds. Point's (X, Y, Z) (no RGB).
+      - instance_id_to_label
+         Contains the id of each object in each scene and its label in the form 
+            Key 0: type=<class 'str'>
+            preview: window
+            Key 1: type=<class 'str'>
+            preview: window
+            Key 2: type=<class 'str'>
+            preview: table
+   - instance_id_to_name **Missing**
+      Contains json files
+   - instance_id_to_loc **Missing**
+      Contains npy files  
+   - instance_id_to_gmm_color **Missing**
+      Contains json files
+##### obj_imgs
+###### ScanNet
+   1. scannet
+      Contains the images of each object for each scene
+##### text_annotations
+   1. msnn
+      - scannet
+         - msnn_scannet.json
+   2. msqa
+      - scannet
+         - msqa_scannet_test_wo_answers.json
+         - msqa_scannet_test.json
+         - msqa_scannet_train.json
+         - msqa_scannet_val.json
