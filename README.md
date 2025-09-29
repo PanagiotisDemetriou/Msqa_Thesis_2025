@@ -41,12 +41,12 @@ The OSE3DSituation module is a core component in MSR3D for modeling objects in a
       - scanrefer.jsonl
       - ssg_ref_.json
       - ssg_caption_.json
-   - qa - **Missing**
+   - qa - (from: https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/annotations.zip)
       - ScanQA_v1.0_train.json
       - ScanQA_v1.0_val.json
-   - sqa task - **Missing**
-      - answer_dict.json
-      - balanced
+   - sqa_task 
+      - answer_dict.json (from: https://zenodo.org/records/7792397)
+      - balanced (from: https://huggingface.co/datasets/huangjy-pku/LEO_data/blob/main/annotations.zip)
          - v1_balanced_sqa_annotations_scannetv2.json
          - v1_balanced_sqa_questions_scannetv2.json
 2. scan_data
@@ -63,11 +63,11 @@ The OSE3DSituation module is a core component in MSR3D for modeling objects in a
             preview: window
             - Key 2: type=<class 'str'>
             preview: table
-   - instance_id_to_name - **Missing**
+   - instance_id_to_name (from: https://github.com/cshizhe/vil3dref)
       - Contains json files
-   - instance_id_to_loc - **Missing**
+   - instance_id_to_loc (from: https://github.com/cshizhe/vil3dref)
       - Contains npy files  
-   - instance_id_to_gmm_color - **Missing**
+   - instance_id_to_gmm_color (from: https://github.com/cshizhe/vil3dref)
       - Contains json files
 ##### obj_imgs
 ###### ScanNet
