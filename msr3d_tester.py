@@ -11,20 +11,20 @@ def move_to_device(x, device):
         return type(x)(move_to_device(v, device) for v in x)
     return x
 def make_obj_pcds_from_scene(scene_tuple, num_points=1024, use_rgb=False, device="cpu"):
-    coords, colors, instance_ids, sem_labels = scene_tuple  # numpy arrays
-    coords = coords.astype(np.float32)                      # (N, 3)
-    colors = colors.astype(np.float32)                      # (N, 3)
-    inst   = instance_ids.astype(np.int64)                  # (N,)
+    coords, colors, instance_ids, sem_labels = scene_tuple  
+    coords = coords.astype(np.float32)                      
+    colors = colors.astype(np.float32)                      
+    inst   = instance_ids.astype(np.int64)                  
 
     if use_rgb:
-        feats = np.concatenate([coords, colors / 255.0], axis=1)  # (N, 6)
+        feats = np.concatenate([coords, colors / 255.0], axis=1)  
     else:
-        feats = coords                                            # (N, 3)
+        feats = coords                                            
 
     objs = []
     for inst_id in np.unique(inst):
         m = (inst == inst_id)
-        pts = feats[m]                      # (n_i, D)
+        pts = feats[m]                      
         if pts.shape[0] == 0:
             continue
         n = pts.shape[0]
@@ -37,8 +37,8 @@ def make_obj_pcds_from_scene(scene_tuple, num_points=1024, use_rgb=False, device
     if len(objs) == 0:
         raise ValueError("No objects found after grouping by instance IDs.")
 
-    obj_pcds = torch.from_numpy(np.stack(objs, axis=0))  # (O, P, D)
-    obj_pcds = obj_pcds.unsqueeze(0)                     # (1, O, P, D)
+    obj_pcds = torch.from_numpy(np.stack(objs, axis=0))# (O, P, D)
+    obj_pcds = obj_pcds.unsqueeze(0)# (1, O, P, D)
     return obj_pcds.to(device)
 def main():
    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
