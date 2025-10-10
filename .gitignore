@@ -159,4 +159,11 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 *.pth
-/data
+*.npy
+msr3d/data/MSR3d_v2_pcds/
+msr3d/data/obj_imgs/
+msr3d/data/text_annotations/
+Pointcept-main/data/
+Pointcept-main/exp/
+msr3d/MSR3D_baseline_3_dataset/
+hub/

@@ -1,0 +1,25 @@
+trimesh
+shortuuid
+termcolor
+pillow
+multimethod
+pyyaml
+h5py
+tensorboard
+tensorboardX
+sharedarray
+yapf==0.40.1
+addict
+einops
+polyfile
+timm
+scipy
+spconv-cu120
+open3d
+packaging
+ftfy
+regex
+tqdm
+clip @ git+https://github.com/openai/CLIP.git@main
+pyglet==1.5.31
+plyfile

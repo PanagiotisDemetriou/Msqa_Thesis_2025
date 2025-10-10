@@ -1,0 +1,10 @@
+Your remaining balance (at the time of job end)
+User           Usage |        Account     Usage | Account Limit Available (CPU hrs)
+---------- --------- + -------------- --------- + ------------- ---------
+cpoullis           0 |            VCG       289 |             0       N/A
+ekalogerakis         4 |            VCG       289 |             0       N/A
+maverkiou          0 |            VCG       289 |             0       N/A
+mloizou          183 |            VCG       289 |             0       N/A
+pdemetriou *         2 |            VCG       289 |             0       N/A
+yadimoolam        40 |            VCG       289 |             0       N/A
+ygeorgiou         62 |            VCG       289 |             0       N/A

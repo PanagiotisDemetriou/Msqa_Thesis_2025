@@ -1,0 +1,4 @@
+submitit INFO (2025-09-18 11:04:59,529) - Starting with JobEnvironment(job_id=1886272, hostname=Terataki, local_rank=0(1), node=0(1), global_rank=0(1))
+submitit INFO (2025-09-18 11:04:59,529) - Loading pickle: /home/panagiotis/msqa/Msqa_Thesis_2025/third_party/MSR3D/jobs/1886272/1886272_submitted.pkl
+submitit INFO (2025-09-18 11:05:10,489) - Job completed successfully
+submitit INFO (2025-09-18 11:05:10,489) - Exiting after successful completion
