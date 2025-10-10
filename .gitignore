@@ -167,3 +167,4 @@ Pointcept-main/data/
 Pointcept-main/exp/
 msr3d/MSR3D_baseline_3_dataset/
 hub/
+*.Zone.Identifier
