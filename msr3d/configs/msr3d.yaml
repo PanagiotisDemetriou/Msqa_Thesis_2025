@@ -1,6 +1,6 @@
 # Experiment general info
 name: MSR3D # this will be the project name of wandb
-note: baseline_3_dataset # this will be the run name of wandb
+note: debug_test # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 1
@@ -17,7 +17,7 @@ save_frequency: 10000 # how many training steps to save a checkpoint using accer
 ckpt_path: "" # where to resume from, leave empty to resume from the latest checkpoint
 
 debug:
-  flag: False
+  flag: True
   debug_test: False
   debug_size: 5
   save_tensor_flag: False

@@ -160,7 +160,17 @@ class LeoTrainer(BaseTrainer):
         #                }
         #            }
         #        )
-
+        if not self.debug:
+            self.accelerator.init_trackers(
+                project_name=self.cfg_raw.name,
+                config=dict(self.cfg_raw),
+                # optional: pick where TB files go
+                init_kwargs={
+                    "tensorboard": {
+                        "log_dir": os.path.join(self.exp_dir, "tb")
+                    }
+                }
+            )
     def forward(self, data_dict, inference=False):
         is_generation_mode = (self.inference_mode == 'generation')
         is_model_distributed = isinstance(self.model, torch.nn.parallel.DistributedDataParallel)
