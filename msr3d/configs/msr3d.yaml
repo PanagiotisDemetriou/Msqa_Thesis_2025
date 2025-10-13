@@ -12,7 +12,7 @@ exp_dir: "" # must be empty, will be set by run.py as base_dir + name + *naming_
 pretrain_ckpt_path: ""
 hf_hub_cache_dir: '' # the cache directory for huggingface models, optional
 
-resume: True
+resume: False
 save_frequency: 10000 # how many training steps to save a checkpoint using accerlerator
 ckpt_path: "" # where to resume from, leave empty to resume from the latest checkpoint
 
