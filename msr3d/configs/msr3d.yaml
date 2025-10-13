@@ -12,14 +12,14 @@ exp_dir: "" # must be empty, will be set by run.py as base_dir + name + *naming_
 pretrain_ckpt_path: ""
 hf_hub_cache_dir: '' # the cache directory for huggingface models, optional
 
-resume: True
+resume: False
 save_frequency: 10000 # how many training steps to save a checkpoint using accerlerator
 ckpt_path: "" # where to resume from, leave empty to resume from the latest checkpoint
 
 debug:
-  flag: True
+  flag: False
   debug_test: False
-  debug_size: 5
+  debug_size: 30
   save_tensor_flag: False
 
 logger:
@@ -204,7 +204,7 @@ model:
           sa_radii: [0.2, 0.4, null]
           sa_mlps: [[3, 64, 64, 128], [128, 128, 128, 256], [256, 256, 512, 768]]
           dropout: 0.1
-          freeze: False # was True
+          freeze: True # was True
           path: null #was ""
       spatial_encoder:
         dim_loc: 6
@@ -221,7 +221,7 @@ model:
         pairwise_rel_type: center
   vision_2d:
     name: Backbone2D
-    freeze: False
+    freeze: True
     args:
       backbone_name: convnext_base
       backbone_pretrain_dataset: laion2b

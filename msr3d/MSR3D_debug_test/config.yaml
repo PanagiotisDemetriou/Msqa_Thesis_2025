@@ -1,0 +1,64 @@
+"name: MSR3D\nnote: debug_test\nrng_seed: 42\nnum_gpu: 1\nmode: train\nnaming_keywords:\n\
+  - note\nbase_dir: ''\nexp_dir: !!python/object/apply:pathlib.PosixPath\n- MSR3D_debug_test\n\
+  pretrain_ckpt_path: ''\nhf_hub_cache_dir: ''\nresume: false\nsave_frequency: 10000\n\
+  ckpt_path: ''\ndebug:\n  flag: false\n  debug_test: false\n  debug_size: 30\n  save_tensor_flag:\
+  \ false\nlogger:\n  name: tensorboard\n  entity: ''\ntrainer: LeoTrainer\nsolver:\n\
+  \  gradient_accumulation_steps: 5\n  lr: ${solver.optim.args.lr}\n  grad_norm: 5.0\n\
+  \  epochs: 10\n  eval_interval: 1\n  num_batch_eval: 100\n  optim:\n    name: AdamW\n\
+  \    args:\n      lr: 3.0e-05\n      betas:\n      - 0.9\n      - 0.999\n      weight_decay:\
+  \ 0.05\n  sched:\n    name: warmup_cosine_instructblip\n    args:\n      warmup_steps:\
+  \ 400\ndata:\n  obj_img_base: /lustreFS/data/vcg/pdemetriou/msr3d/data\n  msr3dmix:\n\
+  \    args:\n      mix:\n      - msqa_scannet\n      ratio: 1.0\n      few_shot_num:\
+  \ 0\n      num_points: 1024\n  msqa_scannet:\n    args:\n      scannet_base: ${data.scan_family_base}\n\
+  \      anno_dir: ${data.msr3d_base}/scannet\n      max_obj_len: ${dataset_wrapper.args.max_obj_len}\n\
+  \      num_points: ${data.msr3dmix.args.num_points}\n      few_shot_num: ${data.msr3dmix.args.few_shot_num}\n\
+  \      msr3d_max_img_num: ${dataset_wrapper.args.msr3d_max_img_num}\n      val_num:\
+  \ 1000\n  msqa_3rscan:\n    args:\n      rscan_base: ${data.rscan_base}\n      anno_dir:\
+  \ ${data.msr3d_base}/rscan\n      max_obj_len: ${dataset_wrapper.args.max_obj_len}\n\
+  \      num_points: ${data.msr3dmix.args.num_points}\n      few_shot_num: ${data.msr3dmix.args.few_shot_num}\n\
+  \      msr3d_max_img_num: ${dataset_wrapper.args.msr3d_max_img_num}\n      val_num:\
+  \ 1000\n  msqa_arkitscenes:\n    args:\n      arkit_base: ${data.ARkit_base}\n \
+  \     anno_dir: ${data.msr3d_base}/arkitscenes\n      max_obj_len: ${dataset_wrapper.args.max_obj_len}\n\
+  \      num_points: ${data.msr3dmix.args.num_points}\n      few_shot_num: ${data.msr3dmix.args.few_shot_num}\n\
+  \      msr3d_max_img_num: ${dataset_wrapper.args.msr3d_max_img_num}\n      val_num:\
+  \ 1000\n  sqa3d:\n    args:\n      max_obj_len: 60\n      max_seq_len: 80\n    \
+  \  num_points: 1024\n      pc_type: gt\n      sem_type: '607'\n      filter_lang:\
+  \ false\n      use_unanswer: true\n  process_args:\n    img_process_args:\n    \
+  \  bbox_keep_ratio: 0.5\n      bbox_expand: 0.1\n      img_processer: navigation_img_processer\n\
+  \      tgt_img_size:\n      - 224\n      - 224\n  scan_family_base: data/MSR3D_v2_pcds/scannet_base\n\
+  \  rscan_base: ''\n  ARkit_base: ''\n  mv_info_base: ''\n  msr3d_base: data/text_annotations/scannet\n\
+  \  max_text_out_token_len: ${model.llm.max_out_len}\ntask:\n  msr3d_train:\n   \
+  \ mode:\n    - train\n    dataset: MSR3DMix\n    dataset_wrapper: LeoScanFamilyDatasetWrapper\n\
+  \    dataset_wrapper_args: ${dataset_wrapper.args}\n    train_dataloader_args: ${dataloader.train}\n\
+  \    eval_dataloader_args: ${dataloader.eval}\n  msqa_scannet:\n    mode:\n    -\
+  \ val\n    - test\n    dataset: MSQAScanNet\n    dataset_wrapper: LeoScanFamilyDatasetWrapper\n\
+  \    dataset_wrapper_args: ${dataset_wrapper.args}\n    eval_dataloader_args: ${dataloader.eval}\n\
+  \    evaluator: MSQAEval\ndataset_wrapper:\n  args:\n    max_obj_len: 60\n    msr3d_max_img_num:\
+  \ 60\neval:\n  save: true\ndataloader:\n  train:\n    batchsize: 2\n    num_workers:\
+  \ 0\n  eval:\n    batchsize: 2\n    num_workers: 0\nmodel:\n  name: MSR3D\n  prompter:\n\
+  \    model:\n      name: OSE3DSituation\n      situation_type: as_transform_for_objects\n\
+  \      scene_token_len: 60\n      loc_fourier_dim: 63\n      hidden_size: 256\n\
+  \      label_size: 300\n      vision_backbone_name: gtpcd\n      use_spatial_attn:\
+  \ true\n      use_anchor: true\n      use_orientation: true\n      fourier_size:\
+  \ 84\n      attn_flat:\n        use_attn_flat: false\n        mcan_flat_mlp_size:\
+  \ 512\n        mcan_flat_glimpses: 1\n        mcan_flat_out_size: 1024\n      vision:\n\
+  \        name: PcdObjEncoder\n        args:\n          sa_n_points:\n          -\
+  \ 32\n          - 16\n          - null\n          sa_n_samples:\n          - 32\n\
+  \          - 32\n          - null\n          sa_radii:\n          - 0.2\n      \
+  \    - 0.4\n          - null\n          sa_mlps:\n          - - 3\n            -\
+  \ 64\n            - 64\n            - 128\n          - - 128\n            - 128\n\
+  \            - 128\n            - 256\n          - - 256\n            - 256\n  \
+  \          - 512\n            - 768\n          dropout: 0.1\n          freeze: true\n\
+  \          path: null\n      spatial_encoder:\n        dim_loc: 6\n        num_attention_heads:\
+  \ 8\n        dim_feedforward: 2048\n        dropout: 0.1\n        activation: gelu\n\
+  \        spatial_multihead: true\n        spatial_dim: 5\n        spatial_dist_norm:\
+  \ true\n        spatial_attn_fusion: cond\n        num_layers: 3\n        obj_loc_encoding:\
+  \ same_all\n        pairwise_rel_type: center\n  vision_2d:\n    name: Backbone2D\n\
+  \    freeze: true\n    args:\n      backbone_name: convnext_base\n      backbone_pretrain_dataset:\
+  \ laion2b\n      use_pretrain: true\n      pooling: avg\n  llm:\n    name: OpenLlama\n\
+  \    cfg_path: openlm-research/open_llama_7b\n    truncation_side: right\n    prompt:\
+  \ ''\n    max_out_len: 256\n    max_context_len: 256\n    inference_mode: generation\n\
+  \    clip_fusion: false\n    lora:\n      flag: false\n      rank: 16\n      alpha:\
+  \ 16\n      target_modules:\n      - q_proj\n      - k_proj\n      - v_proj\n  \
+  \    - o_proj\n      - gate_proj\n      - up_proj\n      - down_proj\n      dropout:\
+  \ 0.0\n"
