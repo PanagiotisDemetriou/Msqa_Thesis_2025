@@ -4,7 +4,7 @@
 ## Models Used
 ### MSR3D
 #### Diagram
-![Pipeline Diagram](assets/msr3d_diagram.png)
+![Pipeline Diagram](assets/msr3d_analytical_diagram.png)
 
 #### Backbone
 **PcdObjEncoder Class**

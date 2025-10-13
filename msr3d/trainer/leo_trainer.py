@@ -166,9 +166,7 @@ class LeoTrainer(BaseTrainer):
                 config=dict(self.cfg_raw),
                 # optional: pick where TB files go
                 init_kwargs={
-                    "tensorboard": {
-                        "log_dir": os.path.join(self.exp_dir, "tb")
-                    }
+                    "tensorboard": {}
                 }
             )
     def forward(self, data_dict, inference=False):
