@@ -163,7 +163,7 @@ class LeoTrainer(BaseTrainer):
         if not self.debug:
             self.accelerator.init_trackers(
                 project_name=self.cfg_raw.name,
-                config=dict(self.cfg_raw),
+                config={},
                 # optional: pick where TB files go
                 init_kwargs={
                     "tensorboard": {}
