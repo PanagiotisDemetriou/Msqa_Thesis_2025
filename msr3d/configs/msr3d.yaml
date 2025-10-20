@@ -205,7 +205,7 @@ model:
           sa_mlps: [[3, 64, 64, 128], [128, 128, 128, 256], [256, 256, 512, 768]]
           dropout: 0.1
           freeze: True # was True
-          path: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/third_party/pointnetpp_vil3dref.pth" #pretrained
+          path: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/pointnetpp_vil3dref.pth" #pretrained
       spatial_encoder:
         dim_loc: 6
         num_attention_heads: 8
