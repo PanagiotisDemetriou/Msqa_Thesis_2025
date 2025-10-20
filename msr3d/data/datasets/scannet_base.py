@@ -35,7 +35,7 @@ class ScanNetBase(Dataset):
         self.label_converter = LabelConverter(os.path.join(self.base_dir,
                                             "annotations/meta_data/scannetv2-labels.combined.tsv"))
         #######
-        print("Label Converter:", self.label_converter)
+        print("Label Converter:", dir(self.label_converter))
         #######
         # self.referit3d_camera_pose = json.load(open(os.path.join(self.base_dir,
         #                                     "annotations/meta_data/scans_axis_alignment_matrices.json"),
