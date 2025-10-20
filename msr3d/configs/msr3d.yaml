@@ -229,6 +229,7 @@ model:
     #   # flat_output: True
     #   pooling: avg # or conv, attn
     name: BLIP2Backbone
+    freeze: True
     args:
       model_name: Salesforce/blip2-opt-2.7b
       use_pretrain: True
