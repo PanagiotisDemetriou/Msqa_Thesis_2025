@@ -52,7 +52,7 @@ solver:
 
 # configs of all datasets
 data:
-  obj_img_base: /lustreFS/data/vcg/pdemetriou/msr3d/data
+  obj_img_base: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data
   msr3dmix:
     args:
       #mix: [msqa_scannet,msqa_3rscan, msqa_arkitscenes]
@@ -205,7 +205,7 @@ model:
           sa_mlps: [[3, 64, 64, 128], [128, 128, 128, 256], [256, 256, 512, 768]]
           dropout: 0.1
           freeze: True # was True
-          path: null #was ""
+          path: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/third_party/pointnetpp_vil3dref.pth" #pretrained
       spatial_encoder:
         dim_loc: 6
         num_attention_heads: 8
@@ -220,18 +220,18 @@ model:
         obj_loc_encoding: same_all # same_0, same_all, diff_all
         pairwise_rel_type: center
   vision_2d:
-    name: Backbone2D
-    freeze: True
-    args:
-      backbone_name: convnext_base
-      backbone_pretrain_dataset: laion2b
-      use_pretrain: True
-      # flat_output: True
-      pooling: avg # or conv, attn
-    # name: BLIP2Backbone
+    # name: Backbone2D
+    # freeze: True
     # args:
-    #   model_name: Salesforce/blip2-opt-2.7b
+    #   backbone_name: convnext_base
+    #   backbone_pretrain_dataset: laion2b
     #   use_pretrain: True
+    #   # flat_output: True
+    #   pooling: avg # or conv, attn
+    name: BLIP2Backbone
+    args:
+      model_name: Salesforce/blip2-opt-2.7b
+      use_pretrain: True
 
   llm:
     #name: Vicuna7B

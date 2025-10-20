@@ -27,23 +27,16 @@ class ScanNetBase(Dataset):
                                             "annotations/meta_data/scannetv2_raw_categories.json"),
                                             'r', encoding="utf-8"))
         self.cat2int = {w: i for i, w in enumerate(self.int2cat)}
-        #######
-        print("Int2cat:", self.int2cat)
-        print("Cat2int:", self.cat2int)
-        #######
+
 
         self.label_converter = LabelConverter(os.path.join(self.base_dir,
                                             "annotations/meta_data/scannetv2-labels.combined.tsv"))
-        #######
-        print("Label Converter:", dir(self.label_converter))
-        #######
+
         # self.referit3d_camera_pose = json.load(open(os.path.join(self.base_dir,
         #                                     "annotations/meta_data/scans_axis_alignment_matrices.json"),
         #                                     'r', encoding="utf-8"))
         self.rot_matrix = build_rotate_mat(self.split)
-        #######
-        print(f"Rotation Matrix for {self.split}:", self.rot_matrix)
-        #######
+
         self.use_cache = rgetattr(self.cfg.data, 'mvdatasettings.use_cache', False)
         self.cache = {}
 
@@ -69,9 +62,6 @@ class ScanNetBase(Dataset):
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
-            ########
-            print("Pcd Data:",points, colors, instance_labels)
-            ########
             # convert to gt object
             if load_inst_info:
                 obj_pcds = []
@@ -114,7 +104,7 @@ class ScanNetBase(Dataset):
                 one_scan['obj_box_size_pred'] = obj_box_size_pred
 
                 #######
-                print("Pred Obj Pcds:", obj_pcds)
+                #print("Pred Obj Pcds:", obj_pcds)
                 #######
                 ##################
                 # obj_pcds = []
@@ -203,7 +193,7 @@ class ScanNetBase(Dataset):
                                 lang_data.append(('scannet', item['scene_id'],
                                                   item['question'] + " " + item['answers'][i]))
             #######
-            print("QA Data Sample:", lang_data[-5:])
+            #print("QA Data Sample:", lang_data[-5:])
             ######
             if 'sgrefer' in caption_source:
                 for anno_type in cfg.sgrefer.anno_type:
@@ -282,7 +272,7 @@ class ScanNetBase(Dataset):
             scannet_scan_ids = {x.strip() for x in open(split_file, 'r', encoding="utf-8")}
             scannet_scan_ids = sorted(scannet_scan_ids)
         #######
-        print("ScanNet Scan IDs for split", split, ":", scannet_scan_ids)
+        #print("ScanNet Scan IDs for split", split, ":", scannet_scan_ids)
         #######
         if cfg.debug.flag and cfg.debug.debug_size != -1:
             scannet_scan_ids = list(scannet_scan_ids)[:cfg.debug.debug_size]
@@ -302,11 +292,7 @@ class ScanNetBase(Dataset):
         inst_colors = [np.concatenate(
             [np.array(x['weights'])[:, None], np.array(x['means'])],
             axis=1).astype(np.float32) for x in inst_colors]
-        ########
-        print("Instance Labels:", inst_labels)
-        print("Instance Locations:", inst_locs)
-        print("Instance Colors:", inst_colors)
-        ########
+
         return inst_labels, inst_locs, inst_colors
 
     def _obj_processing_post(self, obj_pcds, obj_labels, is_need_bbox=False, rot_aug=True, situation=None):
