@@ -1,6 +1,6 @@
 # Experiment general info
 name: MSR3D # this will be the project name of wandb
-note: debug_test # this will be the run name of wandb
+note: BLIP_PTPNPP_VICUNA # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 1
@@ -234,9 +234,10 @@ model:
       use_pretrain: True
 
   llm:
-    #name: Vicuna7B
-    name: OpenLlama
-    cfg_path: "openlm-research/open_llama_7b"   # must be set
+    name: Vicuna7B
+    cfg_path: "huangjy-pku/vicuna-7b"
+    #name: OpenLlama
+    #cfg_path: "openlm-research/open_llama_7b"   # must be set
     truncation_side: right
     prompt: ""
     max_out_len: 256
