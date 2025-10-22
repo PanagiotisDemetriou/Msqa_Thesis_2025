@@ -124,7 +124,7 @@ if __name__ == "__main__":
     # Load the data
     for data_id in range(10):
         qa_pair = data_dict[data_id]
-        scan_id = qa_pair['scene_id']#added by me 
+        scan_id = data_dict[data_id]['scene_id']#added by me 
         pcd_path = os.path.join(pcd_root, scan_id + ".pth")
         pcd_data = torch.load(pcd_path)
         points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
