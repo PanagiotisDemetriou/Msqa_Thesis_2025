@@ -117,21 +117,22 @@ def create_arrow(origin, direction, scale=0.5):
 
 if __name__ == "__main__":
 
-    # # # load MSQA data
-    # root_dir = ""
-    # data_dict = load_json(f"{root_dir}/msqa_scannet_test.json")
-    # pcd_root = ""  # Path to the directory containing the point cloud data; e.g., "data/pcd_with_global_alignment/" 
-    # # Load the data
-    # for data_id in range(10):
-    #     qa_pair = data_dict[data_id]
-    #     pcd_path = os.path.join(pcd_root, scan_id + ".pth")
-    #     pcd_data = torch.load(pcd_path)
-    #     points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
-    #     colors = colors / 127.5 - 1
+    # # load MSQA data
+    root_dir = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/text_annotations/scannet/scannet"
+    data_dict = load_json(f"{root_dir}/msqa_scannet_test.json")
+    pcd_root = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/"  # Path to the directory containing the point cloud data; e.g., "data/pcd_with_global_alignment/" 
+    # Load the data
+    for data_id in range(10):
+        qa_pair = data_dict[data_id]
+        scan_id = qa_pair['scene_id']#added by me 
+        pcd_path = os.path.join(pcd_root, scan_id + ".pth")
+        pcd_data = torch.load(pcd_path)
+        points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
+        colors = colors / 127.5 - 1
 
-    #     visualize_point_cloud_with_instances(points, colors, instance_labels, qa_pair['location'], qa_pair['orientation'], qa_pair['situation'])
+        visualize_point_cloud_with_instances(points, colors, instance_labels, qa_pair['location'], qa_pair['orientation'], qa_pair['situation'])
     
-    # # load MSNN data
+    # load MSNN data
     # root_dir = ""
     # data_dict = load_json(f"{root_dir}/msnn_scannet.json")
     # for scan_id, data in data_dict.items():
@@ -148,26 +149,29 @@ if __name__ == "__main__":
     #         visualize_point_cloud_with_instances(points, colors, instance_labels, item['location'], view_vector, item['situation'])
     
     # load SQA3D data
-    for data_id in range(10):
-        pcd_root = ""  # pcd_with_global_alignment
-        anno_path = ""  # v1_balanced_sqa_annotations_val_scannetv2.json
-        question_path = ""   # v1_balanced_questions_val_scannetv2.json
-        align_matrices_path = ""
-        align_matrices = torch.load(align_matrices_path)  # axisAlignment.pth
+    # for data_id in range(10):
+    #     pcd_root = ""  # pcd_with_global_alignment
+    #     anno_path = ""  # v1_balanced_sqa_annotations_val_scannetv2.json
+    #     question_path = ""   # v1_balanced_questions_val_scannetv2.json
+    #     align_matrices_path = ""
+    #     align_matrices = torch.load(align_matrices_path)  # axisAlignment.pth
         
-        data_dict = load_json(anno_path)
-        data_instance = data_dict['annotations'][data_id]
-        data_instance_question = load_json(question_path)['questions'][data_id]
-        situation = data_instance_question['situation']
+    #     data_dict = load_json(anno_path)
+    #     data_instance = data_dict['annotations'][data_id]
+    #     data_instance_question = load_json(question_path)['questions'][data_id]
+    #     situation = data_instance_question['situation']
         
-        scan_id = data_instance['scene_id']
-        pcd_path = os.path.join(pcd_root, scan_id + ".pth")
-        pcd_data = torch.load(pcd_path)
-        points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
-        scene_center = (points.max(0) + points.min(0)) / 2
-        colors = colors / 127.5 - 1
-        align_matrix = align_matrices[scan_id]
-        location, quaternion = align_situation(data_instance['position'], data_instance['rotation'], scene_center, align_matrix)
-        quaternion = np.array(quaternion)
-        view_vector = get_view_vector(quaternion)
-        visualize_point_cloud_with_instances(points, colors, instance_labels, location, view_vector, situation)
+    #     scan_id = data_instance['scene_id']
+    #     pcd_path = os.path.join(pcd_root, scan_id + ".pth")
+    #     pcd_data = torch.load(pcd_path)
+    #     points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
+    #     scene_center = (points.max(0) + points.min(0)) / 2
+    #     colors = colors / 127.5 - 1
+    #     align_matrix = align_matrices[scan_id]
+    #     #location, quaternion = align_situation(data_instance['position'], data_instance['rotation'], scene_center, align_matrix)
+    #     #quaternion = np.array(quaternion)
+    #     location = np.array(data_instance['location'])
+    #     orientation = np.array(data_instance['orientation'])
+    #     view_vector = orientation / np.linalg.norm(orientation)
+    #     #view_vector = get_view_vector(quaternion)
+    #     visualize_point_cloud_with_instances(points, colors, instance_labels, location, view_vector, situation)
