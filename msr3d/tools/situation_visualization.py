@@ -126,7 +126,7 @@ if __name__ == "__main__":
         qa_pair = data_dict[data_id]
         scan_id = qa_pair['scan_id']
         pcd_path = os.path.join(pcd_root, scan_id + ".pth")
-        pcd_data = torch.load(pcd_path)
+        pcd_data = torch.load(pcd_path, weights_only=False)
         points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
         colors = colors / 127.5 - 1
 
