@@ -24,7 +24,7 @@ debug:
 
 logger:
   name: "wandb" # was wandb
-  entity: "pdemet07"   # your wandb user name, must be set 
+  entity: "pdemet07-university-of-cyprus"   # your wandb user name, must be set 
 
 # Training details
 trainer: "LeoTrainer"
