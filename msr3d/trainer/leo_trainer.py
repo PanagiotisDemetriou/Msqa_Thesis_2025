@@ -148,27 +148,27 @@ class LeoTrainer(BaseTrainer):
                 print(f'Starting from scratch...', flush=True)
 
         # Misc (must put after resume)
-        #if not self.debug:
-        #    self.accelerator.init_trackers(
-        #            project_name=cfg.name,
-                    # FIXME(jxma): hard coded
-        #            config=dict(cfg),
-        #            init_kwargs={
-        #                "wandb": {
-        #                    "name": self.exp_tracker.exp_name, "entity": cfg.logger.entity,
-        #                    "id": self.exp_tracker.run_id, "resume": True
-        #                }
-        #            }
-        #        )
         if not self.debug:
-            self.accelerator.init_trackers(
-                project_name=self.cfg_raw.name,
-                config={},
-                # optional: pick where TB files go
-                init_kwargs={
-                    "tensorboard": {}
-                }
-            )
+           self.accelerator.init_trackers(
+                   project_name=cfg.name,
+                   #FIXME(jxma): hard coded
+                   config=dict(cfg),
+                   init_kwargs={
+                       "wandb": {
+                           "name": self.exp_tracker.exp_name, "entity": cfg.logger.entity,
+                           "id": self.exp_tracker.run_id, "resume": True
+                       }
+                   }
+               )
+        # if not self.debug:
+        #     self.accelerator.init_trackers(
+        #         project_name=self.cfg_raw.name,
+        #         config={},
+        #         # optional: pick where TB files go
+        #         init_kwargs={
+        #             "tensorboard": {}
+        #         }
+        #     )
     def forward(self, data_dict, inference=False):
         is_generation_mode = (self.inference_mode == 'generation')
         is_model_distributed = isinstance(self.model, torch.nn.parallel.DistributedDataParallel)

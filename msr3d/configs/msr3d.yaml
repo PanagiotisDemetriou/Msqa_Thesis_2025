@@ -1,6 +1,6 @@
 # Experiment general info
 name: MSR3D # this will be the project name of wandb
-note: BLIP_PTPNPP_VICUNA_TUNED # this will be the run name of wandb
+note: BLIP_PNPP_ViC_LORA_TUNED # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 1
@@ -23,8 +23,8 @@ debug:
   save_tensor_flag: False
 
 logger:
-  name: "tensorboard" # was wandb
-  entity: ""   # your wandb user name, must be set 
+  name: "wandb" # was wandb
+  entity: "pdemet07"   # your wandb user name, must be set 
 
 # Training details
 trainer: "LeoTrainer"
@@ -246,7 +246,7 @@ model:
     inference_mode: generation
     clip_fusion: False
     lora:
-      flag: False
+      flag: True
       rank: 16
       alpha: 16
       target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
