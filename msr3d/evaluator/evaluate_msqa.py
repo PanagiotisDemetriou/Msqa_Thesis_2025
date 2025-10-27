@@ -110,6 +110,7 @@ class MSQAEvaluator():
         statistic_dict = {'scannet': {}, 
                          'RScan': {},
                          'ARKitScenes': {}}
+        
         metric_type_list = ['em1', 'em1_strict']
         result_dict = {}
         file_tag = 'with_gpt_score' if self.cfg.gpt_score_flag else 'without_gpt_score'
