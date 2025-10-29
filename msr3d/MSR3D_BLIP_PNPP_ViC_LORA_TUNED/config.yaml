@@ -1,4 +1,4 @@
-"name: MSR3D\nnote: BLIP_PNPP_ViC_LORA_TUNED\nrng_seed: 42\nnum_gpu: 1\nmode: train\n\
+"name: MSR3D\nnote: BLIP_PNPP_ViC_LORA_TUNED\nrng_seed: 42\nnum_gpu: 2\nmode: train\n\
   naming_keywords:\n- note\nbase_dir: ''\nexp_dir: !!python/object/apply:pathlib.PosixPath\n\
   - MSR3D_BLIP_PNPP_ViC_LORA_TUNED\npretrain_ckpt_path: ''\nhf_hub_cache_dir: ''\n\
   resume: false\nsave_frequency: 10000\nckpt_path: ''\ndebug:\n  flag: false\n  debug_test:\
