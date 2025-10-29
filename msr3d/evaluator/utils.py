@@ -79,18 +79,19 @@ class EM_Evaluator():
         self.pred_sentence_mp = []
     
     def answer_match(self, pred, gts):
-        for gt in gts:
-            if pred == gt:
+        for gt in gts: # iterate over ground truths
+            if pred == gt: # exact match
                 return True
-            elif ''.join(pred.split()) in ''.join(gt.split()):
+            elif ''.join(pred.split()) in ''.join(gt.split()): # partial match
                 return True
-            elif ''.join(gt.split()) in ''.join(pred.split()):
+            elif ''.join(gt.split()) in ''.join(pred.split()): # partial match
                 return True
+        # so it checks for exact match and if a part of pediction is in ground truth or vice versa
         return False
 
     def answer_match_strict(self, pred, gts):
         for gt in gts:
-            if pred == gt:
+            if pred == gt: # exact match only 
                 return True
         return False
     
@@ -99,17 +100,17 @@ class EM_Evaluator():
         results_dict = {}
         ## EM@1
         correct1 = 0
-        answer_pred = clean_answer(answer_pred)
+        answer_pred = clean_answer(answer_pred) # clean predicted answer => lowercase, remove punctuation, fix common typos, etc
         answer_gts = [clean_answer(a) for a in answer_gts]
         if self.answer_match(pred=answer_pred, gts=answer_gts):
-            correct1 += 1
+            correct1 += 1 # if partialy matches increment correct
         
         ## EM strict
         correct_strict = 0
         answer_pred = clean_answer(answer_pred)
         answer_gts = [clean_answer(a) for a in answer_gts]
         if self.answer_match_strict(pred=answer_pred, gts=answer_gts):
-            correct_strict += 1
+            correct_strict += 1 # if exactly matches increment correct
 
         results_dict['em1'] = correct1
         results_dict['em1_strict'] = correct_strict
