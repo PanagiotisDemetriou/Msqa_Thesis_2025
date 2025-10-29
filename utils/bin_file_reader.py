@@ -1,6 +1,6 @@
 import torch
 
-path='/lustreFS/data/vcg/data/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIP_PNPP_ViC_LORA_TUNED/best.pth/pytorch_model.bin'
+path='../msr3d/MSR3D_BLIP_PNPP_ViC_LORA_TUNED/best.pth/pytorch_model.bin'
 # Load the weights
 model_data = torch.load(path, map_location='cpu')
 
