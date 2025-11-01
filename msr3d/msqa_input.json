@@ -10,7 +10,7 @@
       "index": 25
     },
     {
-      "response_pred": "the kitchen cabinet is to the right of the microwave.",
+      "response_pred": "the kitchen cabinet is next to the microwave.",
       "response_gt": [
         "the microwave is placed within the area of the kitchen cabinet."
       ],
@@ -109,7 +109,7 @@
       "index": 103
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -154,7 +154,7 @@
       "index": 90
     },
     {
-      "response_pred": "cylindrical",
+      "response_pred": "cylindrical with a lid",
       "response_gt": [
         "lid on top of base, foot pedal"
       ],
@@ -163,7 +163,7 @@
       "index": 202
     },
     {
-      "response_pred": "it's at your 12 o'clock direction.",
+      "response_pred": "at your 5 o'clock",
       "response_gt": [
         "the bathroom vanity is at your 2 o'clock."
       ],
@@ -190,7 +190,7 @@
       "index": 211
     },
     {
-      "response_pred": "the bottle is higher than the soap dish.",
+      "response_pred": "the bottle is below the soap dish.",
       "response_gt": [
         "the bottle is lower than the soap dish and placed within the area of the shower."
       ],
@@ -208,7 +208,7 @@
       "index": 260
     },
     {
-      "response_pred": "the bottle is higher than the soap dish.",
+      "response_pred": "the soap dish is below the bottle.",
       "response_gt": [
         "the bottle is below the soap dish."
       ],
@@ -235,7 +235,7 @@
       "index": 291
     },
     {
-      "response_pred": "the bathtub is higher than the shower curtain rod.",
+      "response_pred": "the shower curtain rod is above the bathtub.",
       "response_gt": [
         "the bathtub is below the shower curtain rod."
       ],
@@ -244,7 +244,7 @@
       "index": 275
     },
     {
-      "response_pred": "the towel is lower than the bathtub.",
+      "response_pred": "the towel is below the bathtub.",
       "response_gt": [
         "the towel is higher than the bathtub."
       ],
@@ -253,7 +253,7 @@
       "index": 295
     },
     {
-      "response_pred": "the sink is higher than the soap dispenser.",
+      "response_pred": "the soap dispenser is below the sink.",
       "response_gt": [
         "the soap dispenser is placed on the bathroom cabinet, which contains the sink."
       ],
@@ -289,7 +289,7 @@
       "index": 322
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn left and walk to the middle distance.",
       "response_gt": [
         "turn right and walk to the middle distance."
       ],
@@ -298,7 +298,7 @@
       "index": 328
     },
     {
-      "response_pred": "the mirror is higher than the bathroom vanity.",
+      "response_pred": "the mirror is supported by the bathroom vanity.",
       "response_gt": [
         "the mirror is on the top of the bathroom vanity."
       ],
@@ -325,7 +325,7 @@
       "index": 380
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn left and walk to the middle distance.",
       "response_gt": [
         "turn left and walk to the near distance."
       ],
@@ -343,7 +343,7 @@
       "index": 370
     },
     {
-      "response_pred": "turn to your left and walk a short distance.",
+      "response_pred": "turn left and walk to the near distance.",
       "response_gt": [
         "turn left and walk to the middle distance."
       ],
@@ -370,7 +370,7 @@
       "index": 455
     },
     {
-      "response_pred": "the chair is in front of the cabinets.",
+      "response_pred": "the chair is behind the cabinets.",
       "response_gt": [
         "the chair is in front of the cabinets."
       ],
@@ -388,7 +388,7 @@
       "index": 472
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn to your right.",
       "response_gt": [
         "turn to your right and walk a short distance."
       ],
@@ -406,7 +406,7 @@
       "index": 459
     },
     {
-      "response_pred": "a chair, a table, and a wall",
+      "response_pred": "a table, a chair, and a trash can",
       "response_gt": [
         "a copier, a broom, cabinets, chairs, a paper cutter, trash cans, and paper"
       ],
@@ -433,7 +433,7 @@
       "index": 456
     },
     {
-      "response_pred": "it's a black jacket made of fabric, worn for warmth and protection.",
+      "response_pred": "it's a black jacket made of fabric, worn by the person.",
       "response_gt": [
         "it's a black jacket made of textile with a smooth texture and quilted sections. it's zippered with a collar and currently draped."
       ],
@@ -478,7 +478,7 @@
       "index": 555
     },
     {
-      "response_pred": "the safety sign is at your 3 o'clock.",
+      "response_pred": "the safety sign is at your 2 o'clock.",
       "response_gt": [
         "at your 3 o'clock"
       ],
@@ -487,7 +487,7 @@
       "index": 576
     },
     {
-      "response_pred": "the rail is higher than the toilet.",
+      "response_pred": "the rail is to the right of the toilet.",
       "response_gt": [
         "the rail is above the toilet."
       ],
@@ -505,7 +505,7 @@
       "index": 530
     },
     {
-      "response_pred": "the toilet paper is placed within the area of the rail.",
+      "response_pred": "the toilet paper is below the rail.",
       "response_gt": [
         "the toilet paper is placed within the area of the rail."
       ],
@@ -523,7 +523,7 @@
       "index": 687
     },
     {
-      "response_pred": "a shelf, a plant, and a wall",
+      "response_pred": "a shelf, a wall, and a window",
       "response_gt": [
         "a floor, a bookshelf, a cabinet, and another cabinet"
       ],
@@ -541,7 +541,7 @@
       "index": 629
     },
     {
-      "response_pred": "a monitor, a keyboard, and a backpack",
+      "response_pred": "a monitor, a backpack, and a cabinet",
       "response_gt": [
         "a floor, monitors, desks, a telephone, a window, plants, a cabinet, and a keyboard"
       ],
@@ -586,7 +586,7 @@
       "index": 637
     },
     {
-      "response_pred": "it's at your 12 o'clock direction.",
+      "response_pred": "the chair is at your 1 o'clock.",
       "response_gt": [
         "the chair is at your 2 o'clock."
       ],
@@ -604,7 +604,7 @@
       "index": 698
     },
     {
-      "response_pred": "it's a brown couch with a rectangular prism shape, made of fabric and upholstery, designed for seating, with a smooth texture, and it's in use.",
+      "response_pred": "it's a brown couch made of fabric and leather. it's upholstered and has four legs, armrests, and a reclined backrest. it's used for seating and resting.",
       "response_gt": [
         "it's a black couch with yellow and orange pillows, made of fabric upholstery, designed for seating, with a smooth texture, cushioned with armrests, and it's in use."
       ],
@@ -658,7 +658,7 @@
       "index": 747
     },
     {
-      "response_pred": "the bathtub is lower than the toilet.",
+      "response_pred": "the bathtub is behind the toilet.",
       "response_gt": [
         "the bathtub is below and to the left of the toilet."
       ],
@@ -676,7 +676,7 @@
       "index": 763
     },
     {
-      "response_pred": "a wall, a door, and a picture",
+      "response_pred": "a towel and a picture with a grilled structure are located at your 11 o'clock.",
       "response_gt": [
         "a floor, a doorframe, and a wall"
       ],
@@ -685,7 +685,7 @@
       "index": 728
     },
     {
-      "response_pred": "the towel is inside the bathtub.",
+      "response_pred": "the towel is above the bathtub.",
       "response_gt": [
         "the towel is above the bathtub."
       ],
@@ -694,7 +694,7 @@
       "index": 770
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 10 o'clock",
       "response_gt": [
         "at your 5 o'clock"
       ],
@@ -712,7 +712,7 @@
       "index": 752
     },
     {
-      "response_pred": "the shelf is above the couch.",
+      "response_pred": "the shelf is below the couch.",
       "response_gt": [
         "the shelf is above the couch."
       ],
@@ -721,7 +721,7 @@
       "index": 838
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "no"
       ],
@@ -739,7 +739,7 @@
       "index": 805
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "no"
       ],
@@ -748,7 +748,7 @@
       "index": 851
     },
     {
-      "response_pred": "the pillow is placed within the area of the couch.",
+      "response_pred": "the pillow is supported by the couch.",
       "response_gt": [
         "the pillow is placed within the area of the couch."
       ],
@@ -757,7 +757,7 @@
       "index": 869
     },
     {
-      "response_pred": "the book is placed within the area of the blanket.",
+      "response_pred": "the book is to the right of the blanket.",
       "response_gt": [
         "the book is placed within the area of the blanket."
       ],
@@ -784,7 +784,7 @@
       "index": 878
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 5 o'clock",
       "response_gt": [
         "it's at your 2 o'clock direction."
       ],
@@ -802,7 +802,7 @@
       "index": 886
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 1 o'clock",
       "response_gt": [
         "at your 2 o'clock"
       ],
@@ -811,7 +811,7 @@
       "index": 795
     },
     {
-      "response_pred": "glass and plastic",
+      "response_pred": "glass, plastic",
       "response_gt": [
         "plastic, and ceramic"
       ],
@@ -820,7 +820,7 @@
       "index": 867
     },
     {
-      "response_pred": "white and soft",
+      "response_pred": "white, smooth",
       "response_gt": [
         "white and smooth"
       ],
@@ -838,7 +838,7 @@
       "index": 877
     },
     {
-      "response_pred": "it's at your 8 o'clock direction.",
+      "response_pred": "the soap dispenser is at your 6 o'clock.",
       "response_gt": [
         "the soap dispenser is at your 10 o'clock."
       ],
@@ -865,7 +865,7 @@
       "index": 927
     },
     {
-      "response_pred": "the backpack is placed on the chair.",
+      "response_pred": "the backpack is in front of the chair.",
       "response_gt": [
         "the backpack is placed within the area of the chair."
       ],
@@ -874,7 +874,7 @@
       "index": 996
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is to the right of the table.",
       "response_gt": [
         "the chair is close to the table."
       ],
@@ -883,7 +883,7 @@
       "index": 1038
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -919,7 +919,7 @@
       "index": 968
     },
     {
-      "response_pred": "turn to your left and look for a door.",
+      "response_pred": "turn to your left.",
       "response_gt": [
         "turn to your left and walk a short distance."
       ],
@@ -946,7 +946,7 @@
       "index": 1019
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn to your right.",
       "response_gt": [
         "turn right and walk to the middle distance."
       ],
@@ -955,7 +955,7 @@
       "index": 1029
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 1 o'clock",
       "response_gt": [
         "at your 6 o'clock"
       ],
@@ -964,7 +964,7 @@
       "index": 957
     },
     {
-      "response_pred": "four-legged",
+      "response_pred": "upholstered",
       "response_gt": [
         "four legs, a backrest, horizontal seat"
       ],
@@ -1018,7 +1018,7 @@
       "index": 1163
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "a living room or lounge area",
       "response_gt": [
         "an office or study area"
       ],
@@ -1027,7 +1027,7 @@
       "index": 1074
     },
     {
-      "response_pred": "the picture is above the table.",
+      "response_pred": "the table is to the right of the picture.",
       "response_gt": [
         "the table is below the picture."
       ],
@@ -1054,7 +1054,7 @@
       "index": 1078
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -1081,7 +1081,7 @@
       "index": 1085
     },
     {
-      "response_pred": "white",
+      "response_pred": "black and white",
       "response_gt": [
         "brown"
       ],
@@ -1090,7 +1090,7 @@
       "index": 1143
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn left and walk to the middle distance.",
       "response_gt": [
         "turn right and walk to the middle distance."
       ],
@@ -1099,7 +1099,7 @@
       "index": 1190
     },
     {
-      "response_pred": "intact",
+      "response_pred": "closed",
       "response_gt": [
         "closed"
       ],
@@ -1126,7 +1126,7 @@
       "index": 1260
     },
     {
-      "response_pred": "the chair is at your 8 o'clock.",
+      "response_pred": "the chair is at your 7 o'clock.",
       "response_gt": [
         "the chair is at your 8 o'clock."
       ],
@@ -1144,7 +1144,7 @@
       "index": 1230
     },
     {
-      "response_pred": "the shoes are lower than the clothes.",
+      "response_pred": "the shoes are to the right of the clothes.",
       "response_gt": [
         "the shoes are lower than the clothes."
       ],
@@ -1153,7 +1153,7 @@
       "index": 1217
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "the trash can is at your 3 o'clock.",
       "response_gt": [
         "the trash cans are at your 11 o'clock."
       ],
@@ -1171,7 +1171,7 @@
       "index": 1241
     },
     {
-      "response_pred": "four-legged, with a drawer and shelves",
+      "response_pred": "solid",
       "response_gt": [
         "box with a drawer"
       ],
@@ -1180,7 +1180,7 @@
       "index": 1250
     },
     {
-      "response_pred": "the backpack is in front of the trash can.",
+      "response_pred": "the backpack is behind the trash can.",
       "response_gt": [
         "the backpack is behind the trash can."
       ],
@@ -1207,7 +1207,7 @@
       "index": 1339
     },
     {
-      "response_pred": "it's a white ceramic sink with a smooth texture, made of ceramic, used for washing, and it's intact.",
+      "response_pred": "it's a white ceramic sink with a smooth texture, used for washing, and it's intact.",
       "response_gt": [
         "it's a white sink with a rectangular shape and concave basin, made of ceramic or porcelain, with a smooth texture, designed as a sink for washing, and it's clean, with a single basin and faucet."
       ],
@@ -1216,7 +1216,7 @@
       "index": 1280
     },
     {
-      "response_pred": "plastic and metal",
+      "response_pred": "plastic, metal",
       "response_gt": [
         "plastic, and metal"
       ],
@@ -1252,7 +1252,7 @@
       "index": 1343
     },
     {
-      "response_pred": "the sink is lower than the mirror.",
+      "response_pred": "the mirror is above the sink.",
       "response_gt": [
         "the mirror is higher than the sink."
       ],
@@ -1315,7 +1315,7 @@
       "index": 1438
     },
     {
-      "response_pred": "turn around and walk to the middle distance.",
+      "response_pred": "turn around and walk to the far distance.",
       "response_gt": [
         "turn around and walk to the middle distance."
       ],
@@ -1324,7 +1324,7 @@
       "index": 1413
     },
     {
-      "response_pred": "it's a trash can made of metal with a smooth texture, used for waste disposal, and it's in good condition.",
+      "response_pred": "it's a white trash can with a smooth texture, used for waste disposal, and it's upright.",
       "response_gt": [
         "it's a beige cylindrical-shaped trash can made of plastic, with a smooth texture and an open-top structure, currently upright."
       ],
@@ -1333,7 +1333,7 @@
       "index": 1436
     },
     {
-      "response_pred": "it's a brown nightstand made of wood, with a rectangular prism shape, smooth texture, and is currently in use.",
+      "response_pred": "it's a brown nightstand made of wood with a smooth texture, used for storage, and it's intact.",
       "response_gt": [
         "it's a black nightstand with a rectangular prism shape made of wood, used as furniture, with a smooth texture, and it's in use with items on it."
       ],
@@ -1351,7 +1351,7 @@
       "index": 1482
     },
     {
-      "response_pred": "the nightstand is to the right of the lamp.",
+      "response_pred": "the nightstand supports the lamp.",
       "response_gt": [
         "the lamp is below the nightstand."
       ],
@@ -1414,7 +1414,7 @@
       "index": 1494
     },
     {
-      "response_pred": "the office chair is to the right of the desk.",
+      "response_pred": "the office chair is next to the desk.",
       "response_gt": [
         "the office chair is placed within the area of the desk."
       ],
@@ -1423,7 +1423,7 @@
       "index": 1484
     },
     {
-      "response_pred": "it's at your 8 o'clock direction.",
+      "response_pred": "it's at your 7 o'clock direction.",
       "response_gt": [
         "it's at your 9 o'clock direction."
       ],
@@ -1441,7 +1441,7 @@
       "index": 1448
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn left and walk to the middle distance.",
       "response_gt": [
         "turn right and walk a short distance."
       ],
@@ -1450,7 +1450,7 @@
       "index": 1456
     },
     {
-      "response_pred": "it's a white rectangular prism-shaped sink made of ceramic, used for washing clothes or dishes, with a smooth texture, and it's in use.",
+      "response_pred": "it's a white rectangular prism-shaped sink made of ceramic, used for washing, with a smooth texture and a clean appearance.",
       "response_gt": [
         "it's a white ceramic sink used for washing. it has a smooth texture and an integrated basin with a countertop."
       ],
@@ -1459,7 +1459,7 @@
       "index": 1503
     },
     {
-      "response_pred": "white and textured",
+      "response_pred": "white, smooth",
       "response_gt": [
         "white, soft, possibly with a wavy pattern"
       ],
@@ -1468,7 +1468,7 @@
       "index": 1634
     },
     {
-      "response_pred": "the backpack is placed within the area of the ottoman.",
+      "response_pred": "the backpack is placed on the ottoman.",
       "response_gt": [
         "the backpack is behind the ottoman."
       ],
@@ -1504,7 +1504,7 @@
       "index": 1638
     },
     {
-      "response_pred": "the backpack is to the left of the chair.",
+      "response_pred": "the backpack is behind the chair.",
       "response_gt": [
         "the backpack is adjacent to the chair."
       ],
@@ -1513,7 +1513,7 @@
       "index": 1609
     },
     {
-      "response_pred": "the bag is placed within the area of the shoes.",
+      "response_pred": "the bag is above the shoes.",
       "response_gt": [
         "the bag is beside the shoes."
       ],
@@ -1558,7 +1558,7 @@
       "index": 1659
     },
     {
-      "response_pred": "plastic and metal",
+      "response_pred": "plastic",
       "response_gt": [
         "plastic, and plastic"
       ],
@@ -1567,7 +1567,7 @@
       "index": 1623
     },
     {
-      "response_pred": "in use",
+      "response_pred": "off",
       "response_gt": [
         "on"
       ],
@@ -1576,7 +1576,7 @@
       "index": 1593
     },
     {
-      "response_pred": "the backpack is placed within the area of the nightstand.",
+      "response_pred": "the backpack is to the right of the nightstand.",
       "response_gt": [
         "the backpack is to the left of the nightstand."
       ],
@@ -1603,7 +1603,7 @@
       "index": 1551
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or workspace"
       ],
@@ -1612,7 +1612,7 @@
       "index": 1951
     },
     {
-      "response_pred": "the monitor is on the desk.",
+      "response_pred": "the monitor is supported by the desk.",
       "response_gt": [
         "the monitor is resting on the desk."
       ],
@@ -1621,7 +1621,7 @@
       "index": 1815
     },
     {
-      "response_pred": "turn to your left and walk a short distance.",
+      "response_pred": "turn left and walk to the far distance.",
       "response_gt": [
         "turn left and walk to the near distance."
       ],
@@ -1639,7 +1639,7 @@
       "index": 1840
     },
     {
-      "response_pred": "rectangular with drawers",
+      "response_pred": "rectangular with drawers and shelves",
       "response_gt": [
         "horizontal top with vertical supports"
       ],
@@ -1648,7 +1648,7 @@
       "index": 1839
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or workspace"
       ],
@@ -1657,7 +1657,7 @@
       "index": 1727
     },
     {
-      "response_pred": "turn left and walk to the middle distance.",
+      "response_pred": "turn left and walk to the far distance.",
       "response_gt": [
         "turn to your left and walk to the far distance."
       ],
@@ -1666,7 +1666,7 @@
       "index": 1763
     },
     {
-      "response_pred": "the desk is in front of the computer tower.",
+      "response_pred": "the computer tower is in front of the desk.",
       "response_gt": [
         "the computer tower is inside the desk."
       ],
@@ -1675,7 +1675,7 @@
       "index": 1901
     },
     {
-      "response_pred": "plastic",
+      "response_pred": "wood",
       "response_gt": [
         "plastic/metal"
       ],
@@ -1684,7 +1684,7 @@
       "index": 1740
     },
     {
-      "response_pred": "the office chair is placed within the area of the desk.",
+      "response_pred": "the office chair is next to the desk.",
       "response_gt": [
         "the office chair supports the desk."
       ],
@@ -1693,7 +1693,7 @@
       "index": 1739
     },
     {
-      "response_pred": "the monitor is on the desk.",
+      "response_pred": "the monitor is on the top of the desk.",
       "response_gt": [
         "the monitor is supported by the desk."
       ],
@@ -1711,7 +1711,7 @@
       "index": 1713
     },
     {
-      "response_pred": "the trash can is to the right of the desk.",
+      "response_pred": "the trash can is behind the desk.",
       "response_gt": [
         "the trash can is in front of the desk."
       ],
@@ -1720,7 +1720,7 @@
       "index": 1862
     },
     {
-      "response_pred": "the file cabinet is placed within the area of the desk.",
+      "response_pred": "the file cabinet is behind the desk.",
       "response_gt": [
         "the file cabinet is to the left of the desk."
       ],
@@ -1729,7 +1729,7 @@
       "index": 1895
     },
     {
-      "response_pred": "flat surface with drawers and shelves",
+      "response_pred": "rectangular with drawers and shelves",
       "response_gt": [
         "flat surface with legs"
       ],
@@ -1738,7 +1738,7 @@
       "index": 1831
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or workspace"
       ],
@@ -1747,7 +1747,7 @@
       "index": 1858
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "it's at your 7 o'clock direction.",
       "response_gt": [
         "the board is at your 10 o'clock."
       ],
@@ -1756,7 +1756,7 @@
       "index": 1851
     },
     {
-      "response_pred": "plastic and metal",
+      "response_pred": "plastic",
       "response_gt": [
         "fabric and metal"
       ],
@@ -1783,7 +1783,7 @@
       "index": 1866
     },
     {
-      "response_pred": "plastic and metal",
+      "response_pred": "plastic, wood",
       "response_gt": [
         "plastic, and fabric and plastic/metal"
       ],
@@ -1801,7 +1801,7 @@
       "index": 1821
     },
     {
-      "response_pred": "the door has a rectangular prism shape and is made of wood, metal, and glass. it appears to be in good condition.",
+      "response_pred": "it's a rectangular door made of wood and metal.",
       "response_gt": [
         "it is a rectangular prism with a semi-open or fixed state, possibly made of wood and metal."
       ],
@@ -1819,7 +1819,7 @@
       "index": 1824
     },
     {
-      "response_pred": "the monitor is placed within the area of the plant.",
+      "response_pred": "the monitor is higher than the plant.",
       "response_gt": [
         "the monitor is beside the plant."
       ],
@@ -1846,7 +1846,7 @@
       "index": 1993
     },
     {
-      "response_pred": "it's a black chair made of fabric and plastic, with a smooth texture and rectangular prism shape, designed for seating, with a soft cushioned seat and backrest, and it's intact.",
+      "response_pred": "it's a white chair made of fabric and metal, used for sitting, with a rectangular prism shape, smooth texture, and adjustable height.",
       "response_gt": [
         "it's a black chair with a chair-shaped 3d shape, made of plastic/fabric & metal, with a smooth and textured texture, designed for sitting, with a 4-legged structure, backrest, and armrests, and it's intact."
       ],
@@ -1864,7 +1864,7 @@
       "index": 1989
     },
     {
-      "response_pred": "fabric",
+      "response_pred": "ceramic or porcelain",
       "response_gt": [
         "organic"
       ],
@@ -1891,7 +1891,7 @@
       "index": 1995
     },
     {
-      "response_pred": "seven",
+      "response_pred": "nine",
       "response_gt": [
         "one"
       ],
@@ -1909,7 +1909,7 @@
       "index": 2034
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn right and walk to the near distance.",
       "response_gt": [
         "turn right and walk to the middle distance."
       ],
@@ -1918,7 +1918,7 @@
       "index": 2085
     },
     {
-      "response_pred": "the towel is higher than the bucket.",
+      "response_pred": "the towel is below the bucket.",
       "response_gt": [
         "the towel is higher than the bucket."
       ],
@@ -1927,7 +1927,7 @@
       "index": 2053
     },
     {
-      "response_pred": "the tray is lower than the shelf.",
+      "response_pred": "the tray is supported by the shelf.",
       "response_gt": [
         "the tray is below the shelf."
       ],
@@ -1936,7 +1936,7 @@
       "index": 2084
     },
     {
-      "response_pred": "the tray is lower than the shelf.",
+      "response_pred": "the tray is supported by the shelf.",
       "response_gt": [
         "the tray is below the shelf."
       ],
@@ -1945,7 +1945,7 @@
       "index": 2046
     },
     {
-      "response_pred": "six",
+      "response_pred": "four",
       "response_gt": [
         "eight"
       ],
@@ -1954,7 +1954,7 @@
       "index": 2072
     },
     {
-      "response_pred": "the mirror is supported by the nightstand.",
+      "response_pred": "the mirror is above the nightstand.",
       "response_gt": [
         "the mirror is placed on the cabinet."
       ],
@@ -1963,7 +1963,7 @@
       "index": 2207
     },
     {
-      "response_pred": "brown, beige",
+      "response_pred": "dark brown",
       "response_gt": [
         "multicolored, predominantly dark shades, and black"
       ],
@@ -1972,7 +1972,7 @@
       "index": 2219
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "six"
       ],
@@ -1990,7 +1990,7 @@
       "index": 2223
     },
     {
-      "response_pred": "the chair is placed within the area of the cabinet.",
+      "response_pred": "the chair is to the right of the cabinet.",
       "response_gt": [
         "the chair is to the right of the cabinet."
       ],
@@ -1999,7 +1999,7 @@
       "index": 2240
     },
     {
-      "response_pred": "the chair is in front of the cabinet.",
+      "response_pred": "the chair is behind the cabinet.",
       "response_gt": [
         "the chair is in front of the cabinet."
       ],
@@ -2008,7 +2008,7 @@
       "index": 2204
     },
     {
-      "response_pred": "it's at your 8 o'clock direction.",
+      "response_pred": "the mirror is at your 7 o'clock.",
       "response_gt": [
         "the mirror is at your 6 o'clock."
       ],
@@ -2026,7 +2026,7 @@
       "index": 2195
     },
     {
-      "response_pred": "at your 8 o'clock",
+      "response_pred": "at your 6 o'clock",
       "response_gt": [
         "at your 6 o'clock"
       ],
@@ -2044,7 +2044,7 @@
       "index": 2148
     },
     {
-      "response_pred": "brown",
+      "response_pred": "beige",
       "response_gt": [
         "brown"
       ],
@@ -2071,7 +2071,7 @@
       "index": 2174
     },
     {
-      "response_pred": "the bed is higher than the chair.",
+      "response_pred": "the chair is to the right of the bed.",
       "response_gt": [
         "the bed is to the left of the chair."
       ],
@@ -2089,7 +2089,7 @@
       "index": 2282
     },
     {
-      "response_pred": "the printer is placed within the area of the cabinet.",
+      "response_pred": "the printer is behind the cabinet.",
       "response_gt": [
         "the printer is placed on the cabinet."
       ],
@@ -2107,7 +2107,7 @@
       "index": 2242
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn to your right.",
       "response_gt": [
         "turn to your right and walk to the far distance."
       ],
@@ -2125,7 +2125,7 @@
       "index": 2318
     },
     {
-      "response_pred": "the mailboxes are higher than the cabinet.",
+      "response_pred": "the mailbox is next to the cabinet.",
       "response_gt": [
         "the mailboxes are placed on the cabinet."
       ],
@@ -2152,7 +2152,7 @@
       "index": 2326
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn to your right.",
       "response_gt": [
         "turn to your right and walk to the far distance."
       ],
@@ -2161,7 +2161,7 @@
       "index": 2286
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "the cup is at your 12 o'clock."
       ],
@@ -2188,7 +2188,7 @@
       "index": 2410
     },
     {
-      "response_pred": "the roomba is on the top of the couch.",
+      "response_pred": "the roomba is behind the couch.",
       "response_gt": [
         "the roomba is behind the couch."
       ],
@@ -2233,7 +2233,7 @@
       "index": 2352
     },
     {
-      "response_pred": "multiple panels with hinges",
+      "response_pred": "solid",
       "response_gt": [
         "double door with panels"
       ],
@@ -2251,7 +2251,7 @@
       "index": 2409
     },
     {
-      "response_pred": "the vacuum cleaner is at your 12 o'clock.",
+      "response_pred": "the vacuum cleaner is at your 10 o'clock.",
       "response_gt": [
         "the roomba is at your 11 o'clock."
       ],
@@ -2260,7 +2260,7 @@
       "index": 2390
     },
     {
-      "response_pred": "flat surface with drawers and shelves",
+      "response_pred": "solid",
       "response_gt": [
         "horizontal surface with drawers/storage"
       ],
@@ -2278,7 +2278,7 @@
       "index": 2516
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 10 o'clock",
       "response_gt": [
         "at your 12 o'clock"
       ],
@@ -2287,7 +2287,7 @@
       "index": 2484
     },
     {
-      "response_pred": "at your 8 o'clock",
+      "response_pred": "at your 6 o'clock",
       "response_gt": [
         "at your 8 o'clock"
       ],
@@ -2305,7 +2305,7 @@
       "index": 2541
     },
     {
-      "response_pred": "the trash can is placed within the area of the desk.",
+      "response_pred": "the trash can is behind the desk.",
       "response_gt": [
         "the trash can is inside the desk."
       ],
@@ -2323,7 +2323,7 @@
       "index": 2547
     },
     {
-      "response_pred": "hinged",
+      "response_pred": "solid",
       "response_gt": [
         "single-panel with handle"
       ],
@@ -2332,7 +2332,7 @@
       "index": 2535
     },
     {
-      "response_pred": "at your 8 o'clock",
+      "response_pred": "at your 10 o'clock",
       "response_gt": [
         "at your 12 o'clock"
       ],
@@ -2341,7 +2341,7 @@
       "index": 2465
     },
     {
-      "response_pred": "it's a black rectangular prism-shaped keyboard made of plastic and metal, used for typing.",
+      "response_pred": "it's a black rectangular prism-shaped keyboard made of plastic, used for typing, with a smooth texture, and it's in use.",
       "response_gt": [
         "it's a white keyboard with a rectangular prism shape, made of plastic, used as an input device for computers, with smooth keys and slight texture, and it's intact with some visible wear."
       ],
@@ -2350,7 +2350,7 @@
       "index": 2522
     },
     {
-      "response_pred": "walk straight ahead to the middle distance.",
+      "response_pred": "turn to your right and walk a short distance.",
       "response_gt": [
         "turn right and walk to the far distance."
       ],
@@ -2395,7 +2395,7 @@
       "index": 2600
     },
     {
-      "response_pred": "the toilet paper is inside the toilet.",
+      "response_pred": "the toilet paper is below the toilet.",
       "response_gt": [
         "the toilet paper is partially unrolled."
       ],
@@ -2413,7 +2413,7 @@
       "index": 2628
     },
     {
-      "response_pred": "the toilet paper is inside the toilet.",
+      "response_pred": "the toilet paper is placed within the area of the toilet.",
       "response_gt": [
         "the toilet paper is partially unrolled and likely near the toilet."
       ],
@@ -2431,7 +2431,7 @@
       "index": 2602
     },
     {
-      "response_pred": "rotated 90 degrees",
+      "response_pred": "knob and handle",
       "response_gt": [
         "higher than the bathtub"
       ],
@@ -2440,7 +2440,7 @@
       "index": 2630
     },
     {
-      "response_pred": "it's a white rectangular prism-shaped object made of paper, used for cleaning and hygiene.",
+      "response_pred": "the toilet paper is white and rectangular in shape, made of paper, with a smooth texture. it's currently rolled up.",
       "response_gt": [
         "the toilet paper is white, cylindrical, made of paper, and partially unrolled."
       ],
@@ -2449,7 +2449,7 @@
       "index": 2610
     },
     {
-      "response_pred": "the towel is placed within the area of the bathtub.",
+      "response_pred": "the towel is below the bathtub.",
       "response_gt": [
         "the towel is resting on the bathtub."
       ],
@@ -2458,7 +2458,7 @@
       "index": 2638
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "a study room or office"
       ],
@@ -2476,7 +2476,7 @@
       "index": 2660
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 7 o'clock direction.",
       "response_gt": [
         "the book is at your 7 o'clock."
       ],
@@ -2485,7 +2485,7 @@
       "index": 2763
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "a study room or office"
       ],
@@ -2503,7 +2503,7 @@
       "index": 2687
     },
     {
-      "response_pred": "a desk",
+      "response_pred": "a computer",
       "response_gt": [
         "objects"
       ],
@@ -2521,7 +2521,7 @@
       "index": 2739
     },
     {
-      "response_pred": "the desk is in front of the shelf.",
+      "response_pred": "the desk is behind the shelf.",
       "response_gt": [
         "the desk is behind the shelf."
       ],
@@ -2557,7 +2557,7 @@
       "index": 2757
     },
     {
-      "response_pred": "turn around and walk to the near distance.",
+      "response_pred": "turn around and walk to the middle distance.",
       "response_gt": [
         "turn around and walk to the near distance."
       ],
@@ -2566,7 +2566,7 @@
       "index": 2760
     },
     {
-      "response_pred": "the picture is supported by the shelf.",
+      "response_pred": "the picture is resting on the shelf.",
       "response_gt": [
         "the picture is resting on the shelf."
       ],
@@ -2593,7 +2593,7 @@
       "index": 2692
     },
     {
-      "response_pred": "the computer",
+      "response_pred": "the computer and the monitor are in use on your right.",
       "response_gt": [
         "the chair."
       ],
@@ -2602,7 +2602,7 @@
       "index": 2705
     },
     {
-      "response_pred": "black and gray",
+      "response_pred": "brown, black and gray",
       "response_gt": [
         "red and black, black and gray"
       ],
@@ -2611,7 +2611,7 @@
       "index": 2714
     },
     {
-      "response_pred": "a chair, a table, and a wall",
+      "response_pred": "a table, a chair, and a wall",
       "response_gt": [
         "a wall, a floor, a chair, a jacket, a picture, and an object"
       ],
@@ -2647,7 +2647,7 @@
       "index": 2827
     },
     {
-      "response_pred": "nine",
+      "response_pred": "ten",
       "response_gt": [
         "twelve"
       ],
@@ -2674,7 +2674,7 @@
       "index": 2919
     },
     {
-      "response_pred": "the trash can is placed within the area of the chair.",
+      "response_pred": "the trash can is to the right of the chair.",
       "response_gt": [
         "the chair is behind the trash can."
       ],
@@ -2683,7 +2683,7 @@
       "index": 2904
     },
     {
-      "response_pred": "multiple drawers and shelves",
+      "response_pred": "closed cabinet with drawers and shelves",
       "response_gt": [
         "four-drawer"
       ],
@@ -2692,7 +2692,7 @@
       "index": 2841
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "two"
       ],
@@ -2737,7 +2737,7 @@
       "index": 2853
     },
     {
-      "response_pred": "the clock is at your 12 o'clock.",
+      "response_pred": "the clock is at your 1 o'clock.",
       "response_gt": [
         "the clock is at your 10 o'clock."
       ],
@@ -2755,7 +2755,7 @@
       "index": 2861
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or study room"
       ],
@@ -2782,7 +2782,7 @@
       "index": 2867
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "a kitchen or dining area",
       "response_gt": [
         "an office or study room"
       ],
@@ -2791,7 +2791,7 @@
       "index": 2803
     },
     {
-      "response_pred": "in use",
+      "response_pred": "intact",
       "response_gt": [
         "closed"
       ],
@@ -2872,7 +2872,7 @@
       "index": 3014
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -2944,7 +2944,7 @@
       "index": 3067
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 3 o'clock direction.",
       "response_gt": [
         "it's at your 3 o'clock direction."
       ],
@@ -2953,7 +2953,7 @@
       "index": 3079
     },
     {
-      "response_pred": "a chair, a table, and a wall",
+      "response_pred": "a chair, a table, and a cabinet",
       "response_gt": [
         "a sofa chair and a pillow"
       ],
@@ -2998,7 +2998,7 @@
       "index": 3049
     },
     {
-      "response_pred": "the rack is above the boxes.",
+      "response_pred": "the rack is to the right of the boxes.",
       "response_gt": [
         "the rack is supporting the boxes."
       ],
@@ -3034,7 +3034,7 @@
       "index": 3176
     },
     {
-      "response_pred": "it's at your 3 o'clock direction.",
+      "response_pred": "it's at your 2 o'clock direction.",
       "response_gt": [
         "the table is at your 2 o'clock."
       ],
@@ -3079,7 +3079,7 @@
       "index": 3348
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 7 o'clock direction.",
       "response_gt": [
         "the picture is at your 10 o'clock."
       ],
@@ -3106,7 +3106,7 @@
       "index": 3300
     },
     {
-      "response_pred": "the fireplace is behind the vacuum cleaner.",
+      "response_pred": "the vacuum cleaner is next to the fireplace.",
       "response_gt": [
         "the fireplace is beside the vacuum cleaner."
       ],
@@ -3142,7 +3142,7 @@
       "index": 3290
     },
     {
-      "response_pred": "the picture is to the left of you.",
+      "response_pred": "at your 3 o'clock",
       "response_gt": [
         "at your 6 o'clock"
       ],
@@ -3178,7 +3178,7 @@
       "index": 3391
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 7 o'clock",
       "response_gt": [
         "at your 5 o'clock"
       ],
@@ -3196,7 +3196,7 @@
       "index": 3497
     },
     {
-      "response_pred": "it's at your 12 o'clock direction.",
+      "response_pred": "the chair is at your 1 o'clock.",
       "response_gt": [
         "the chair is at your 2 o'clock."
       ],
@@ -3205,7 +3205,7 @@
       "index": 3404
     },
     {
-      "response_pred": "the jacket is above the chair.",
+      "response_pred": "the jacket is placed on the chair.",
       "response_gt": [
         "the jacket is on the chair."
       ],
@@ -3232,7 +3232,7 @@
       "index": 3498
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "a bedroom or living room",
       "response_gt": [
         "a living room or lounge area"
       ],
@@ -3241,7 +3241,7 @@
       "index": 3409
     },
     {
-      "response_pred": "rectangular",
+      "response_pred": "rectangular prism",
       "response_gt": [
         "open top"
       ],
@@ -3268,7 +3268,7 @@
       "index": 3396
     },
     {
-      "response_pred": "fabric",
+      "response_pred": "wood",
       "response_gt": [
         "fabric and wood"
       ],
@@ -3295,7 +3295,7 @@
       "index": 3553
     },
     {
-      "response_pred": "the trash can is to the left of the water cooler.",
+      "response_pred": "the trash can is to the right of the water cooler.",
       "response_gt": [
         "the trash can is inside the table in front of the water cooler."
       ],
@@ -3322,7 +3322,7 @@
       "index": 3543
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "no"
       ],
@@ -3331,7 +3331,7 @@
       "index": 3548
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 3 o'clock direction.",
       "response_gt": [
         "the recycling bin is at your 5 o'clock."
       ],
@@ -3340,7 +3340,7 @@
       "index": 3572
     },
     {
-      "response_pred": "turn right and walk to the middle distance.",
+      "response_pred": "turn to your right and walk a short distance.",
       "response_gt": [
         "turn right and walk to the near distance."
       ],
@@ -3349,7 +3349,7 @@
       "index": 3628
     },
     {
-      "response_pred": "the backpack is to the right of the shoes.",
+      "response_pred": "the backpack is higher than the shoes.",
       "response_gt": [
         "the backpack is behind the shoes."
       ],
@@ -3358,7 +3358,7 @@
       "index": 3618
     },
     {
-      "response_pred": "the toilet is placed within the area of the mat.",
+      "response_pred": "the toilet is in front of the mat.",
       "response_gt": [
         "the toilet is above the mat."
       ],
@@ -3367,7 +3367,7 @@
       "index": 3638
     },
     {
-      "response_pred": "a table, a chair, and a wall",
+      "response_pred": "a table and a chair",
       "response_gt": [
         "two walls, toilet paper, a ledge, and a pillow"
       ],
@@ -3376,7 +3376,7 @@
       "index": 3590
     },
     {
-      "response_pred": "the sink is lower than the ledge.",
+      "response_pred": "the sink is to the left of the ledge.",
       "response_gt": [
         "the sink is below the ledge."
       ],
@@ -3385,7 +3385,7 @@
       "index": 3630
     },
     {
-      "response_pred": "multicolored",
+      "response_pred": "beige",
       "response_gt": [
         "white, blue, green, and blue and other colors"
       ],
@@ -3403,7 +3403,7 @@
       "index": 3603
     },
     {
-      "response_pred": "white",
+      "response_pred": "brown",
       "response_gt": [
         "off-white"
       ],
@@ -3421,7 +3421,7 @@
       "index": 3611
     },
     {
-      "response_pred": "the chair is higher than the shoes.",
+      "response_pred": "the chair is behind the shoes.",
       "response_gt": [
         "the chair is to the left of the shoes."
       ],
@@ -3448,7 +3448,7 @@
       "index": 3727
     },
     {
-      "response_pred": "the iron is above the ironing board.",
+      "response_pred": "the iron is placed on the top of the ironing board.",
       "response_gt": [
         "the iron is higher than the ironing board."
       ],
@@ -3466,7 +3466,7 @@
       "index": 3767
     },
     {
-      "response_pred": "the ironing board is at your 7 o'clock.",
+      "response_pred": "the ironing board is at your 6 o'clock.",
       "response_gt": [
         "the ironing board is at your 9 o'clock."
       ],
@@ -3484,7 +3484,7 @@
       "index": 3765
     },
     {
-      "response_pred": "six",
+      "response_pred": "four",
       "response_gt": [
         "four"
       ],
@@ -3493,7 +3493,7 @@
       "index": 3677
     },
     {
-      "response_pred": "the sink is higher than the soap dish.",
+      "response_pred": "the soap dish is below the sink.",
       "response_gt": [
         "the soap dish is placed within the area of the bathroom vanity, which includes the sink."
       ],
@@ -3502,7 +3502,7 @@
       "index": 3741
     },
     {
-      "response_pred": "dry",
+      "response_pred": "partially draped",
       "response_gt": [
         "unused"
       ],
@@ -3511,7 +3511,7 @@
       "index": 3698
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn to your right.",
       "response_gt": [
         "turn to your right and walk to the middle distance."
       ],
@@ -3520,7 +3520,7 @@
       "index": 3747
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -3529,7 +3529,7 @@
       "index": 3760
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "the chair is at your 10 o'clock.",
       "response_gt": [
         "at your 7 o'clock"
       ],
@@ -3556,7 +3556,7 @@
       "index": 3778
     },
     {
-      "response_pred": "a wall and a window",
+      "response_pred": "a curtain and a wall",
       "response_gt": [
         "a lamp and a curtain"
       ],
@@ -3565,7 +3565,7 @@
       "index": 3813
     },
     {
-      "response_pred": "a wall and a box",
+      "response_pred": "a shelf and a box",
       "response_gt": [
         "a box and another box"
       ],
@@ -3574,7 +3574,7 @@
       "index": 3775
     },
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "five"
       ],
@@ -3601,7 +3601,7 @@
       "index": 3928
     },
     {
-      "response_pred": "in use",
+      "response_pred": "stationary",
       "response_gt": [
         "in use or stored"
       ],
@@ -3628,7 +3628,7 @@
       "index": 3828
     },
     {
-      "response_pred": "the bag is to the left of the other bag.",
+      "response_pred": "the bag is next to the other bag.",
       "response_gt": [
         "the bag behind the other bag."
       ],
@@ -3637,7 +3637,7 @@
       "index": 3932
     },
     {
-      "response_pred": "the chair is lower than the table.",
+      "response_pred": "the chair is to the right of the table.",
       "response_gt": [
         "the chair is inside the table."
       ],
@@ -3673,7 +3673,7 @@
       "index": 3859
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 2 o'clock direction.",
       "response_gt": [
         "at your 5 o'clock"
       ],
@@ -3682,7 +3682,7 @@
       "index": 3839
     },
     {
-      "response_pred": "the lamp is higher than the nightstand.",
+      "response_pred": "the lamp is above the nightstand.",
       "response_gt": [
         "the lamp is above the nightstand."
       ],
@@ -3700,7 +3700,7 @@
       "index": 3938
     },
     {
-      "response_pred": "the toilet is behind the sink.",
+      "response_pred": "the toilet is lower than the sink.",
       "response_gt": [
         "the toilet is usually next to or opposite the sink."
       ],
@@ -3718,7 +3718,7 @@
       "index": 3975
     },
     {
-      "response_pred": "the sink is lower than the mirror.",
+      "response_pred": "the mirror is above the sink.",
       "response_gt": [
         "the mirror is usually above or opposite the sink."
       ],
@@ -3727,7 +3727,7 @@
       "index": 3990
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -3745,7 +3745,7 @@
       "index": 3991
     },
     {
-      "response_pred": "an office or workspace",
+      "response_pred": "a bathroom or restroom",
       "response_gt": [
         "a bathroom or restroom"
       ],
@@ -3772,7 +3772,7 @@
       "index": 3962
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is lower than the table.",
       "response_gt": [
         "the chair is placed within the area of the table."
       ],
@@ -3781,7 +3781,7 @@
       "index": 4098
     },
     {
-      "response_pred": "it's at your 8 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "at your 11 o'clock"
       ],
@@ -3826,7 +3826,7 @@
       "index": 4060
     },
     {
-      "response_pred": "countertop",
+      "response_pred": "marble or granite",
       "response_gt": [
         "stone"
       ],
@@ -3835,7 +3835,7 @@
       "index": 4095
     },
     {
-      "response_pred": "it's at your 8 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "it's at your 9 o'clock direction."
       ],
@@ -3844,7 +3844,7 @@
       "index": 4105
     },
     {
-      "response_pred": "the sink is supported by the kitchen counter.",
+      "response_pred": "the sink is lower than the kitchen counter.",
       "response_gt": [
         "the sink is inside the kitchen counter."
       ],
@@ -3853,7 +3853,7 @@
       "index": 4097
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -3862,7 +3862,7 @@
       "index": 4056
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "the toilet is at your 6 o'clock.",
       "response_gt": [
         "the toilet is at your 4 o'clock."
       ],
@@ -3871,7 +3871,7 @@
       "index": 4172
     },
     {
-      "response_pred": "it's a white porcelain toilet with a smooth texture, and it's in use.",
+      "response_pred": "it's a white toilet with a rectangular prism shape, made of porcelain or ceramic, used for sanitation, and it's in use.",
       "response_gt": [
         "it's a white toilet made of ceramic, with a smooth texture, and a bowl with a tank. it's currently unused."
       ],
@@ -3880,7 +3880,7 @@
       "index": 4216
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -3898,7 +3898,7 @@
       "index": 4227
     },
     {
-      "response_pred": "at your 8 o'clock",
+      "response_pred": "at your 10 o'clock",
       "response_gt": [
         "at your 8 o'clock"
       ],
@@ -3925,7 +3925,7 @@
       "index": 4187
     },
     {
-      "response_pred": "in use",
+      "response_pred": "closed",
       "response_gt": [
         "closed"
       ],
@@ -3952,7 +3952,7 @@
       "index": 4191
     },
     {
-      "response_pred": "the wardrobe",
+      "response_pred": "the closet",
       "response_gt": [
         "the wardrobe closet"
       ],
@@ -3961,7 +3961,7 @@
       "index": 4168
     },
     {
-      "response_pred": "the stool is higher than the wardrobe closet.",
+      "response_pred": "the stool is lower than the wardrobe closet.",
       "response_gt": [
         "the stool is to the left of the wardrobe closet."
       ],
@@ -3970,7 +3970,7 @@
       "index": 4163
     },
     {
-      "response_pred": "in use",
+      "response_pred": "closed",
       "response_gt": [
         "closed"
       ],
@@ -4015,7 +4015,7 @@
       "index": 4296
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn to your right.",
       "response_gt": [
         "turn right and walk a short distance."
       ],
@@ -4033,7 +4033,7 @@
       "index": 4333
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 7 o'clock direction.",
       "response_gt": [
         "it's at your 7 o'clock direction."
       ],
@@ -4051,7 +4051,7 @@
       "index": 4314
     },
     {
-      "response_pred": "white",
+      "response_pred": "black and white",
       "response_gt": [
         "black and white"
       ],
@@ -4060,7 +4060,7 @@
       "index": 4266
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 2 o'clock direction.",
       "response_gt": [
         "the clock is at your 4 o'clock."
       ],
@@ -4069,7 +4069,7 @@
       "index": 4238
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "it's at your 4 o'clock direction.",
       "response_gt": [
         "at your 11 o'clock"
       ],
@@ -4123,7 +4123,7 @@
       "index": 4436
     },
     {
-      "response_pred": "partially open",
+      "response_pred": "closed",
       "response_gt": [
         "closed"
       ],
@@ -4132,7 +4132,7 @@
       "index": 4421
     },
     {
-      "response_pred": "vending machine",
+      "response_pred": "dispensing items",
       "response_gt": [
         "dispensing items"
       ],
@@ -4168,7 +4168,7 @@
       "index": 4385
     },
     {
-      "response_pred": "two",
+      "response_pred": "one",
       "response_gt": [
         "one"
       ],
@@ -4186,7 +4186,7 @@
       "index": 4586
     },
     {
-      "response_pred": "the table is higher than the armchair.",
+      "response_pred": "the table is placed within the area of the armchair.",
       "response_gt": [
         "the table is in front of the armchair."
       ],
@@ -4213,7 +4213,7 @@
       "index": 4560
     },
     {
-      "response_pred": "the book is at your 3 o'clock.",
+      "response_pred": "the book is at your 1 o'clock.",
       "response_gt": [
         "the book is at your 4 o'clock."
       ],
@@ -4285,7 +4285,7 @@
       "index": 4544
     },
     {
-      "response_pred": "the armchair is placed within the area of the couch.",
+      "response_pred": "the couch supports the armchair.",
       "response_gt": [
         "the armchair is to the left of the couch."
       ],
@@ -4303,7 +4303,7 @@
       "index": 4601
     },
     {
-      "response_pred": "the chair is in front of the dining table.",
+      "response_pred": "the chair is to the right of the dining table.",
       "response_gt": [
         "the chair is placed within the area of the dining table and is adjacent to it."
       ],
@@ -4339,7 +4339,7 @@
       "index": 4636
     },
     {
-      "response_pred": "the chair is lower than the dining table.",
+      "response_pred": "the chair is to the right of the dining table.",
       "response_gt": [
         "the chair is to the left of the dining table."
       ],
@@ -4357,7 +4357,7 @@
       "index": 4596
     },
     {
-      "response_pred": "the chairs are next to each other.",
+      "response_pred": "the chair at my 2 o'clock is next to the other chair.",
       "response_gt": [
         "the chair is next to the other chair."
       ],
@@ -4366,7 +4366,7 @@
       "index": 4602
     },
     {
-      "response_pred": "it's a white and black rectangular prism-shaped desk made of wood, used as a workspace or study area.",
+      "response_pred": "it's a white and black rectangular prism-shaped desk made of wood, used for work or study, with a smooth texture, and it's in use.",
       "response_gt": [
         "it's a brown desk with a rectangular prism shape, made of wood, used as an office desk, with a smooth texture, and it's in use."
       ],
@@ -4375,7 +4375,7 @@
       "index": 4679
     },
     {
-      "response_pred": "frame with glass panes",
+      "response_pred": "solid",
       "response_gt": [
         "sturdy with a doorknob"
       ],
@@ -4384,7 +4384,7 @@
       "index": 4766
     },
     {
-      "response_pred": "it's at your 12 o'clock direction.",
+      "response_pred": "the window is at your 12 o'clock.",
       "response_gt": [
         "the window is at your 12 o'clock."
       ],
@@ -4411,7 +4411,7 @@
       "index": 4798
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or workspace"
       ],
@@ -4429,7 +4429,7 @@
       "index": 4753
     },
     {
-      "response_pred": "it's at your 3 o'clock direction.",
+      "response_pred": "it's at your 2 o'clock direction.",
       "response_gt": [
         "the computer tower is at your 12 o'clock."
       ],
@@ -4447,7 +4447,7 @@
       "index": 4705
     },
     {
-      "response_pred": "the box is resting on the floor.",
+      "response_pred": "the box is on the floor.",
       "response_gt": [
         "the box is on top of the floor, providing support."
       ],
@@ -4465,7 +4465,7 @@
       "index": 4809
     },
     {
-      "response_pred": "it's a chair made of fabric and metal, with a smooth texture and rectangular prism shape. it's upright and in use.",
+      "response_pred": "it's a chair made of fabric and metal, with a rectangular prism shape, smooth texture, and black color. it's upright and in use.",
       "response_gt": [
         "it's a dark grey ergonomic chair with fabric upholstery, used for sitting. it has a textured texture and is a swivel chair with wheels."
       ],
@@ -4474,7 +4474,7 @@
       "index": 4794
     },
     {
-      "response_pred": "the chair is to the right of the box.",
+      "response_pred": "the chair is behind the box.",
       "response_gt": [
         "the chair is to the left of the box."
       ],
@@ -4483,7 +4483,7 @@
       "index": 4732
     },
     {
-      "response_pred": "it's a rectangular prism-shaped computer tower made of metal and plastic, used for computing.",
+      "response_pred": "it's a black computer tower made of metal and plastic, used for computing, with a rectangular prism shape, smooth texture, and is in use.",
       "response_gt": [
         "it's a black computer tower with a rectangular prism shape, made of metal/plastic, designed for computing, with a smooth texture, enclosed box with possible vents/ports, and it's stationary."
       ],
@@ -4510,7 +4510,7 @@
       "index": 4718
     },
     {
-      "response_pred": "the monitor is on the top of the computer tower.",
+      "response_pred": "the monitor is above the computer tower.",
       "response_gt": [
         "the monitor is to the left of the computer tower."
       ],
@@ -4519,7 +4519,7 @@
       "index": 4913
     },
     {
-      "response_pred": "lighting and ventilation",
+      "response_pred": "light and ventilation",
       "response_gt": [
         "light control and privacy"
       ],
@@ -4528,7 +4528,7 @@
       "index": 4828
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn left and walk to the middle distance.",
       "response_gt": [
         "turn to your back and walk to the middle distance."
       ],
@@ -4546,7 +4546,7 @@
       "index": 4833
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "one"
       ],
@@ -4564,7 +4564,7 @@
       "index": 4904
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or study room"
       ],
@@ -4591,7 +4591,7 @@
       "index": 4876
     },
     {
-      "response_pred": "the monitor is on the top of the computer tower.",
+      "response_pred": "the monitor is above the computer tower.",
       "response_gt": [
         "the monitor is in front of the computer tower."
       ],
@@ -4618,7 +4618,7 @@
       "index": 4969
     },
     {
-      "response_pred": "it's a white sink with a rectangular prism shape, made of porcelain or ceramic, and is used for washing clothes.",
+      "response_pred": "it's a white sink with a rectangular prism shape, made of ceramic or porcelain, used for washing, and it's clean.",
       "response_gt": [
         "it's a white sink with a rectangular box shape, made of ceramic, used for washing, with a smooth texture, intact, and it has a basin with a faucet and drain."
       ],
@@ -4627,7 +4627,7 @@
       "index": 5001
     },
     {
-      "response_pred": "the washing machine is to the left of the clothes dryer.",
+      "response_pred": "the washing machine is lower than the clothes dryer.",
       "response_gt": [
         "the washing machine is to the right of the clothes dryer."
       ],
@@ -4636,7 +4636,7 @@
       "index": 4975
     },
     {
-      "response_pred": "the sink is higher than the paper towel dispenser.",
+      "response_pred": "the paper towel dispenser is below the sink.",
       "response_gt": [
         "the paper towel dispenser is above the sink."
       ],
@@ -4654,7 +4654,7 @@
       "index": 5016
     },
     {
-      "response_pred": "the laundry detergent is next to the washing machine.",
+      "response_pred": "the laundry detergent is below the washing machine.",
       "response_gt": [
         "the laundry detergent is on the washing machine."
       ],
@@ -4663,7 +4663,7 @@
       "index": 4986
     },
     {
-      "response_pred": "the washing machine supports the dryer sheets.",
+      "response_pred": "the washing machine is below the dryer sheets.",
       "response_gt": [
         "the dryer sheets are placed on the washing machine."
       ],
@@ -4672,7 +4672,7 @@
       "index": 4964
     },
     {
-      "response_pred": "the table is higher than the washing machine.",
+      "response_pred": "the table is lower than the washing machine.",
       "response_gt": [
         "the table is to the right of the washing machine."
       ],
@@ -4726,7 +4726,7 @@
       "index": 5070
     },
     {
-      "response_pred": "the shoes are placed within the area of the coffee table.",
+      "response_pred": "the shoes are behind the coffee table.",
       "response_gt": [
         "the shoes are to the left of the coffee table."
       ],
@@ -4744,7 +4744,7 @@
       "index": 5023
     },
     {
-      "response_pred": "made of varied wood",
+      "response_pred": "vertical bars with shelves",
       "response_gt": [
         "multi-level"
       ],
@@ -4753,7 +4753,7 @@
       "index": 5021
     },
     {
-      "response_pred": "it's at your 8 o'clock direction.",
+      "response_pred": "it's at your 7 o'clock direction.",
       "response_gt": [
         "it's at your 6 o'clock direction."
       ],
@@ -4771,7 +4771,7 @@
       "index": 5148
     },
     {
-      "response_pred": "carrying liquids",
+      "response_pred": "transportation of liquids",
       "response_gt": [
         "musical"
       ],
@@ -4780,7 +4780,7 @@
       "index": 5025
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "a living room or lounge area",
       "response_gt": [
         "a living room or lounge area"
       ],
@@ -4789,7 +4789,7 @@
       "index": 5041
     },
     {
-      "response_pred": "the couch is to the right of the shelf.",
+      "response_pred": "the couch is in front of the shelf.",
       "response_gt": [
         "the shelf is next to the couch."
       ],
@@ -4816,7 +4816,7 @@
       "index": 5180
     },
     {
-      "response_pred": "input device for computers",
+      "response_pred": "input device",
       "response_gt": [
         "typing/input device"
       ],
@@ -4825,7 +4825,7 @@
       "index": 5250
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "two"
       ],
@@ -4852,7 +4852,7 @@
       "index": 5246
     },
     {
-      "response_pred": "turn to your right.",
+      "response_pred": "turn left and walk a short distance.",
       "response_gt": [
         "turn to your right."
       ],
@@ -4960,7 +4960,7 @@
       "index": 5368
     },
     {
-      "response_pred": "it's at your 3 o'clock direction.",
+      "response_pred": "it's at your 12 o'clock direction.",
       "response_gt": [
         "they are at your 10 o'clock and 1 o'clock directions."
       ],
@@ -4969,7 +4969,7 @@
       "index": 5399
     },
     {
-      "response_pred": "it's at your 2 o'clock direction.",
+      "response_pred": "it's at your 1 o'clock direction.",
       "response_gt": [
         "at your 2 o'clock direction."
       ],
@@ -4996,7 +4996,7 @@
       "index": 5307
     },
     {
-      "response_pred": "it's at your 12 o'clock direction.",
+      "response_pred": "it's at your 1 o'clock direction.",
       "response_gt": [
         "it's at your 5 o'clock direction."
       ],
@@ -5005,7 +5005,7 @@
       "index": 5312
     },
     {
-      "response_pred": "turn to your left and walk a short distance.",
+      "response_pred": "turn to your right and walk a short distance.",
       "response_gt": [
         "turn around and walk to the middle distance."
       ],
@@ -5068,7 +5068,7 @@
       "index": 5502
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "it's at your 11 o'clock direction."
       ],
@@ -5077,7 +5077,7 @@
       "index": 5436
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "four"
       ],
@@ -5086,7 +5086,7 @@
       "index": 5483
     },
     {
-      "response_pred": "glass and wood",
+      "response_pred": "glass and wood/metal",
       "response_gt": [
         "glass, and appears to be wood and metal"
       ],
@@ -5113,7 +5113,7 @@
       "index": 5611
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "five"
       ],
@@ -5131,7 +5131,7 @@
       "index": 5678
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn left and walk to the middle distance.",
       "response_gt": [
         "turn left and walk to the far distance."
       ],
@@ -5140,7 +5140,7 @@
       "index": 5522
     },
     {
-      "response_pred": "the trash can is placed within the area of the cabinet.",
+      "response_pred": "the trash can is behind the cabinet.",
       "response_gt": [
         "the trash can is behind the cabinet."
       ],
@@ -5167,7 +5167,7 @@
       "index": 5510
     },
     {
-      "response_pred": "it's at your 12 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "it's at your 1 o'clock direction."
       ],
@@ -5221,7 +5221,7 @@
       "index": 5633
     },
     {
-      "response_pred": "the trash can is to the left of the chair.",
+      "response_pred": "the trash can is behind the chair.",
       "response_gt": [
         "the trash can is behind the chair."
       ],
@@ -5230,7 +5230,7 @@
       "index": 5560
     },
     {
-      "response_pred": "glass and wood/metal",
+      "response_pred": "glass and metal/plastic",
       "response_gt": [
         "glass, and wood and metal"
       ],
@@ -5266,7 +5266,7 @@
       "index": 5527
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "three"
       ],
@@ -5275,7 +5275,7 @@
       "index": 5477
     },
     {
-      "response_pred": "the table is placed within the area of the boards.",
+      "response_pred": "the table supports the boards.",
       "response_gt": [
         "the table is in front of the boards."
       ],
@@ -5284,7 +5284,7 @@
       "index": 5747
     },
     {
-      "response_pred": "the cutting board is at your 5 o'clock.",
+      "response_pred": "the cutting board is at your 2 o'clock.",
       "response_gt": [
         "the poster cutter is at your 4 o'clock."
       ],
@@ -5293,7 +5293,7 @@
       "index": 5725
     },
     {
-      "response_pred": "the rolled poster is supported by the table.",
+      "response_pred": "the rolled poster is placed within the area of the table.",
       "response_gt": [
         "the rolled poster is behind the table."
       ],
@@ -5311,7 +5311,7 @@
       "index": 5749
     },
     {
-      "response_pred": "a wall and a door",
+      "response_pred": "a poster, a printer, and a wall",
       "response_gt": [
         "a door, a ceiling, and a wall"
       ],
@@ -5338,7 +5338,7 @@
       "index": 5760
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "the printer is at your 10 o'clock.",
       "response_gt": [
         "the table is at your 10 o'clock."
       ],
@@ -5356,7 +5356,7 @@
       "index": 5708
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "a kitchen or dining area",
       "response_gt": [
         "a workspace or office area"
       ],
@@ -5383,7 +5383,7 @@
       "index": 5803
     },
     {
-      "response_pred": "it's at your 3 o'clock direction.",
+      "response_pred": "it's at your 1 o'clock direction.",
       "response_gt": [
         "it's at your 4 o'clock direction."
       ],
@@ -5392,7 +5392,7 @@
       "index": 5872
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "five"
       ],
@@ -5401,7 +5401,7 @@
       "index": 5873
     },
     {
-      "response_pred": "brown and black",
+      "response_pred": "black and brown",
       "response_gt": [
         "black, dark gray"
       ],
@@ -5437,7 +5437,7 @@
       "index": 5889
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is inside the table.",
       "response_gt": [
         "the chair is used for sitting at the table."
       ],
@@ -5446,7 +5446,7 @@
       "index": 5904
     },
     {
-      "response_pred": "it's a brown rectangular prism-shaped table made of wood and metal, used as a furniture.",
+      "response_pred": "it's a brown rectangular prism-shaped table made of wood, used as furniture.",
       "response_gt": [
         "it's a light gray table with a rectangular prism shape, made of wood or laminate, used as furniture for tasks or eating, with a smooth texture, intact, and a flat surface with legs."
       ],
@@ -5455,7 +5455,7 @@
       "index": 5956
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "three"
       ],
@@ -5482,7 +5482,7 @@
       "index": 5935
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "nine"
       ],
@@ -5536,7 +5536,7 @@
       "index": 5849
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "four"
       ],
@@ -5590,7 +5590,7 @@
       "index": 6031
     },
     {
-      "response_pred": "it's at your 10 o'clock direction.",
+      "response_pred": "the chair is silver and intact. it's at your 10 o'clock.",
       "response_gt": [
         "the object is at your 10 o'clock direction."
       ],
@@ -5599,7 +5599,7 @@
       "index": 6160
     },
     {
-      "response_pred": "the fire extinguisher is to the left of the chair.",
+      "response_pred": "the fire extinguisher is to the right of the chair.",
       "response_gt": [
         "the fire extinguisher is in front of the chair."
       ],
@@ -5662,7 +5662,7 @@
       "index": 6003
     },
     {
-      "response_pred": "it's a black and brown chair with a rectangular prism shape, made of fabric and plastic/metal, designed for seating, with a smooth texture, and it's intact.",
+      "response_pred": "it's a black and brown chair with a rectangular prism shape, made of fabric and metal, used for seating, with a smooth texture.",
       "response_gt": [
         "the chair is black and brown, curved and rectangular, made of plastic and wood, and used for seating."
       ],
@@ -5671,7 +5671,7 @@
       "index": 6118
     },
     {
-      "response_pred": "the chair is to the left of the other chair.",
+      "response_pred": "the chair is to the right of the other chair.",
       "response_gt": [
         "the chair is to the left of another chair."
       ],
@@ -5680,7 +5680,7 @@
       "index": 6129
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "a classroom or study area"
       ],
@@ -5689,7 +5689,7 @@
       "index": 6146
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is to the left of the table.",
       "response_gt": [
         "the chair is adjacent to the table."
       ],
@@ -5716,7 +5716,7 @@
       "index": 6023
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "one"
       ],
@@ -5743,7 +5743,7 @@
       "index": 6043
     },
     {
-      "response_pred": "beige",
+      "response_pred": "light brown",
       "response_gt": [
         "blue-ish"
       ],
@@ -5752,7 +5752,7 @@
       "index": 6248
     },
     {
-      "response_pred": "furniture support",
+      "response_pred": "support",
       "response_gt": [
         "construction/structural support"
       ],
@@ -5788,7 +5788,7 @@
       "index": 6220
     },
     {
-      "response_pred": "the chair is resting on the floor.",
+      "response_pred": "the chair is on the floor.",
       "response_gt": [
         "the chair is placed on the floor."
       ],
@@ -5815,7 +5815,7 @@
       "index": 6304
     },
     {
-      "response_pred": "it's a window made of glass and metal, with a smooth texture and rectangular prism shape. it's intact and in use as a window.",
+      "response_pred": "it's a window.",
       "response_gt": [
         "it's a window with varied colors, rectangular prism in shape, made of glass and fabric, with smooth glass and soft fabric texture, paneled, and partially draped open."
       ],
@@ -5896,7 +5896,7 @@
       "index": 6396
     },
     {
-      "response_pred": "six",
+      "response_pred": "four",
       "response_gt": [
         "fifteen"
       ],
@@ -5941,7 +5941,7 @@
       "index": 6336
     },
     {
-      "response_pred": "it's at your 2 o'clock direction.",
+      "response_pred": "it's at your 1 o'clock direction.",
       "response_gt": [
         "the trash cans are at your 1 o'clock direction."
       ],
@@ -5950,7 +5950,7 @@
       "index": 6349
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is supported by the table.",
       "response_gt": [
         "the chair is on the table."
       ],
@@ -5959,7 +5959,7 @@
       "index": 6419
     },
     {
-      "response_pred": "it's a white and grey rectangular prism-shaped object made of plastic or wood, used for writing or display, with a smooth texture, and it's intact.",
+      "response_pred": "it's a white and grey rectangular prism-shaped object made of plastic or wood, used for writing or displaying information, with a smooth texture.",
       "response_gt": [
         "it's a white rectangular prism-shaped whiteboard used for writing/presentation, with a smooth texture, framed, and is mounted."
       ],
@@ -5968,7 +5968,7 @@
       "index": 6487
     },
     {
-      "response_pred": "it's at your 6 o'clock direction.",
+      "response_pred": "the trash can is lower than the whiteboard.",
       "response_gt": [
         "it's at your 5 o'clock direction."
       ],
@@ -5977,7 +5977,7 @@
       "index": 6492
     },
     {
-      "response_pred": "lighting and ventilation",
+      "response_pred": "lighting and viewing",
       "response_gt": [
         "provides light and outside view"
       ],
@@ -5986,7 +5986,7 @@
       "index": 6430
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "walk straight ahead to the middle distance.",
       "response_gt": [
         "it's nearby, just walk a short distance."
       ],
@@ -6004,7 +6004,7 @@
       "index": 6422
     },
     {
-      "response_pred": "the chair is resting on the table.",
+      "response_pred": "the chair is supported by the table.",
       "response_gt": [
         "the chair is on the top of the table."
       ],
@@ -6013,7 +6013,7 @@
       "index": 6502
     },
     {
-      "response_pred": "an office or study room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or workspace"
       ],
@@ -6031,7 +6031,7 @@
       "index": 6483
     },
     {
-      "response_pred": "the chair is resting on the table.",
+      "response_pred": "the chair is supported by the table.",
       "response_gt": [
         "the chair is next to the table."
       ],
@@ -6040,7 +6040,7 @@
       "index": 6444
     },
     {
-      "response_pred": "seven",
+      "response_pred": "four",
       "response_gt": [
         "multiple"
       ],
@@ -6049,7 +6049,7 @@
       "index": 6533
     },
     {
-      "response_pred": "stacked",
+      "response_pred": "upright",
       "response_gt": [
         "upright, stacked"
       ],
@@ -6058,7 +6058,7 @@
       "index": 6627
     },
     {
-      "response_pred": "it's at your 8 o'clock direction.",
+      "response_pred": "it's at your 7 o'clock direction.",
       "response_gt": [
         "the books are at your 10 o'clock."
       ],
@@ -6067,7 +6067,7 @@
       "index": 6525
     },
     {
-      "response_pred": "it's a brown rectangular prism-shaped bench made of wood, used for seating, with a smooth texture, and it's in use.",
+      "response_pred": "it's a brown rectangular prism-shaped bench made of wood, used for seating, with a smooth texture, and it's intact.",
       "response_gt": [
         "it's a dark brown rectangular prism made of wood, used for seating or placing objects, with a smooth texture and supporting legs, and it's stationary."
       ],
@@ -6085,7 +6085,7 @@
       "index": 6648
     },
     {
-      "response_pred": "storage",
+      "response_pred": "storage of books",
       "response_gt": [
         "reading"
       ],
@@ -6094,7 +6094,7 @@
       "index": 6597
     },
     {
-      "response_pred": "seven",
+      "response_pred": "three",
       "response_gt": [
         "fourteen"
       ],
@@ -6103,7 +6103,7 @@
       "index": 6614
     },
     {
-      "response_pred": "seven",
+      "response_pred": "ten",
       "response_gt": [
         "four"
       ],
@@ -6121,7 +6121,7 @@
       "index": 6634
     },
     {
-      "response_pred": "it's a brown rectangular prism-shaped bench made of wood, used for seating, with a smooth texture, and it's in use.",
+      "response_pred": "it's a brown rectangular prism-shaped bench made of wood, used for seating and storage.",
       "response_gt": [
         "it's a dark brown bench with a rectangular prism shape, made of wood, used for seating or placing objects, with a smooth texture, and it's stationary."
       ],
@@ -6157,7 +6157,7 @@
       "index": 6656
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 1 o'clock",
       "response_gt": [
         "at your 2 o'clock"
       ],
@@ -6166,7 +6166,7 @@
       "index": 6595
     },
     {
-      "response_pred": "organizing items on a rack",
+      "response_pred": "storage",
       "response_gt": [
         "displaying items"
       ],
@@ -6175,7 +6175,7 @@
       "index": 6696
     },
     {
-      "response_pred": "it's at your 12 o'clock direction.",
+      "response_pred": "the bookshelf is at your 1 o'clock.",
       "response_gt": [
         "the table is at your 3 o'clock."
       ],
@@ -6229,7 +6229,7 @@
       "index": 6751
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "two"
       ],
@@ -6247,7 +6247,7 @@
       "index": 6831
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn right and walk to the middle distance.",
       "response_gt": [
         "turn left and walk to the near distance."
       ],
@@ -6256,7 +6256,7 @@
       "index": 6854
     },
     {
-      "response_pred": "the chairs",
+      "response_pred": "the chair",
       "response_gt": [
         "the white and brown chair"
       ],
@@ -6274,7 +6274,7 @@
       "index": 6790
     },
     {
-      "response_pred": "black",
+      "response_pred": "gray",
       "response_gt": [
         "grey"
       ],
@@ -6283,7 +6283,7 @@
       "index": 6807
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "one"
       ],
@@ -6301,7 +6301,7 @@
       "index": 6881
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "eight"
       ],
@@ -6310,7 +6310,7 @@
       "index": 6727
     },
     {
-      "response_pred": "the backpack",
+      "response_pred": "the chair",
       "response_gt": [
         "the backpack"
       ],
@@ -6328,7 +6328,7 @@
       "index": 6732
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "four"
       ],
@@ -6337,7 +6337,7 @@
       "index": 6798
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "three"
       ],
@@ -6346,7 +6346,7 @@
       "index": 6739
     },
     {
-      "response_pred": "an office or conference room",
+      "response_pred": "an office or workspace",
       "response_gt": [
         "an office or conference room"
       ],
@@ -6391,7 +6391,7 @@
       "index": 6754
     },
     {
-      "response_pred": "intact",
+      "response_pred": "in use",
       "response_gt": [
         "stationary"
       ],
@@ -6400,7 +6400,7 @@
       "index": 6934
     },
     {
-      "response_pred": "two",
+      "response_pred": "four",
       "response_gt": [
         "seven"
       ],
@@ -6409,7 +6409,7 @@
       "index": 6922
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "three"
       ],
@@ -6418,7 +6418,7 @@
       "index": 6776
     },
     {
-      "response_pred": "white",
+      "response_pred": "black",
       "response_gt": [
         "brown"
       ],
@@ -6427,7 +6427,7 @@
       "index": 6973
     },
     {
-      "response_pred": "the mailbox is higher than the cabinet.",
+      "response_pred": "the mailbox is to the right of the cabinet.",
       "response_gt": [
         "the mailbox is usually placed near or beside the cabinet."
       ],
@@ -6445,7 +6445,7 @@
       "index": 6970
     },
     {
-      "response_pred": "the filing cabinet",
+      "response_pred": "the document shredder",
       "response_gt": [
         "the cabinet and the mailbox"
       ],
@@ -6454,7 +6454,7 @@
       "index": 6947
     },
     {
-      "response_pred": "a wall and a door",
+      "response_pred": "a trash can, a wall, and a door",
       "response_gt": [
         "a counter, two cabinets, and a wall"
       ],
@@ -6463,7 +6463,7 @@
       "index": 6982
     },
     {
-      "response_pred": "the recycling bin is beside the cabinets.",
+      "response_pred": "the recycling bin is to the right of the cabinets.",
       "response_gt": [
         "the recycling bin is close to the cabinets."
       ],
@@ -6481,7 +6481,7 @@
       "index": 6942
     },
     {
-      "response_pred": "no",
+      "response_pred": "yes",
       "response_gt": [
         "yes"
       ],
@@ -6490,7 +6490,7 @@
       "index": 6965
     },
     {
-      "response_pred": "the recycling bin is placed within the area of the cabinets.",
+      "response_pred": "the recycling bin is inside the cabinets.",
       "response_gt": [
         "the recycling bin is beside the cabinets."
       ],
@@ -6508,7 +6508,7 @@
       "index": 6946
     },
     {
-      "response_pred": "the trash can",
+      "response_pred": "the toilet",
       "response_gt": [
         "the trash can"
       ],
@@ -6517,7 +6517,7 @@
       "index": 7124
     },
     {
-      "response_pred": "two",
+      "response_pred": "one",
       "response_gt": [
         "zero"
       ],
@@ -6526,7 +6526,7 @@
       "index": 7118
     },
     {
-      "response_pred": "the toilet is lower than the bathroom stall.",
+      "response_pred": "the toilet is inside the bathroom stall.",
       "response_gt": [
         "the toilet is inside the bathroom stall and above the bathroom stall."
       ],
@@ -6553,7 +6553,7 @@
       "index": 7081
     },
     {
-      "response_pred": "the toilet is lower than the bathroom stall.",
+      "response_pred": "the toilet is inside the bathroom stall.",
       "response_gt": [
         "the toilet is above the bathroom stall."
       ],
@@ -6571,7 +6571,7 @@
       "index": 7146
     },
     {
-      "response_pred": "soap dispensing",
+      "response_pred": "dispensing soap",
       "response_gt": [
         "soap dispensing"
       ],
@@ -6598,7 +6598,7 @@
       "index": 7053
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "five"
       ],
@@ -6607,7 +6607,7 @@
       "index": 7095
     },
     {
-      "response_pred": "the black ergonomic chair is occupied.",
+      "response_pred": "the one on your left",
       "response_gt": [
         "the one on my left"
       ],
@@ -6616,7 +6616,7 @@
       "index": 7152
     },
     {
-      "response_pred": "upholstery",
+      "response_pred": "fabric and metal",
       "response_gt": [
         "mesh and plastic"
       ],
@@ -6625,7 +6625,7 @@
       "index": 7225
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 1 o'clock",
       "response_gt": [
         "at your 10 o'clock"
       ],
@@ -6634,7 +6634,7 @@
       "index": 7196
     },
     {
-      "response_pred": "the chair is supported by the table.",
+      "response_pred": "the table supports the chair.",
       "response_gt": [
         "the chair is near the table."
       ],
@@ -6652,7 +6652,7 @@
       "index": 7223
     },
     {
-      "response_pred": "it's a rectangular prism-shaped table made of wood, with a smooth texture and a light color. it's intact and in use.",
+      "response_pred": "it's a brown rectangular prism-shaped table made of wood with a smooth texture.",
       "response_gt": [
         "it's a black and brown circular table made of wood, with a smooth texture, designed as furniture, and it's intact."
       ],
@@ -6661,7 +6661,7 @@
       "index": 7164
     },
     {
-      "response_pred": "a chair and a table",
+      "response_pred": "a table and a chair",
       "response_gt": [
         "a wall and a chair"
       ],
@@ -6679,7 +6679,7 @@
       "index": 7236
     },
     {
-      "response_pred": "the table",
+      "response_pred": "the coffee table",
       "response_gt": [
         "window"
       ],
@@ -6706,7 +6706,7 @@
       "index": 7273
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is to the right of the table.",
       "response_gt": [
         "the chair is placed on the table."
       ],
@@ -6715,7 +6715,7 @@
       "index": 7255
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is in front of the table.",
       "response_gt": [
         "the chair is placed on the table."
       ],
@@ -6724,7 +6724,7 @@
       "index": 7326
     },
     {
-      "response_pred": "mounted on a wall",
+      "response_pred": "mounted on a stand",
       "response_gt": [
         "linear with a curve"
       ],
@@ -6733,7 +6733,7 @@
       "index": 7366
     },
     {
-      "response_pred": "black and white",
+      "response_pred": "black and red",
       "response_gt": [
         "red and black, red and black"
       ],
@@ -6778,7 +6778,7 @@
       "index": 7309
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "the whiteboard is at your 12 o'clock."
       ],
@@ -6796,7 +6796,7 @@
       "index": 7328
     },
     {
-      "response_pred": "writing and displaying information",
+      "response_pred": "writing/display",
       "response_gt": [
         "part of a whiteboard"
       ],
@@ -6877,7 +6877,7 @@
       "index": 7443
     },
     {
-      "response_pred": "it's a window made of glass, with a rectangular prism shape, and it's intact.",
+      "response_pred": "it's a window.",
       "response_gt": [
         "it's a translucent window with white, beige, and brown tones. it's made of glass, possibly with a wooden or metal frame, and is closed and clean."
       ],
@@ -6940,7 +6940,7 @@
       "index": 7461
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "two"
       ],
@@ -6967,7 +6967,7 @@
       "index": 7509
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "two"
       ],
@@ -6994,7 +6994,7 @@
       "index": 7569
     },
     {
-      "response_pred": "it's a brown rectangular prism-shaped table made of wood, used as a furniture.",
+      "response_pred": "it's a brown rectangular prism-shaped table made of wood, used as furniture.",
       "response_gt": [
         "it's a brown table with a rectangular top and cylindrical legs, made of wood and metal, with a smooth texture, used as furniture, and it's upright."
       ],
@@ -7012,7 +7012,7 @@
       "index": 7594
     },
     {
-      "response_pred": "lighting and ventilation",
+      "response_pred": "providing light and ventilation",
       "response_gt": [
         "ventilation, light entry"
       ],
@@ -7021,7 +7021,7 @@
       "index": 7616
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "walk straight ahead to the far distance.",
       "response_gt": [
         "turn to your right and walk to the middle distance."
       ],
@@ -7030,7 +7030,7 @@
       "index": 7640
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "the chairs are at your 8 o'clock direction."
       ],
@@ -7048,7 +7048,7 @@
       "index": 7589
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "one"
       ],
@@ -7066,7 +7066,7 @@
       "index": 7539
     },
     {
-      "response_pred": "billiards table",
+      "response_pred": "billiards",
       "response_gt": [
         "playing billiards"
       ],
@@ -7075,7 +7075,7 @@
       "index": 7635
     },
     {
-      "response_pred": "it's at your 9 o'clock direction.",
+      "response_pred": "it's at your 10 o'clock direction.",
       "response_gt": [
         "it's at your 9 o'clock direction."
       ],
@@ -7093,7 +7093,7 @@
       "index": 7816
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "one"
       ],
@@ -7102,7 +7102,7 @@
       "index": 7786
     },
     {
-      "response_pred": "multiple chairs",
+      "response_pred": "multiple chairs and a table",
       "response_gt": [
         "a wall, a chair, another wall, a whiteboard, and two more walls"
       ],
@@ -7129,7 +7129,7 @@
       "index": 7667
     },
     {
-      "response_pred": "one",
+      "response_pred": "two",
       "response_gt": [
         "one"
       ],
@@ -7165,7 +7165,7 @@
       "index": 7811
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn left and walk to the middle distance.",
       "response_gt": [
         "turn around and walk to the middle distance."
       ],
@@ -7174,7 +7174,7 @@
       "index": 7750
     },
     {
-      "response_pred": "at my 12 o'clock",
+      "response_pred": "at your 1 o'clock",
       "response_gt": [
         "at your 1 o'clock"
       ],
@@ -7210,7 +7210,7 @@
       "index": 7725
     },
     {
-      "response_pred": "turn to your right.",
+      "response_pred": "turn to your right and walk a short distance.",
       "response_gt": [
         "turn to your right."
       ],
@@ -7219,7 +7219,7 @@
       "index": 7752
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is in front of the table.",
       "response_gt": [
         "the chair is inside the table."
       ],
@@ -7237,7 +7237,7 @@
       "index": 7723
     },
     {
-      "response_pred": "the chair is placed within the area of the table.",
+      "response_pred": "the chair is to the left of the table.",
       "response_gt": [
         "the chair is placed within the area of the table."
       ],
@@ -7273,7 +7273,7 @@
       "index": 7894
     },
     {
-      "response_pred": "no",
+      "response_pred": "yes",
       "response_gt": [
         "no"
       ],
@@ -7300,7 +7300,7 @@
       "index": 7865
     },
     {
-      "response_pred": "the office chair is in front of the other office chair.",
+      "response_pred": "the office chair is to the right of the other office chair.",
       "response_gt": [
         "the chair is to the left of the other chair."
       ],
@@ -7318,7 +7318,7 @@
       "index": 7897
     },
     {
-      "response_pred": "the office chair is in front of the other office chair.",
+      "response_pred": "the office chair is to the right of the other office chair.",
       "response_gt": [
         "the chair is close to the other chair."
       ],
@@ -7354,7 +7354,7 @@
       "index": 8015
     },
     {
-      "response_pred": "the table is in front of the plant.",
+      "response_pred": "the table is to the right of the plant.",
       "response_gt": [
         "the table is in front of the plant."
       ],
@@ -7381,7 +7381,7 @@
       "index": 8035
     },
     {
-      "response_pred": "curved backrest and seat",
+      "response_pred": "upholstery",
       "response_gt": [
         "upholstered"
       ],
@@ -7408,7 +7408,7 @@
       "index": 7990
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
