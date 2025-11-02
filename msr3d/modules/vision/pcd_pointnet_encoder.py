@@ -72,3 +72,5 @@ class PcdObjEncoder(nn.Module):
         # sem logits
         obj_sem_cls = self.obj3d_clf_pre_head(obj_embeds)
         return obj_embeds, obj_sem_cls
+    
+    
