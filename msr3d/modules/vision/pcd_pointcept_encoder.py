@@ -133,7 +133,6 @@ class PTv3PcdObjEncoder(nn.Module):
         
         return obj_embeds
 
-        return obj_embeds
     def freeze_bn(self, model):
         for module in model.modules():
             if isinstance(module, (nn.BatchNorm1d, nn.BatchNorm2d, nn.BatchNorm3d)):
