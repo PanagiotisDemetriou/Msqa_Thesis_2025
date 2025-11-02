@@ -5,6 +5,15 @@ from torch import nn
 from modules.build import VISION_REGISTRY
 from modules.layers.pointnet import PointNetPP
 from modules.utils import get_mlp_head
+
+
+import sys
+from pathlib import Path
+
+# Add only the directory containing Pointcept_main
+parent_dir = Path(__file__).resolve().parents[3]  # or wherever Pointcept_main's parent is
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
 from Pointcept_main.pointcept.models.point_transformer_v3.point_transformer_v3m1_base import PointTransformerV3
 
 @VISION_REGISTRY.register()
