@@ -192,7 +192,8 @@ class OSE3DSituation(BaseModel):
                 self.obj_linear_projection = nn.Linear(self.cfg.vision.args.sa_mlps[-1][-1], self.cfg.hidden_size)
             elif self.cfg.vision.name == "PointBERTPcdObjEncoder":
                 self.obj_linear_projection = nn.Linear(self.cfg.vision.args.trans_dim * 2, self.cfg.hidden_size)
-
+            elif self.cfg.vision.name == "PTv3PcdObjEncoder":  
+                self.obj_linear_projection = nn.Linear(self.cfg.vision.args.embedding_size, self.cfg.hidden_size)
         if self.cfg.use_spatial_attn:
             spatial_encoder_layer = TransformerSpatialEncoderLayer(
                 self.cfg.hidden_size,
