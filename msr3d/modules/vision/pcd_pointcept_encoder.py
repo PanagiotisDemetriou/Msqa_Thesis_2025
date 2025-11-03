@@ -23,7 +23,7 @@ class PTv3PcdObjEncoder(nn.Module):
                  embedding_size=768,
                  dropout=0.1,
                  path=None,
-                 in_channels=6,# i diastasi kathe point sto input (3 gia xyz + 3 gia rgb)
+                 in_channels=3,# i diastasi kathe point sto input (3 gia xyz + 3 gia rgb)
                  order=("z", "z-trans"),# serialization order
                  stride=(2, 2, 2, 2),# to stride se kathe encoder stage pio mikro to stride, pio ligo to downsampling
                  enc_depths=(2, 2, 2, 6, 2),# posa transformer blocks exei kathe encoder stage

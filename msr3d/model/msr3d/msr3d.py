@@ -458,7 +458,7 @@ class MSR3D(nn.Module):
     def generate(
             self,
             data_dict,
-            use_nucleus_sampling=False,
+            use_nucleus_sampling=True,
             num_beams=5,
             max_length=256,
             min_length=1,
@@ -466,7 +466,7 @@ class MSR3D(nn.Module):
             repetition_penalty=3.0,
             length_penalty=1,
             num_captions=1,
-            temperature=1,
+            temperature=0.5,
             pred_action=False,
     ):
         # data_dict:
