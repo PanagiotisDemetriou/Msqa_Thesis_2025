@@ -223,20 +223,20 @@ class SerializedAttention(PointModule):
                 q = q.float()
                 k = k.float()
 
-            ######################
-            print("DEBUG: K type/val:", type(K), getattr(K, "item", lambda: K)())
-            print("DEBUG: H type/val:", type(H), getattr(H, "item", lambda: H)())
-            print("DEBUG: C type/val:", type(C), getattr(C, "item", lambda: C)())
+            # ######################
+            # print("DEBUG: K type/val:", type(K), getattr(K, "item", lambda: K)())
+            # print("DEBUG: H type/val:", type(H), getattr(H, "item", lambda: H)())
+            # print("DEBUG: C type/val:", type(C), getattr(C, "item", lambda: C)())
 
-            for name, obj in (("q", q), ("k", k), ("v", v), ("scale", self.scale)):
-                print(f"DEBUG: {name}: type={type(obj)}, dtype={getattr(obj,'dtype',None)}, shape={getattr(obj,'shape',None)}")
-                # show a short repr for non-tensors or small tensors
-                try:
-                    r = repr(obj)
-                except Exception:
-                    r = "<repr failed>"
-                print(f"DEBUG: {name} repr (prefix): {r[:300]}")
-            ######################
+            # for name, obj in (("q", q), ("k", k), ("v", v), ("scale", self.scale)):
+            #     print(f"DEBUG: {name}: type={type(obj)}, dtype={getattr(obj,'dtype',None)}, shape={getattr(obj,'shape',None)}")
+            #     # show a short repr for non-tensors or small tensors
+            #     try:
+            #         r = repr(obj)
+            #     except Exception:
+            #         r = "<repr failed>"
+            #     print(f"DEBUG: {name} repr (prefix): {r[:300]}")
+            # ######################
             attn = (q * self.scale) @ k.transpose(-2, -1)  # (N', H, K, K)
             if self.enable_rpe:
                 attn = attn + self.rpe(self.get_rel_pos(point, order))
