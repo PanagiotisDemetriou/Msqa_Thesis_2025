@@ -213,6 +213,16 @@ class SerializedAttention(PointModule):
         qkv = self.qkv(point.feat)[order]
 
         if not self.enable_flash:
+
+            # encode and reshape qkv: (N', K, 3, H, C') => (3, N', H, K, C')
+            q, k, v = (
+                qkv.reshape(-1, K, 3, H, C // H).permute(2, 0, 3, 1, 4).unbind(dim=0)
+            )
+            # attn
+            if self.upcast_attention:
+                q = q.float()
+                k = k.float()
+
             ######################
             print("DEBUG: K type/val:", type(K), getattr(K, "item", lambda: K)())
             print("DEBUG: H type/val:", type(H), getattr(H, "item", lambda: H)())
@@ -227,14 +237,6 @@ class SerializedAttention(PointModule):
                     r = "<repr failed>"
                 print(f"DEBUG: {name} repr (prefix): {r[:300]}")
             ######################
-            # encode and reshape qkv: (N', K, 3, H, C') => (3, N', H, K, C')
-            q, k, v = (
-                qkv.reshape(-1, K, 3, H, C // H).permute(2, 0, 3, 1, 4).unbind(dim=0)
-            )
-            # attn
-            if self.upcast_attention:
-                q = q.float()
-                k = k.float()
             attn = (q * self.scale) @ k.transpose(-2, -1)  # (N', H, K, K)
             if self.enable_rpe:
                 attn = attn + self.rpe(self.get_rel_pos(point, order))
