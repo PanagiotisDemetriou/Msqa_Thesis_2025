@@ -222,7 +222,7 @@ model:
           pre_norm: True
           shuffle_orders: True # an thelei na kanoume shuffle ta orders kathe fora pou kanoume pooling
           enable_rpe: False
-          enable_flash: True
+          enable_flash: False
           upcast_attention: False
           upcast_softmax: False
           cls_mode: False # an einai true, mono encoder diladi classificationm, an einai false, encoder kai decoder diladi segmentation
