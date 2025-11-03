@@ -165,11 +165,11 @@ eval:
 dataloader:
   train:
     # This is a per-gpu batchsize
-    batchsize: 2
+    batchsize: 1
     num_workers: 0
   eval:
     # This is a per-gpu batchsize
-    batchsize: 2
+    batchsize: 1
     num_workers: 0
 
 # Model details
