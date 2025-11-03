@@ -213,6 +213,20 @@ class SerializedAttention(PointModule):
         qkv = self.qkv(point.feat)[order]
 
         if not self.enable_flash:
+            ######################
+            print("DEBUG: K type/val:", type(K), getattr(K, "item", lambda: K)())
+            print("DEBUG: H type/val:", type(H), getattr(H, "item", lambda: H)())
+            print("DEBUG: C type/val:", type(C), getattr(C, "item", lambda: C)())
+
+            for name, obj in (("q", q), ("k", k), ("v", v), ("scale", self.scale)):
+                print(f"DEBUG: {name}: type={type(obj)}, dtype={getattr(obj,'dtype',None)}, shape={getattr(obj,'shape',None)}")
+                # show a short repr for non-tensors or small tensors
+                try:
+                    r = repr(obj)
+                except Exception:
+                    r = "<repr failed>"
+                print(f"DEBUG: {name} repr (prefix): {r[:300]}")
+            ######################
             # encode and reshape qkv: (N', K, 3, H, C') => (3, N', H, K, C')
             q, k, v = (
                 qkv.reshape(-1, K, 3, H, C // H).permute(2, 0, 3, 1, 4).unbind(dim=0)
