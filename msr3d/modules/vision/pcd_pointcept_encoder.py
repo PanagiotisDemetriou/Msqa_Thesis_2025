@@ -121,7 +121,7 @@ class PTv3PcdObjEncoder(nn.Module):
         offset = torch.arange(1, total_objects + 1, device=obj_pcds.device) * points_per_obj
         custom_data = {
         'coord': coords,
-        'feat': features,
+        'feat': rgb_features,
         'grid_size': 0.1, 
         'offset': offset,
         'batch': batch_indices
