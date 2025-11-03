@@ -58,6 +58,7 @@ class PTv3PcdObjEncoder(nn.Module):
         self.freeze = freeze
         self.cls_mode = cls_mode
         output_channels = enc_channels[-1] if cls_mode else dec_channels[0]
+        qk_scale = (output_channels // enc_num_head[-1]) ** -0.5
         self.pcd_net = PointTransformerV3(
                  
                  in_channels,# i diastasi kathe point sto input (3 gia xyz + 3 gia rgb)
