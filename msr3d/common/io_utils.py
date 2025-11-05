@@ -102,3 +102,21 @@ def load_tensor(filename):
 
 def save_tensor(data, filename):
     torch.save(data, filename)
+
+def load_point_cloud(scene_id):
+    """
+    Load point cloud data for a given scene ID
+    
+    Args:
+        scene_id: ID of the scene to load
+        
+    Returns:
+        point_cloud: numpy array of shape (N, 3) containing point cloud coordinates
+    """
+    # Adjust this path based on your data structure
+    point_cloud_path = Path(f'data/MSR3D_v2_pcds/{scene_id}.npy')
+    
+    if point_cloud_path.exists():
+        return np.load(point_cloud_path)
+    else:
+        raise FileNotFoundError(f"Point cloud file not found for scene {scene_id} at {point_cloud_path}")
