@@ -2,8 +2,8 @@ import os
 import torch
 import numpy as np
 from omegaconf import OmegaConf
-from msr3d.model.msr3d.msr3d import MSR3D
-from msr3d.data.datasets.scannet_base import ScanNetBase
+from model.msr3d.msr3d import MSR3D
+from data.datasets.scannet_base import ScanNetBase
 class InteractiveInferenceTool:
    """Tool for interactive inference using a pre-trained MSR3D model.
    
