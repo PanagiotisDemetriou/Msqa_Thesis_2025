@@ -55,7 +55,7 @@ class InteractiveInferenceTool:
          output_dict: Dictionary containing model outputs.
       """
       with torch.no_grad():
-         output_dict = self.model.generate(self.data_dict, inference=True)
+         output_dict = self.model.generate(self.data_dict)
       return output_dict
 
 def main():
