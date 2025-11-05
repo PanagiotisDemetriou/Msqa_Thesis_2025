@@ -10,7 +10,7 @@ naming_keywords: [note]
 base_dir: '' # the output directory, must be set 
 exp_dir: "" # must be empty, will be set by run.py as base_dir + name + *naming_keywords
 pretrain_ckpt_path: ""
-hf_hub_cache_dir: '' # the cache directory for huggingface models, optional
+hf_hub_cache_dir: '/lustreFS/data/vcg/pdemetriou/hub' # the cache directory for huggingface models, optional
 
 resume: False
 save_frequency: 10000 # how many training steps to save a checkpoint using accerlerator
