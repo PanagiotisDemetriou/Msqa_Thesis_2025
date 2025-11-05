@@ -15,9 +15,10 @@ class InteractiveInferenceTool:
    """
    def __init__(self):
       experiment_path = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIP_PNPP_ViC_LORA_TUNED'   
+      self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
       self.cfg = self.load_config(experiment_path)
       self.model = self.load_model(os.path.join(experiment_path,'best.pth'))
-      self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+      
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
       print("InteractiveInferenceTool initialized.")
