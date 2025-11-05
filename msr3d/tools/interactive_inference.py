@@ -44,3 +44,10 @@ class InteractiveInferenceTool:
           load_pc_info=True
       )
       return scan_data
+   
+
+def main():
+   tool = InteractiveInferenceTool()
+
+if __name__ == "__main__":
+   main()
