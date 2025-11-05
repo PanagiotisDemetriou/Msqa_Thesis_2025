@@ -45,10 +45,40 @@ class InteractiveInferenceTool:
           load_pc_info=True
       )
       return scan_data
-   
+   def forward(self):
+      """Perform inference on the input data dictionary.
+      
+      Args:
+         data_dict: Dictionary containing input data for the model.
+         
+      Returns:
+         output_dict: Dictionary containing model outputs.
+      """
+      with torch.no_grad():
+         output_dict = self.model.generate(self.data_dict, inference=True)
+      return output_dict
 
 def main():
-   tool = InteractiveInferenceTool()
+    tool = InteractiveInferenceTool()
+    print("InteractiveInferenceTool initialized.")
+    
+    # Example usage: Perform inference on a specific scene and question
+    #scene_id = input("Enter scene ID (e.g., scene0090_00): ")
+    #question = input("Enter your question: ")
+    scene_id = "scene0090_00"
+    question = "Is the bathroom stall open or closed?"
+    # Load scene data dynamically
+    tool.data_dict = tool.load_data(scene_id)
+    
+    # Add the question to the prompt
+    tool.data_dict['prompt'] = f"You are in a scene. USER: {question} ASSISTANT:"
+    
+    # Perform forward pass
+    output_dict = tool.forward()
+    
+    # Decode and print the answer
+    answer = tool.model.llm_tokenizer.batch_decode(output_dict['output_tokens'], skip_special_tokens=True)
+    print("Answer:", answer)
 
 if __name__ == "__main__":
-   main()
+    main()
