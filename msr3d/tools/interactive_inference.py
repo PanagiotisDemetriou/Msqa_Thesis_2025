@@ -1,7 +1,9 @@
 import os
+import sys
 import torch
 import numpy as np
 from omegaconf import OmegaConf
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from model.msr3d.msr3d import MSR3D
 from data.datasets.scannet_base import ScanNetBase
 class InteractiveInferenceTool:
