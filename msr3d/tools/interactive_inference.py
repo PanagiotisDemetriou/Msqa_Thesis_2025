@@ -27,11 +27,11 @@ class InteractiveInferenceTool:
       model = MSR3D(self.cfg)
       model = model.to(self.device)
       model_state_dict = torch.load(os.path.join(path, 'pytorch_model.bin'))
-      is_model_distributed = isinstance(self.model, torch.nn.parallel.DistributedDataParallel)
+      is_model_distributed = isinstance(model, torch.nn.parallel.DistributedDataParallel)
       if is_model_distributed:
-         self.model.module.load_state_dict(model_state_dict, strict=False)
+         model.module.load_state_dict(model_state_dict, strict=False)
       else:
-         self.model.load_state_dict(model_state_dict, strict=False)
+         model.load_state_dict(model_state_dict, strict=False)
       model.eval()
       return model
    def load_config(self, path):
