@@ -23,8 +23,8 @@ class InteractiveInferenceTool:
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
       print("InteractiveInferenceTool initialized.")
-      promts = MSR3DBase.get_text_prompts(question, situation)
-      self.data_dict.update(promts)
+      promt = MSR3DBase.get_text_prompts(question, situation)
+      
       print(self.data_dict.keys())
       self.data_dict = self.model.build_text_prompt(self.data_dict)
       
@@ -62,6 +62,44 @@ class InteractiveInferenceTool:
       with torch.no_grad():
          output_dict = self.model.generate(self.data_dict)
       return output_dict
+
+   def process_custom_input(self, question, situation, images):
+      """
+      Process custom inputs to generate a data dictionary for inference.
+
+      Args:
+         question (str): The question to ask the model.
+         situation (str): The situation description.
+         images (list): List of image tensors.
+
+      Returns:
+         dict: Processed data dictionary ready for inference.
+      """
+      # Generate the prompt
+      prompt = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
+      _, place_holder_list = MSR3DBase.parse_place_holder(prompt)
+
+      # Prepare the data dictionary
+      data_dict = {
+         'source': 'custom_input',
+         'scan_id': '',  # No scan ID for custom input
+         'obj_fts': torch.zeros(len(images), 3, 224, 224),  # Placeholder for object features
+         'obj_locs': torch.zeros(len(images), 6),  # Placeholder for object locations
+         'img_fts': torch.stack(images) if images else torch.zeros(3, 224, 224),
+         'img_masks': torch.BoolTensor([1] * len(images)) if images else torch.BoolTensor([0]),
+         'text_output': '',  # Placeholder for text output
+         'answer_list': '',  # Placeholder for answer list
+         'msr3d_prompt': prompt,
+         'msr3d_imgs': images,
+         'anchor_orientation': torch.zeros(4).float(),
+         'anchor_locs': torch.zeros(3).float(),
+         'index': -1,  # Custom input index
+         'type': 'custom',
+      }
+
+      # Ensure all required keys are present
+      data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
+      return data_dict
 
 def main():   
     # Example usage: Perform inference on a specific scene and question
