@@ -71,7 +71,7 @@ def main():
     tool.data_dict = tool.load_data(scene_id)
     
     # Add the question to the prompt
-    tool.data_dict['prompt'] = f"You are in a scene. USER: {question} ASSISTANT:"
+    tool.data_dict['prompt_before_obj'] = f"You are in a scene. USER: {question} ASSISTANT:"
     
     # Perform forward pass
     output_dict = tool.forward()
