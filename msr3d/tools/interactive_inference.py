@@ -23,7 +23,7 @@ class InteractiveInferenceTool:
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
       print("InteractiveInferenceTool initialized.")
-      promts = MSR3DBase.get_prompts(question, situation)
+      promts = MSR3DBase.get_text_prompts(question, situation)
       self.data_dict.update(promts)
       print(self.data_dict.keys())
       self.data_dict = self.model.build_text_prompt(self.data_dict)
