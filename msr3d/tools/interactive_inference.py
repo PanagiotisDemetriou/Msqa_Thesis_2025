@@ -6,6 +6,7 @@ from omegaconf import OmegaConf
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from model.msr3d.msr3d import MSR3D
 from data.datasets.scannet_base import ScanNetBase
+from data.datasets.msr3d import MSR3DBase
 class InteractiveInferenceTool:
    """Tool for interactive inference using a pre-trained MSR3D model.
    
@@ -13,7 +14,7 @@ class InteractiveInferenceTool:
       model: The MSR3D model for inference.
       cfg: Configuration settings for the model.
    """
-   def __init__(self):
+   def __init__(self, situation, question):
       experiment_path = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIP_PNPP_ViC_LORA_TUNED'   
       self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
       self.cfg = self.load_config(experiment_path)
@@ -22,6 +23,9 @@ class InteractiveInferenceTool:
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
       print("InteractiveInferenceTool initialized.")
+      promts = MSR3DBase.get_prompts(question, situation)
+      self.data_dict.update(promts)
+      self.data_dict = self.model.build_text_prompt(self.data_dict)
       print(self.data_dict.keys())
    def load_model(self, path):
       model = MSR3D(self.cfg)
@@ -58,20 +62,20 @@ class InteractiveInferenceTool:
          output_dict = self.model.generate(self.data_dict)
       return output_dict
 
-def main():
-    tool = InteractiveInferenceTool()
-    print("InteractiveInferenceTool initialized.")
-    
+def main():   
     # Example usage: Perform inference on a specific scene and question
     #scene_id = input("Enter scene ID (e.g., scene0090_00): ")
     #question = input("Enter your question: ")
-    scene_id = "scene0090_00"
-    question = "Is the bathroom stall open or closed?"
+    scene_id = "scene0000_00"
+    question = "What is the color of the office chair in front of me?"    
+    situation = "To my left, at a middle distance, there's a gray fabric office chair with a curved rectangle shape. Far in front, there's a gray plastic bin. Far behind, there's a crumpled red pillow and a partly open grey curtain. Near to my right, there's a black and brown fabric office chair."
     # Load scene data dynamically
+    tool = InteractiveInferenceTool(situation, question)
+    print("InteractiveInferenceTool initialized.")
     tool.data_dict = tool.load_data(scene_id)
     
     # Add the question to the prompt
-    tool.data_dict['prompt_before_obj'] = f"You are in a scene. USER: {question} ASSISTANT:"
+    
     
     # Perform forward pass
     output_dict = tool.forward()
