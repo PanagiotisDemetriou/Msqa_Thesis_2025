@@ -25,8 +25,9 @@ class InteractiveInferenceTool:
       print("InteractiveInferenceTool initialized.")
       promts = MSR3DBase.get_prompts(question, situation)
       self.data_dict.update(promts)
-      self.data_dict = self.model.build_text_prompt(self.data_dict)
       print(self.data_dict.keys())
+      self.data_dict = self.model.build_text_prompt(self.data_dict)
+      
    def load_model(self, path):
       model = MSR3D(self.cfg)
       model = model.to(self.device)
