@@ -86,10 +86,10 @@ class MSR3DBase(Dataset):
     @staticmethod
     def get_prompts(instruction, situation="", dialogue=None):
         return {
-            'prompt_before_obj': MSR3DBase.role_prompt + MSR3DBase.situation_prompt.format(situation=situation),
-            'prompt_middle_1': MSR3DBase.egoview_prompt,
-            'prompt_middle_2': MSR3DBase.objects_prompt,
-            'prompt_after_obj': MSR3DBase.task_prompt.format(instruction=instruction) if dialogue is None else dialogue,
+            'prompt_before_obj': MSR3DBase.prompt_dict["role_prompt"] + MSR3DBase.prompt_dict["situation_prompt"].format(situation=situation),
+            'prompt_middle_1': MSR3DBase.prompt_dict["scene_prompt"],
+            'prompt_middle_2': MSR3DBase.prompt_dict["scene_prompt"],  # Adjust if needed
+            'prompt_after_obj': MSR3DBase.prompt_dict["task_prompt"].format(instruction=instruction) if dialogue is None else dialogue,
         }
 
     """
@@ -922,4 +922,4 @@ class MSR3DMix(Dataset):
                 break
 
         return self.streamline_output(data_dict)
-    
+
