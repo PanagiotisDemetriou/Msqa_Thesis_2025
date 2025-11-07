@@ -18,13 +18,20 @@ class InteractiveInferenceTool:
       experiment_path = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIP_PNPP_ViC_LORA_TUNED'   
       self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
       self.cfg = self.load_config(experiment_path)
-      self.model = self.load_model(os.path.join(experiment_path,'best.pth'))
-      
+      self.model = self.load_model(os.path.join(experiment_path,'best.pth'))     
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
-      print("InteractiveInferenceTool initialized.")
       self.data_dict = self.process_custom_input(question, situation, [])
       self.data_dict = self._ensure_batched(self.data_dict, bs=1)  
+   def to_device(self, data, device):
+        # move any torch.Tensor in dict (or nested dict/list) to device
+        if torch.is_tensor(data):
+            return data.to(device)
+        if isinstance(data, dict):
+            return {k: self.to_device(v, device) for k, v in data.items()}
+        if isinstance(data, (list, tuple)):
+            return type(data)(self.to_device(v, device) for v in data)
+        return data
    def _broadcast_list(self, v, bs, default=''):
         """Make sure v is a list of length bs."""
         if isinstance(v, list):
@@ -113,6 +120,7 @@ class InteractiveInferenceTool:
       Returns:
          output_dict: Dictionary containing model outputs.
       """
+      self.data_dict = self.to_device(self.data_dict, self.device)
       with torch.no_grad():
          output_dict = self.model.generate(self.data_dict)
       return output_dict
