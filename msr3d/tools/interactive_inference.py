@@ -108,7 +108,6 @@ def main():
     # Load scene data dynamically
     tool = InteractiveInferenceTool(situation, question)
     print("InteractiveInferenceTool initialized.")
-    tool.data_dict = tool.load_data(scene_id)
     
     # Add the question to the prompt
     
