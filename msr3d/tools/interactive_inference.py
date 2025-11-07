@@ -24,7 +24,64 @@ class InteractiveInferenceTool:
       self.data_dict = self.load_data('scene0090_00')  
       print("InteractiveInferenceTool initialized.")
       self.data_dict = self.process_custom_input(question, situation, [])
-      print(self.data_dict.keys())      
+      self.data_dict = self._ensure_batched(self.data_dict, bs=1)  
+   def _broadcast_list(self, v, bs, default=''):
+        """Make sure v is a list of length bs."""
+        if isinstance(v, list):
+            if len(v) == bs: return v
+            if len(v) == 1:  return v * bs
+            # fallback: trim or pad
+            return (v * bs)[:bs]
+        if isinstance(v, str):
+            return [v] * bs
+        if v is None:
+            return [default] * bs
+        # already tensor or other type → wrap
+        return [v] * bs
+
+   def _ensure_batched(self, data_dict, bs=1):
+      """Normalize fields to batch format the model expects."""
+      # 1) prompts and text fields as lists
+      for k in ['msr3d_prompt', 'prompt_before_obj', 'prompt_middle_1',
+               'prompt_middle_2', 'prompt_after_obj', 'text_output', 'answer_list']:
+         if k in data_dict:
+               default = '' if k != 'answer_list' else ''
+               data_dict[k] = self._broadcast_list(data_dict[k], bs, default=default)
+
+      # 2) image features: (B,3,H,W)
+      if 'img_fts' in data_dict:
+         if isinstance(data_dict['img_fts'], torch.Tensor):
+               if data_dict['img_fts'].dim() == 3:  # (3,H,W) -> (1,3,H,W)
+                  data_dict['img_fts'] = data_dict['img_fts'].unsqueeze(0)
+         else:
+               # if it was a numpy array etc., coerce to tensor
+               data_dict['img_fts'] = torch.tensor(data_dict['img_fts'])
+               if data_dict['img_fts'].dim() == 3:
+                  data_dict['img_fts'] = data_dict['img_fts'].unsqueeze(0)
+
+      # 3) image masks: (B,1) bool
+      if 'img_masks' not in data_dict or not isinstance(data_dict['img_masks'], torch.Tensor):
+         # if no images, keep as all False; else True
+         has_img = ('img_fts' in data_dict and isinstance(data_dict['img_fts'], torch.Tensor) 
+                     and data_dict['img_fts'].shape[0] >= 1)
+         val = 1 if has_img else 0
+         data_dict['img_masks'] = torch.full((bs, 1), bool(val), dtype=torch.bool)
+      else:
+         m = data_dict['img_masks']
+         if m.dim() == 1:                      # (B,) -> (B,1)
+               data_dict['img_masks'] = m.view(-1, 1).to(torch.bool)
+         elif m.dim() == 2:
+               data_dict['img_masks'] = m.to(torch.bool)
+         else:
+               data_dict['img_masks'] = m.reshape(bs, 1).to(torch.bool)
+
+      # 4) anchors: make sure tensors exist and have right shapes
+      data_dict.setdefault('anchor_orientation', torch.zeros(4).float())
+      data_dict.setdefault('anchor_locs', torch.zeros(3).float())
+
+      # 5) final pass to fill any remaining required keys
+      data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
+      return data_dict    
    def load_model(self, path):
       model = MSR3D(self.cfg)
       model = model.to(self.device)
@@ -108,36 +165,7 @@ def main():
     # Load scene data dynamically
     tool = InteractiveInferenceTool(situation, question)
     print("InteractiveInferenceTool initialized.")
-    
-    # Batch size (1 if you’re doing single-sample inference)
-    bs = 1
-
-    # 1) Provide a list[str] for msr3d_prompt (not a plain str)
-    prompt_str = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
-    scan_data['msr3d_prompt'] = [prompt_str] * bs
-
-    # 2) Make sure the LEO-style pieces are lists if present (or let the helper fill them)
-    for k in ['prompt_before_obj','prompt_middle_1','prompt_middle_2','prompt_after_obj','text_output','answer_list']:
-       v = scan_data.get(k)
-       if isinstance(v, str):
-          scan_data[k] = [v] * bs
-       elif v is None:
-          # minimal blanks the model can accept
-          scan_data[k] = [''] * bs
-
-    # 3) Ensure image tensors & masks have batch dims and correct types
-    if scan_data.get('img_fts') is not None:
-       if scan_data['img_fts'].dim() == 3:           # (3, H, W) -> (1, 3, H, W)
-          scan_data['img_fts'] = scan_data['img_fts'].unsqueeze(0)
-       # Boolean mask (B, 1) with True meaning “not masked”
-       scan_data['img_masks'] = torch.ones(bs, 1, dtype=torch.bool)
-
-    # 4) Let their utility fill any missing required keys consistently
-    scan_data = MSR3DBase.check_output_and_fill_dummy(scan_data)
-
-    tool.data_dict = scan_data
-    
-    
+       
     # Perform forward pass
     output_dict = tool.forward()
     
