@@ -169,41 +169,41 @@ class InteractiveInferenceTool:
    #    return data_dict
    def process_custom_input(self, question, situation, images):
     """
-    Build a safe single-sample data_dict that does NOT trigger the visual prompter
-    (so we avoid PointNet++/FPS). We provide zeroed obj_tokens/obj_masks instead.
+    Build a safe single-sample data_dict that does NOT trigger the visual prompter.
+    We provide zeroed obj_tokens/obj_masks with correct shapes so FPS kernels are never called.
     """
     # 1) Prompt as a LIST (batch size = 1)
     prompt_str = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
     msr3d_prompt = [prompt_str]
 
-    # 2) Simple image path (no placeholders)
+    # 2) Simple image path (no msr3d_imgs/msr3d_img_masks)
     if images:
-        # take the first image as (3,H,W) tensor
         img = images[0]
         if isinstance(img, np.ndarray):
             img = torch.from_numpy(img)
-        img = img.float().unsqueeze(0)                # (1,3,H,W)
-        img_masks = torch.ones(1, 1, dtype=torch.bool)
+        img = img.float().unsqueeze(0)                  # (1,3,H,W)
+        img_masks = torch.ones(1, 1, dtype=torch.bool)  # (1,1)
     else:
-        img = torch.zeros(1, 3, 224, 224, dtype=torch.float32)  # dummy
-        img_masks = torch.zeros(1, 1, dtype=torch.bool)         # masked out
+        img = torch.zeros(1, 3, 224, 224, dtype=torch.float32)
+        img_masks = torch.zeros(1, 1, dtype=torch.bool)
 
-    # 3) Bypass visual prompter: provide zeroed obj_tokens/obj_masks
-    scene_token_len = getattr(self.model, 'scene_token_len', self.cfg.prompter.model.get('scene_token_len', 61))
-    hidden_in = self.cfg.prompter.model.hidden_size  # input size expected by self.llm_proj
+    # 3) Bypass visual prompter by supplying obj_tokens/obj_masks
+    #    IMPORTANT: read sizes from the MODEL, not self.cfg
+    scene_token_len = getattr(self.model, 'scene_token_len', 61)
+    hidden_in = self.model.cfg.prompter.model.hidden_size
     obj_tokens = torch.zeros(1, scene_token_len, hidden_in, dtype=torch.float32)  # (B=1, Tscene, C_in)
-    obj_masks  = torch.zeros(1, scene_token_len, dtype=torch.bool)                # (B=1, Tscene) all False
+    obj_masks  = torch.zeros(1, scene_token_len, dtype=torch.bool)                # (B=1, Tscene)
 
     data_dict = {
         'source': 'custom_input',
         'scan_id': '',
-        # we intentionally DO NOT set msr3d_imgs/msr3d_img_masks here
-        'img_fts': img,            # (1,3,H,W)
-        'img_masks': img_masks,    # (1,1) bool
-        # Provide tokens directly so build_embeds() won't call visual_prompter()
-        'obj_tokens': obj_tokens,  # (1, Tscene, C_in)
-        'obj_masks': obj_masks,    # (1, Tscene)
-        # Text fields must be lists
+        # simple image path
+        'img_fts': img,                 # (1,3,H,W)
+        'img_masks': img_masks,         # (1,1) bool
+        # provide tokens directly so build_embeds() won't call visual_prompter()
+        'obj_tokens': obj_tokens,       # (1, Tscene, C_in)
+        'obj_masks': obj_masks,         # (1, Tscene)
+        # text fields must be lists
         'text_output': [''],
         'answer_list': [''],
         'msr3d_prompt': msr3d_prompt,
@@ -212,6 +212,8 @@ class InteractiveInferenceTool:
         'index': -1,
         'type': 'custom',
     }
+
+    # DO NOT include 'msr3d_imgs' / 'msr3d_img_masks' here (keeps you on simple path)
 
     # Fill any other keys the model expects
     data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
