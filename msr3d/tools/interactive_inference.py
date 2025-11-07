@@ -109,7 +109,33 @@ def main():
     tool = InteractiveInferenceTool(situation, question)
     print("InteractiveInferenceTool initialized.")
     
-    # Add the question to the prompt
+    # Batch size (1 if you’re doing single-sample inference)
+    bs = 1
+
+    # 1) Provide a list[str] for msr3d_prompt (not a plain str)
+    prompt_str = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
+    scan_data['msr3d_prompt'] = [prompt_str] * bs
+
+    # 2) Make sure the LEO-style pieces are lists if present (or let the helper fill them)
+    for k in ['prompt_before_obj','prompt_middle_1','prompt_middle_2','prompt_after_obj','text_output','answer_list']:
+       v = scan_data.get(k)
+       if isinstance(v, str):
+          scan_data[k] = [v] * bs
+       elif v is None:
+          # minimal blanks the model can accept
+          scan_data[k] = [''] * bs
+
+    # 3) Ensure image tensors & masks have batch dims and correct types
+    if scan_data.get('img_fts') is not None:
+       if scan_data['img_fts'].dim() == 3:           # (3, H, W) -> (1, 3, H, W)
+          scan_data['img_fts'] = scan_data['img_fts'].unsqueeze(0)
+       # Boolean mask (B, 1) with True meaning “not masked”
+       scan_data['img_masks'] = torch.ones(bs, 1, dtype=torch.bool)
+
+    # 4) Let their utility fill any missing required keys consistently
+    scan_data = MSR3DBase.check_output_and_fill_dummy(scan_data)
+
+    tool.data_dict = scan_data
     
     
     # Perform forward pass
