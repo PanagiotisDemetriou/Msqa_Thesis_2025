@@ -23,7 +23,7 @@ class InteractiveInferenceTool:
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
       print("InteractiveInferenceTool initialized.")
-      promt = self.process_custom_input(question, situation, [])
+      self.data_dict = self.process_custom_input(question, situation, [])
       print(self.data_dict.keys())      
    def load_model(self, path):
       model = MSR3D(self.cfg)
