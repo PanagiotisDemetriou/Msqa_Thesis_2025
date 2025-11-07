@@ -140,7 +140,11 @@ class InteractiveInferenceTool:
       # Generate the prompt
       prompt = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
       _, place_holder_list = MSR3DBase.parse_place_holder(prompt)
-
+      if images:
+        # images: list of (3,H,W) tensors
+        img_masks = torch.ones(img_fts.size(0), 1, dtype=torch.bool)  # (B,1)
+      else:
+        img_masks = torch.zeros(1, 1, dtype=torch.bool)               # (B,1), all False
       # Prepare the data dictionary
       data_dict = {
          'source': 'custom_input',
@@ -157,9 +161,9 @@ class InteractiveInferenceTool:
          'anchor_locs': torch.zeros(3).float(),
          'index': -1,  # Custom input index
          'type': 'custom',
+         'msr3d_img_masks': img_masks
+         
       }
-      if 'msr3d_imgs' in data_dict and 'msr3d_img_masks' not in data_dict:
-         data_dict['msr3d_img_masks'] = torch.BoolTensor([1] * len(data_dict['msr3d_imgs'])) if data_dict['msr3d_imgs'] else torch.BoolTensor([0])
       # Ensure all required keys are present
       data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
