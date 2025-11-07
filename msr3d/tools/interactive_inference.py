@@ -158,7 +158,8 @@ class InteractiveInferenceTool:
          'index': -1,  # Custom input index
          'type': 'custom',
       }
-
+      if 'msr3d_imgs' in data_dict and 'msr3d_img_masks' not in data_dict:
+         data_dict.pop('msr3d_imgs', None)
       # Ensure all required keys are present
       data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
