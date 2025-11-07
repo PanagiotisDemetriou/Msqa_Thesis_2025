@@ -159,7 +159,7 @@ class InteractiveInferenceTool:
          'type': 'custom',
       }
       if 'msr3d_imgs' in data_dict and 'msr3d_img_masks' not in data_dict:
-         data_dict.pop('msr3d_imgs', None)
+         data_dict['msr3d_img_masks'] = torch.BoolTensor([1] * len(data_dict['msr3d_imgs'])) if data_dict['msr3d_imgs'] else torch.BoolTensor([0])
       # Ensure all required keys are present
       data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
