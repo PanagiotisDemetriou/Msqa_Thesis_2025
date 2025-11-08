@@ -28,11 +28,11 @@ class InteractiveInferenceTool:
       self.model = self.load_model(experiment_path)  # load best.pth from the experiment dir (see load_model)
       
       # (optional) keep this around, though we now rely on the dataset to build inputs
-      self.data_loader = ScanNetBase(self.cfg, split='val')
+      self.data_loader = ScanNetBase(self.cfg, split='test')
 
       # Build a proper sample via __getitem__ from the dataset,
       # then override the prompt with your custom (question, situation)
-      self.dataset = MSQAScanNet(self.cfg, split='val')
+      self.dataset = MSQAScanNet(self.cfg, split='test')
 
       idx = self._index_for_scene(self.dataset, scene_id)
       base_sample = self.dataset[idx]  # this already has obj_fts/obj_locs/anchors/etc.

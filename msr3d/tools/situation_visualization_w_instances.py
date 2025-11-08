@@ -418,7 +418,7 @@ if __name__ == "__main__":
     pcd_root = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/"
     
     # Process each QA pair
-    for data_id in range(10):
+    for data_id in range(1):
         qa_pair = data_dict[data_id]
         scan_id = qa_pair['scan_id']
         pcd_path = os.path.join(pcd_root, scan_id + ".pth")
