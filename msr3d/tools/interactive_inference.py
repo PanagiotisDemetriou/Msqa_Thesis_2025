@@ -308,12 +308,9 @@ class InteractiveInferenceTool:
 
 def main():
    # Example usage: Perform inference on a specific scene and question
-   scene_id = "scene0000_00"
-   question = "What is the color of the office chair in front of me?"
-   situation = ("To my left, at a middle distance, there's a gray fabric office chair with a "
-                "curved rectangle shape. Far in front, there's a gray plastic bin. Far behind, "
-                "there's a crumpled red pillow and a partly open grey curtain. Near to my right, "
-                "there's a black and brown fabric office chair.")
+   scene_id = "scene0231_00"
+   question = "What is the color of the carpet?"
+   situation = ("I am sitting on the sofa and in front of me there is a trash can. To my near left there is a brown armchair and to my far right the kitchen")
 
    tool = InteractiveInferenceTool(scene_id, situation, question)
    print("InteractiveInferenceTool initialized.")
