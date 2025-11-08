@@ -20,9 +20,9 @@ class InteractiveInferenceTool:
       self.cfg = self.load_config(experiment_path)
       self.model = self.load_model(os.path.join(experiment_path,'best.pth'))     
       self.data_loader = ScanNetBase(self.cfg, split='val')
-      self.data_dict = self.load_data('scene0090_00')  
+      self.data_dict = self.load_data('scene0000_00')  
       print(self.data_dict.keys())
-      self.data_dict = self._build_single_datadict(question, situation, [])
+      self.data_dict = self.process_custom_input(question, situation, [])
       self.data_dict = self._ensure_batched(self.data_dict, bs=1)  
    def to_device(self, data, device):
         # move any torch.Tensor in dict (or nested dict/list) to device
@@ -126,93 +126,52 @@ class InteractiveInferenceTool:
          output_dict = self.model.generate(self.data_dict)
       return output_dict
 
-   def _load_scan_data(self):
-      # Use your ScanNetBase helper to get per-scene data
-      scan_id, scan_data = self.scan_loader._load_one_scan(
-         self.scene_id, pc_type='gt', load_inst_info=True, load_pc_info=True
-      )
-      return scan_data
-
-   def _scene_encoder_from_scan(self, scan_data, insts, anchor_loc=None, anchor_quat=None):
+   def process_custom_input(self, question, situation, images):
       """
-      Mirror MSR3DBase._get_scene_encoder_input + preprocess_pcd
+      Process custom inputs to generate a data dictionary for inference.
+
+      Args:
+         question (str): The question to ask the model.
+         situation (str): The situation description.
+         images (list): List of image tensors.
+
+      Returns:
+         dict: Processed data dictionary ready for inference.
       """
-      # We need access to MSR3DBase params: num_points, max_obj_len, use_rotate, split
-      # Create a tiny shim object to reuse its logic cleanly.
-      class _Shim(MSR3DBase):
-         def __init__(self, cfg, split):
-               super().__init__(cfg, dataset='ScanNet')
-               self.split = split
-               dcfg = cfg.data.msqa_scannet.args
-               self.num_points = dcfg.get('num_points', 1024)
-               self.max_obj_len = dcfg.get('max_obj_len', 60)
-               self.use_rotate = dcfg.get('use_rotate', True)
-               self.use_rotate = self.use_rotate and (split == 'train')
-
-      shim = _Shim(self.cfg, self.split)
-
-      # Build the same structure expected by _get_scene_encoder_input
-      scan_data_like = {'obj_pcds': scan_data['obj_pcds']}
-      situation = None
-      if anchor_loc is not None and anchor_quat is not None:
-         situation = (anchor_loc, anchor_quat)
-
-      out = shim._get_scene_encoder_input(scan_data_like, insts, situation=situation)
-      return out  # contains obj_fts, obj_locs, and maybe "situation"
-
-   def _build_single_datadict(self):
-      # 1) prompt + placeholders
-      prompt = MSR3DBase.get_text_prompts(instruction=self.question, situation=self.situation)
-      prompt_resolved, placeholder_list = MSR3DBase.parse_place_holder(prompt)
-
-      # 2) load scan + compute obj_fts/obj_locs like in __getitem__
-      scan_data = self._load_scan_data()
-      scene_out = self._scene_encoder_from_scan(scan_data, self.insts)
-      obj_fts = scene_out['obj_fts']
-      obj_locs = scene_out['obj_locs']
-
-      # 3) images & placeholders (keep images off unless you truly have them)
-      img_list = []
-      if self.images:  # user-provided list of (3,H,W) tensors
-         # we won’t inject them into prompt; we’ll just pass them through
-         try:
-               img_fts = torch.stack(self.images)  # (B,3,H,W) expected later
-               img_masks = torch.ones((img_fts.shape[0],1), dtype=torch.bool)
-         except:
-               img_fts = torch.zeros(3,224,224)   # will become (1,3,224,224)
-               img_masks = torch.zeros(1,1, dtype=torch.bool)
+      # Generate the prompt
+      prompt = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
+      _, place_holder_list = MSR3DBase.parse_place_holder(prompt)
+      scan_data = MSR3DBase.prepare_data_loading_with_cache(dataset_name = 'ScanNet', scan_id = 'scene0000_00', data_type_list = ['obj_pcds'])
+      output_dict = MSR3DBase._get_scene_encoder_input(scan_data, self.data_dict['inst_locs'])
+      if images:
+        # images: list of (3,H,W) tensors
+        img_masks = torch.ones((3,224,224), 1, dtype=torch.bool)  # (B,1)
       else:
-         img_fts = torch.zeros(3,224,224)
-         img_masks = torch.zeros(1,1, dtype=torch.bool)
-
-      # If prompt had IMG placeholders but we didn’t resolve any, replace all with text form:
-      if "IMG" in prompt and len(img_list) == 0:
-         prompt_resolved = MSR3DBase.replace_all_imgs_with_txt(self=MSR3DBase, data=prompt)
-
-      # 4) pack dict consistent with MSQAScanNet.__getitem__
+        img_masks = torch.zeros(1, 1, dtype=torch.bool)               # (B,1), all False
+      
+      obj_fts = output_dict['obj_fts']
+      obj_locs = output_dict['obj_locs']
+      # Prepare the data dictionary
       data_dict = {
          'source': 'custom_input',
-         'scan_id': self.scene_id,
-         'obj_fts': obj_fts,
-         'obj_locs': obj_locs,
-
-         'img_fts': img_fts,
-         'img_masks': img_masks,
-
-         'text_output': '',                      # unknown target at inference
-         'answer_list': '',                      # not used at inference
-         'msr3d_prompt': prompt_resolved,
-         'msr3d_imgs': img_list,
-
-         'anchor_orientation': torch.zeros(4).float(),  # leave zeros unless you compute it
-         'anchor_locs': torch.zeros(3).float(),         # same
-         'prompt_before_obj': '',
-         'prompt_middle_1' : '',
-         'prompt_middle_2' : '',
-         'prompt_after_obj' : '',
-         'index': -1,
-         'type': 'custom'
+         'scan_id': '',  # No scan ID for custom input
+         'obj_fts': obj_fts,  # Placeholder for object features
+         'obj_locs': obj_locs,  # Placeholder for object locations
+         'img_fts': torch.stack(images) if images else torch.zeros(3, 224, 224),
+         'img_masks': torch.BoolTensor([1] * len(images)) if images else torch.BoolTensor([0]),
+         'text_output': '',  # Placeholder for text output
+         'answer_list': '',  # Placeholder for answer list
+         'msr3d_prompt': prompt,
+         'msr3d_imgs': images,
+         'anchor_orientation': torch.zeros(4).float(),
+         'anchor_locs': torch.zeros(3).float(),
+         'index': -1,  # Custom input index
+         'type': 'custom',
+         'msr3d_img_masks': img_masks
+         
       }
+      # Ensure all required keys are present
+      data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
    
 
