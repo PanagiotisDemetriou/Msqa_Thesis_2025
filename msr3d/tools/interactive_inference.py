@@ -259,7 +259,27 @@ class InteractiveInferenceTool:
          else:
             print(f"{key}: {value}")
       print("\n[DEBUG] Missing Keys:")
-      for key in MSR3DBase.MSR3D_REQUIRED_KEYS:
+      required_keys = [
+               'msr3d_prompt',
+               'msr3d_imgs',  ## (B, max_num, C, H, W) this will be padded to max_num in the dataset wrapper
+               'obj_fts',
+               # 'obj_masks', # this is filled by dataset wrapper
+               'obj_locs',
+               'img_fts',
+               'img_masks',
+               'text_output',
+               'anchor_orientation',
+               'anchor_locs',
+               'source',
+               'scan_id',
+               'prompt_before_obj',
+               'prompt_middle_1',
+               'prompt_middle_2',
+               'prompt_after_obj',
+               'index',
+               'type'
+            ]
+      for key in required_keys:
          if key not in data_dict:
             print(f"Missing key: {key}")
 
