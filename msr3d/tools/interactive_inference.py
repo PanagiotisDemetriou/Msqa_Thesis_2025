@@ -22,7 +22,7 @@ class InteractiveInferenceTool:
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
       print(self.data_dict.keys())
-      self.data_dict = self.process_custom_input(question, situation, [])
+      self.data_dict = self._build_single_datadict(question, situation, [])
       self.data_dict = self._ensure_batched(self.data_dict, bs=1)  
    def to_device(self, data, device):
         # move any torch.Tensor in dict (or nested dict/list) to device
