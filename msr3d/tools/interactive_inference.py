@@ -174,6 +174,55 @@ class InteractiveInferenceTool:
       data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
    
+   def debug_data_dict(self, data_dict):
+      """
+      Debug the data dictionary to ensure all required keys are present.
+
+      Args:
+         data_dict (dict): The data dictionary to debug.
+      """
+      print("\n[DEBUG] Data Dictionary:")
+      for key, value in data_dict.items():
+         if isinstance(value, torch.Tensor):
+            print(f"{key}: Tensor with shape {value.shape}")
+         else:
+            print(f"{key}: {value}")
+      print("\n[DEBUG] Missing Keys:")
+      for key in MSR3DBase.MSR3D_REQUIRED_KEYS:
+         if key not in data_dict:
+            print(f"Missing key: {key}")
+
+   def ask_question(self, scene_id, question, situation, images=[]):
+      """
+      Ask a question about a specific scene.
+
+      Args:
+         scene_id (str): The ID of the scene to load.
+         question (str): The question to ask.
+         situation (str): The situation description.
+         images (list): List of image tensors (optional).
+
+      Returns:
+         str: The model's answer.
+      """
+      # Load the scene data
+      print("\n[INFO] Loading scene data...")
+      scene_data = self.load_data(scene_id)
+      print("[INFO] Scene data loaded.")
+
+      # Process the custom input
+      print("\n[INFO] Processing custom input...")
+      data_dict = self.process_custom_input(question, situation, images)
+      self.debug_data_dict(data_dict)
+
+      # Perform inference
+      print("\n[INFO] Performing inference...")
+      with torch.no_grad():
+         output_dict = self.model.generate(data_dict)
+
+      # Decode the answer
+      answer = self.model.llm_tokenizer.batch_decode(output_dict['output_tokens'], skip_special_tokens=True)
+      return answer[0] if answer else "No answer generated."
 
 def main():   
     # Example usage: Perform inference on a specific scene and question
