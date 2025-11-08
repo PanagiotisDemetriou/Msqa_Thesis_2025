@@ -65,7 +65,11 @@ class InteractiveInferenceTool:
       has_imgs = isinstance(images, list) and len(images) > 0
       img_fts = torch.stack(images) if has_imgs else torch.zeros(3, 224, 224)
       img_masks = torch.BoolTensor([1] * len(images)) if has_imgs else torch.BoolTensor([0])
-      
+      # Make masks 2-D (B,1) right away
+      if has_imgs:
+         img_masks_2d = torch.ones(1, 1, dtype=torch.bool)
+      else:
+         img_masks_2d = torch.zeros(1, 1, dtype=torch.bool)
       # Start from the base sample and override what we need for inference
       data_dict = {
          # keep scene geometry and pose from base sample
@@ -82,7 +86,7 @@ class InteractiveInferenceTool:
          # text fields
          'msr3d_prompt': prompt,
          'msr3d_imgs': images if has_imgs else [],
-         'msr3d_img_masks': img_masks,
+         'msr3d_img_masks': img_masks_2d,
 
          # minimal required extras
          'text_output': '',
