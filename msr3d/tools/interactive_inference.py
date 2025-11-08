@@ -309,7 +309,7 @@ class InteractiveInferenceTool:
 def main():
    # Example usage: Perform inference on a specific scene and question
    scene_id = "scene0231_00"
-   question = "What is the color of the carpet?"
+   question = "What is behind the trash can?"
    situation = ("I am sitting on the sofa and in front of me there is a trash can. To my near left there is a brown armchair and to my far right the kitchen")
 
    tool = InteractiveInferenceTool(scene_id, situation, question)
