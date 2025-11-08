@@ -170,7 +170,7 @@ class InteractiveInferenceTool:
       (Do not change the path; just load that file.)
       """
       model = MSR3D(self.cfg).to(self.device)
-      ckpt_path = os.path.join(experiment_path, 'best.pth')
+      ckpt_path = os.path.join(experiment_path, 'best.pth/pytorch_model.bin')
       state = torch.load(ckpt_path, map_location='cpu')
       # allow both raw state_dict or wrapper dicts
       state_dict = state.get('model', state)
