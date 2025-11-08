@@ -21,6 +21,7 @@ class InteractiveInferenceTool:
       self.model = self.load_model(os.path.join(experiment_path,'best.pth'))     
       self.data_loader = ScanNetBase(self.cfg, split='val')
       self.data_dict = self.load_data('scene0090_00')  
+      print(self.data_dict.keys())
       self.data_dict = self.process_custom_input(question, situation, [])
       self.data_dict = self._ensure_batched(self.data_dict, bs=1)  
    def to_device(self, data, device):
@@ -125,99 +126,49 @@ class InteractiveInferenceTool:
          output_dict = self.model.generate(self.data_dict)
       return output_dict
 
-   # def process_custom_input(self, question, situation, images):
-   #    """
-   #    Process custom inputs to generate a data dictionary for inference.
-
-   #    Args:
-   #       question (str): The question to ask the model.
-   #       situation (str): The situation description.
-   #       images (list): List of image tensors.
-
-   #    Returns:
-   #       dict: Processed data dictionary ready for inference.
-   #    """
-   #    # Generate the prompt
-   #    prompt = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
-   #    _, place_holder_list = MSR3DBase.parse_place_holder(prompt)
-   #    if images:
-   #      # images: list of (3,H,W) tensors
-   #      img_masks = torch.ones((3,224,224), 1, dtype=torch.bool)  # (B,1)
-   #    else:
-   #      img_masks = torch.zeros(1, 1, dtype=torch.bool)               # (B,1), all False
-   #    # Prepare the data dictionary
-   #    data_dict = {
-   #       'source': 'custom_input',
-   #       'scan_id': '',  # No scan ID for custom input
-   #       'obj_fts': torch.zeros(len(images), 3, 224, 224),  # Placeholder for object features
-   #       'obj_locs': torch.zeros(len(images), 6),  # Placeholder for object locations
-   #       'img_fts': torch.stack(images) if images else torch.zeros(3, 224, 224),
-   #       'img_masks': torch.BoolTensor([1] * len(images)) if images else torch.BoolTensor([0]),
-   #       'text_output': '',  # Placeholder for text output
-   #       'answer_list': '',  # Placeholder for answer list
-   #       'msr3d_prompt': prompt,
-   #       'msr3d_imgs': images,
-   #       'anchor_orientation': torch.zeros(4).float(),
-   #       'anchor_locs': torch.zeros(3).float(),
-   #       'index': -1,  # Custom input index
-   #       'type': 'custom',
-   #       'msr3d_img_masks': img_masks
-         
-   #    }
-   #    # Ensure all required keys are present
-   #    data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
-   #    return data_dict
    def process_custom_input(self, question, situation, images):
-    """
-    Build a safe single-sample data_dict that does NOT trigger the visual prompter.
-    We provide zeroed obj_tokens/obj_masks with correct shapes so FPS kernels are never called.
-    """
-    # 1) Prompt as a LIST (batch size = 1)
-    prompt_str = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
-    msr3d_prompt = [prompt_str]
+      """
+      Process custom inputs to generate a data dictionary for inference.
 
-    # 2) Simple image path (no msr3d_imgs/msr3d_img_masks)
-    if images:
-        img = images[0]
-        if isinstance(img, np.ndarray):
-            img = torch.from_numpy(img)
-        img = img.float().unsqueeze(0)                  # (1,3,H,W)
-        img_masks = torch.ones(1, 1, dtype=torch.bool)  # (1,1)
-    else:
-        img = torch.zeros(1, 3, 224, 224, dtype=torch.float32)
-        img_masks = torch.zeros(1, 1, dtype=torch.bool)
+      Args:
+         question (str): The question to ask the model.
+         situation (str): The situation description.
+         images (list): List of image tensors.
 
-    # 3) Bypass visual prompter by supplying obj_tokens/obj_masks
-    #    IMPORTANT: read sizes from the MODEL, not self.cfg
-    scene_token_len = getattr(self.model, 'scene_token_len', 61)
-    hidden_in = self.model.cfg.prompter.model.hidden_size
-    obj_tokens = torch.zeros(1, scene_token_len, hidden_in, dtype=torch.float32)  # (B=1, Tscene, C_in)
-    obj_masks  = torch.zeros(1, scene_token_len, dtype=torch.bool)                # (B=1, Tscene)
-
-    data_dict = {
-        'source': 'custom_input',
-        'scan_id': '',
-        # simple image path
-        'img_fts': img,                 # (1,3,H,W)
-        'img_masks': img_masks,         # (1,1) bool
-        # provide tokens directly so build_embeds() won't call visual_prompter()
-        'obj_tokens': obj_tokens,       # (1, Tscene, C_in)
-        'obj_masks': obj_masks,         # (1, Tscene)
-        # text fields must be lists
-        'text_output': [''],
-        'answer_list': [''],
-        'msr3d_prompt': msr3d_prompt,
-        'anchor_orientation': torch.zeros(4).float(),
-        'anchor_locs': torch.zeros(3).float(),
-        'index': -1,
-        'type': 'custom',
-    }
-
-    # DO NOT include 'msr3d_imgs' / 'msr3d_img_masks' here (keeps you on simple path)
-
-    # Fill any other keys the model expects
-    data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
-    return data_dict
+      Returns:
+         dict: Processed data dictionary ready for inference.
+      """
+      # Generate the prompt
+      prompt = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
+      _, place_holder_list = MSR3DBase.parse_place_holder(prompt)
+      if images:
+        # images: list of (3,H,W) tensors
+        img_masks = torch.ones((3,224,224), 1, dtype=torch.bool)  # (B,1)
+      else:
+        img_masks = torch.zeros(1, 1, dtype=torch.bool)               # (B,1), all False
+      # Prepare the data dictionary
+      data_dict = {
+         'source': 'custom_input',
+         'scan_id': '',  # No scan ID for custom input
+         'obj_fts': torch.zeros(len(images), 3, 224, 224),  # Placeholder for object features
+         'obj_locs': torch.zeros(len(images), 6),  # Placeholder for object locations
+         'img_fts': torch.stack(images) if images else torch.zeros(3, 224, 224),
+         'img_masks': torch.BoolTensor([1] * len(images)) if images else torch.BoolTensor([0]),
+         'text_output': '',  # Placeholder for text output
+         'answer_list': '',  # Placeholder for answer list
+         'msr3d_prompt': prompt,
+         'msr3d_imgs': images,
+         'anchor_orientation': torch.zeros(4).float(),
+         'anchor_locs': torch.zeros(3).float(),
+         'index': -1,  # Custom input index
+         'type': 'custom',
+         'msr3d_img_masks': img_masks
+         
+      }
+      # Ensure all required keys are present
+      data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
+      return data_dict
+   
 
 def main():   
     # Example usage: Perform inference on a specific scene and question
