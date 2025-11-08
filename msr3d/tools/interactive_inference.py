@@ -76,7 +76,7 @@ class InteractiveInferenceTool:
          # keep scene geometry and pose from base sample
          'obj_fts': base_sample['obj_fts'],
          'obj_locs': base_sample['obj_locs'],
-         'obj_masks': (torch.arange(self.cfg.data.msqa_scannet.args.max_obj_len) < len(data_dict['obj_locs'])).unsqueeze(0),
+         
          'anchor_locs': base_sample['anchor_locs'],
          'anchor_orientation': base_sample['anchor_orientation'],
          'scan_id': base_sample['scan_id'],
@@ -101,7 +101,7 @@ class InteractiveInferenceTool:
          'index': -1,
          'type': 'custom',
       }
-
+      data_dict['obj_masks']= (torch.arange(self.cfg.data.msqa_scannet.args.max_obj_len) < len(data_dict['obj_locs'])).unsqueeze(0)
       # Ensure required keys and defaults
       data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
