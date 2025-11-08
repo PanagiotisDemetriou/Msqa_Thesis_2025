@@ -127,44 +127,85 @@ class InteractiveInferenceTool:
       return [v] * bs
 
    def _ensure_batched(self, data_dict, bs=1):
-      """Normalize fields to batch format the model expects."""
-      # 1) prompts and text fields as lists
+      # 1) prompts and text fields as lists (unchanged)
       for k in ['msr3d_prompt', 'prompt_before_obj', 'prompt_middle_1',
-                'prompt_middle_2', 'prompt_after_obj', 'text_output', 'answer_list']:
+               'prompt_middle_2', 'prompt_after_obj', 'text_output', 'answer_list']:
          if k in data_dict:
-            default = '' if k != 'answer_list' else ''
-            data_dict[k] = self._broadcast_list(data_dict[k], bs, default=default)
+               default = '' if k != 'answer_list' else ''
+               data_dict[k] = self._broadcast_list(data_dict[k], bs, default=default)
 
-      # 2) image features: (B,3,H,W)
+      # 2) image features: (B,3,H,W) (unchanged)
       if 'img_fts' in data_dict:
-         if isinstance(data_dict['img_fts'], torch.Tensor):
-            if data_dict['img_fts'].dim() == 3:  # (3,H,W) -> (1,3,H,W)
-               data_dict['img_fts'] = data_dict['img_fts'].unsqueeze(0)
-         else:
-            data_dict['img_fts'] = torch.tensor(data_dict['img_fts'])
-            if data_dict['img_fts'].dim() == 3:
+         if not isinstance(data_dict['img_fts'], torch.Tensor):
+               data_dict['img_fts'] = torch.tensor(data_dict['img_fts'])
+         if data_dict['img_fts'].dim() == 3:            # (3,H,W) -> (1,3,H, W)
                data_dict['img_fts'] = data_dict['img_fts'].unsqueeze(0)
 
-      # 3) image masks: (B,1) bool
+      # 3) image masks: (B,1) bool (unchanged)
       if 'img_masks' not in data_dict or not isinstance(data_dict['img_masks'], torch.Tensor):
          has_img = ('img_fts' in data_dict and isinstance(data_dict['img_fts'], torch.Tensor) 
-                    and data_dict['img_fts'].shape[0] >= 1)
+                     and data_dict['img_fts'].shape[0] >= 1)
          val = 1 if has_img else 0
          data_dict['img_masks'] = torch.full((bs, 1), bool(val), dtype=torch.bool)
       else:
          m = data_dict['img_masks']
-         if m.dim() == 1:                      # (B,) -> (B,1)
-            data_dict['img_masks'] = m.view(-1, 1).to(torch.bool)
-         elif m.dim() == 2:
-            data_dict['img_masks'] = m.to(torch.bool)
-         else:
-            data_dict['img_masks'] = m.reshape(bs, 1).to(torch.bool)
+         if not isinstance(m, torch.Tensor):
+               m = torch.tensor(m)
+         if m.dim() == 0:                               # scalar -> (1,1)
+               m = m.view(1, 1)
+         elif m.dim() == 1:                             # (B,) -> (B,1)
+               m = m.view(-1, 1)
+         elif m.dim() > 2:
+               m = m.view(m.shape[0], -1)[:, :1]
+         data_dict['img_masks'] = m.to(torch.bool)
 
-      # 4) anchors: make sure tensors exist and have right shapes
+      # 3b) msr3d_img_masks: mirror handling so it's (B,1)
+      if 'msr3d_img_masks' in data_dict:
+         m = data_dict['msr3d_img_masks']
+         if not isinstance(m, torch.Tensor):
+               m = torch.tensor(m)
+         if m.dim() == 0:
+               m = m.view(1, 1)
+         elif m.dim() == 1:
+               m = m.view(-1, 1)
+         elif m.dim() > 2:
+               m = m.view(m.shape[0], -1)[:, :1]
+         data_dict['msr3d_img_masks'] = m.to(torch.bool)
+      else:
+         data_dict['msr3d_img_masks'] = data_dict['img_masks'].clone()
+
+      # 4) point cloud tensors — add batch dim
+      # obj_fts: [num_objs, num_pts, C] -> [1, num_objs, num_pts, C]
+      if 'obj_fts' in data_dict:
+         if not isinstance(data_dict['obj_fts'], torch.Tensor):
+               data_dict['obj_fts'] = torch.tensor(data_dict['obj_fts'])
+         if data_dict['obj_fts'].dim() == 3:
+               data_dict['obj_fts'] = data_dict['obj_fts'].unsqueeze(0)
+         data_dict['obj_fts'] = data_dict['obj_fts'].float()
+
+      # obj_locs: [num_objs, 6] -> [1, num_objs, 6]
+      if 'obj_locs' in data_dict:
+         if not isinstance(data_dict['obj_locs'], torch.Tensor):
+               data_dict['obj_locs'] = torch.tensor(data_dict['obj_locs'])
+         if data_dict['obj_locs'].dim() == 2:
+               data_dict['obj_locs'] = data_dict['obj_locs'].unsqueeze(0)
+         data_dict['obj_locs'] = data_dict['obj_locs'].float()
+
+      # 5) anchors: [4] -> [1,4], [3] -> [1,3]
       data_dict.setdefault('anchor_orientation', torch.zeros(4).float())
       data_dict.setdefault('anchor_locs', torch.zeros(3).float())
 
-      # 5) final pass to fill any remaining required keys
+      if not isinstance(data_dict['anchor_orientation'], torch.Tensor):
+         data_dict['anchor_orientation'] = torch.tensor(data_dict['anchor_orientation']).float()
+      if data_dict['anchor_orientation'].dim() == 1:
+         data_dict['anchor_orientation'] = data_dict['anchor_orientation'].unsqueeze(0)
+
+      if not isinstance(data_dict['anchor_locs'], torch.Tensor):
+         data_dict['anchor_locs'] = torch.tensor(data_dict['anchor_locs']).float()
+      if data_dict['anchor_locs'].dim() == 1:
+         data_dict['anchor_locs'] = data_dict['anchor_locs'].unsqueeze(0)
+
+      # 6) final pass to guarantee required keys
       data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
 
