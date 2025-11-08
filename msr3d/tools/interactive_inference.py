@@ -70,11 +70,13 @@ class InteractiveInferenceTool:
          img_masks_2d = torch.ones(1, 1, dtype=torch.bool)
       else:
          img_masks_2d = torch.zeros(1, 1, dtype=torch.bool)
+
       # Start from the base sample and override what we need for inference
       data_dict = {
          # keep scene geometry and pose from base sample
          'obj_fts': base_sample['obj_fts'],
          'obj_locs': base_sample['obj_locs'],
+         'obj_masks': (torch.arange(self.cfg.max_obj_len) < len(data_dict['obj_locs'])).unsqueeze(0),
          'anchor_locs': base_sample['anchor_locs'],
          'anchor_orientation': base_sample['anchor_orientation'],
          'scan_id': base_sample['scan_id'],
