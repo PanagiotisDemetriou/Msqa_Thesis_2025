@@ -316,13 +316,13 @@ def main():
    print("InteractiveInferenceTool initialized.")
 
    # Forward once using the prebuilt data_dict
-   output_dict = tool.forward()
-   answer = tool.model.llm_tokenizer.batch_decode(output_dict['output_tokens'], skip_special_tokens=True)
-   print("Answer (forward):", answer)
+   # output_dict = tool.forward()
+   # answer = tool.model.llm_tokenizer.batch_decode(output_dict['output_tokens'], skip_special_tokens=True)
+   # print("Answer (forward):", answer)
 
    # Or use ask_question to rebuild and run (handy if you want to change inputs)
    answer2 = tool.ask_question(scene_id, question, situation, images=[])
-   print("Answer (ask_question):", answer2)
+   print("Answer:", answer2)
 
 
 if __name__ == "__main__":
