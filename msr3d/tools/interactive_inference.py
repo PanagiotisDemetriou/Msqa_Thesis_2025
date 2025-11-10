@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from model.msr3d.msr3d import MSR3D
 from data.datasets.scannet_base import ScanNetBase
-from data.datasets.msr3d import MSR3DBase, MSQAScanNet   # <-- use dataset to get a proper one-scene sample
+from data.datasets.msr3d import MSR3DBase, MSQAScanNet  
 
 
 class InteractiveInferenceTool:
@@ -20,22 +20,22 @@ class InteractiveInferenceTool:
       cfg: Configuration settings for the model.
    """
    def __init__(self, scene_id, situation, question):
-      # DO NOT change this path (as requested)
+      # path of pretrained model and config for inference
       experiment_path = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIP_PNPP_ViC_LORA_TUNED'
 
       self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
       self.cfg = self.load_config(experiment_path)
-      self.model = self.load_model(experiment_path)  # load best.pth from the experiment dir (see load_model)
+      self.model = self.load_model(experiment_path)  
       
-      # (optional) keep this around, though we now rely on the dataset to build inputs
-      self.data_loader = ScanNetBase(self.cfg, split='test')
+      #self.data_loader = ScanNetBase(self.cfg, split='test')
 
       # Build a proper sample via __getitem__ from the dataset,
-      # then override the prompt with your custom (question, situation)
+      # then override the prompt with custom (question, situation)
       self.dataset = MSQAScanNet(self.cfg, split='test')
 
+      # use __getitem__ to get a base sample for the given scene_id
       idx = self._index_for_scene(self.dataset, scene_id)
-      base_sample = self.dataset[idx]  # this already has obj_fts/obj_locs/anchors/etc.
+      base_sample = self.dataset[idx]  
 
       # Compose the final input using your custom question+situation
       self.data_dict = self.compose_sample(base_sample, question, situation, images=[])
@@ -107,7 +107,6 @@ class InteractiveInferenceTool:
       return data_dict
 
    def to_device(self, data, device):
-      # move any torch.Tensor in dict (or nested dict/list) to device
       if torch.is_tensor(data):
          return data.to(device)
       if isinstance(data, dict):
@@ -129,21 +128,21 @@ class InteractiveInferenceTool:
       return [v] * bs
 
    def _ensure_batched(self, data_dict, bs=1):
-      # 1) prompts and text fields as lists (unchanged)
+      # 1) prompts and text fields as lists 
       for k in ['msr3d_prompt', 'prompt_before_obj', 'prompt_middle_1',
                'prompt_middle_2', 'prompt_after_obj', 'text_output', 'answer_list']:
          if k in data_dict:
                default = '' if k != 'answer_list' else ''
                data_dict[k] = self._broadcast_list(data_dict[k], bs, default=default)
 
-      # 2) image features: (B,3,H,W) (unchanged)
+      # 2) image features: (B,3,H,W) 
       if 'img_fts' in data_dict:
          if not isinstance(data_dict['img_fts'], torch.Tensor):
                data_dict['img_fts'] = torch.tensor(data_dict['img_fts'])
          if data_dict['img_fts'].dim() == 3:            # (3,H,W) -> (1,3,H, W)
                data_dict['img_fts'] = data_dict['img_fts'].unsqueeze(0)
 
-      # 3) image masks: (B,1) bool (unchanged)
+      # 3) image masks: (B,1) bool 
       if 'img_masks' not in data_dict or not isinstance(data_dict['img_masks'], torch.Tensor):
          has_img = ('img_fts' in data_dict and isinstance(data_dict['img_fts'], torch.Tensor) 
                      and data_dict['img_fts'].shape[0] >= 1)
@@ -207,15 +206,14 @@ class InteractiveInferenceTool:
       if data_dict['anchor_locs'].dim() == 1:
          data_dict['anchor_locs'] = data_dict['anchor_locs'].unsqueeze(0)
 
-      # 6) final pass to guarantee required keys
+     
       data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
       return data_dict
 
-   # ---------- model / config / scene IO ----------
+  
    def load_model(self, experiment_path):
       """
-      Load model from the experiment directory. We expect a 'best.pth' there.
-      (Do not change the path; just load that file.)
+      Load model from the experiment directory. 
       """
       model = MSR3D(self.cfg).to(self.device)
       ckpt_path = os.path.join(experiment_path, 'best.pth/pytorch_model.bin')
@@ -233,14 +231,14 @@ class InteractiveInferenceTool:
    def load_config(self, experiment_path):
       return OmegaConf.load(os.path.join(experiment_path, 'config.yaml'))
 
-   def load_data(self, scene_id):
-      scan_id, scan_data = self.data_loader._load_one_scan(
-         scene_id,
-         pc_type='gt',
-         load_inst_info=True,
-         load_pc_info=True
-      )
-      return scan_data
+   # def load_data(self, scene_id):
+   #    scan_id, scan_data = self.data_loader._load_one_scan(
+   #       scene_id,
+   #       pc_type='gt',
+   #       load_inst_info=True,
+   #       load_pc_info=True
+   #    )
+   #    return scan_data
 
    # ---------- inference ----------
    def forward(self):
@@ -285,7 +283,7 @@ class InteractiveInferenceTool:
 
    def ask_question(self, scene_id, question, situation, images=[]):
       """
-      (Re)build the sample for a given scene and custom question+situation and run inference.
+      Build the sample for a given scene and custom question+situation and run inference.
       """
       # obtain a base sample from the dataset
       idx = self._index_for_scene(self.dataset, scene_id)
@@ -320,7 +318,7 @@ def main():
    # answer = tool.model.llm_tokenizer.batch_decode(output_dict['output_tokens'], skip_special_tokens=True)
    # print("Answer (forward):", answer)
 
-   # Or use ask_question to rebuild and run (handy if you want to change inputs)
+   
    answer2 = tool.ask_question(scene_id, question, situation, images=[])
    print("Answer:", answer2)
 
