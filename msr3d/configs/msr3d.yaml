@@ -52,7 +52,7 @@ solver:
 
 # configs of all datasets
 data:
-  obj_img_base: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data
+  obj_img_base: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data
   msr3dmix:
     args:
       #mix: [msqa_scannet,msqa_3rscan, msqa_arkitscenes]
@@ -107,13 +107,13 @@ data:
       img_processer: "openai/clip-vit-base-patch32" #'navigation_img_processer'
       tgt_img_size: [224, 224]
 
-  scan_family_base: "data/MSR3D_v2_pcds/scannet_base"    # must be set
+  scan_family_base: "data/data/MSR3D_v2_pcds/scannet_base"    # must be set
   rscan_base: ""  # must be set
   ARkit_base: ""  # must be set
 
   mv_info_base: "" # optional, not used in standard setting
 
-  msr3d_base: "data/text_annotations/scannet" # QA pairs, json files, must be set
+  msr3d_base: "data/data/text_annotations/scannet" # QA pairs, json files, must be set
 
   # split one data item into multiple pieces roughly based on this, if needed
   max_text_out_token_len: ${model.llm.max_out_len}

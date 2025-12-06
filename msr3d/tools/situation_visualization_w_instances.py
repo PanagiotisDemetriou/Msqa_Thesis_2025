@@ -413,10 +413,11 @@ def visualize_scene_interactive(points, colors, instance_labels, location=None,
 
 if __name__ == "__main__":
     # Load MSQA data
-    root_dir = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/text_annotations/scannet/scannet"
+    #root_dir = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/text_annotations/scannet/scannet"
+    root_dir = "/mnt/d/Thesis/data/text_annotations/msqa/scannet"
     data_dict = load_json(f"{root_dir}/msqa_scannet_test.json")
-    pcd_root = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/"
-    
+    #pcd_root = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/"
+    pcd_root = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/pcd_with_global_alignment/"
     # Process each QA pair
     for data_id in range(1):
         qa_pair = data_dict[data_id]

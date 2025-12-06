@@ -3,9 +3,9 @@ set -euo pipefail
 
 # Defaults
 PYTHON_SCRIPT="scannet_scene_visualiser.py"   # default simple visualiser
-SCENE_DIR="./scannet/test/scene0707_00"
+SCENE_DIR="./scannet/test/scene0000_00"
 DOWNSAMPLE="0.01"
-OUT_PLY="scene0707_00.ply"
+OUT_PLY="scene0000_00.ply"
 MODE_CHOICE=""        # "wsl" or "normal"
 VIS_CHOICE=""         # "simple" or "advanced"
 
