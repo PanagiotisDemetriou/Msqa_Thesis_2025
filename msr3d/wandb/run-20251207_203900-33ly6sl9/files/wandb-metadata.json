@@ -1,0 +1,35 @@
+{
+    "os": "Linux-4.18.0-372.19.1.el8_6.x86_64-x86_64-with-glibc2.28",
+    "python": "3.10.19",
+    "heartbeatAt": "2025-12-07T19:39:04.433087",
+    "startedAt": "2025-12-07T19:39:00.892498",
+    "docker": null,
+    "gpu": "NVIDIA RTX A5000",
+    "gpu_count": 2,
+    "cpu_count": 64,
+    "cuda": null,
+    "args": [
+        "--config-path",
+        "configs",
+        "--config-name",
+        "msr3d.yaml",
+        "num_gpu=2",
+        "hydra.run.dir=.",
+        "hydra.output_subdir=null",
+        "hydra/job_logging=disabled",
+        "hydra/hydra_logging=disabled",
+        "num_gpu=2"
+    ],
+    "state": "running",
+    "program": "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/run.py",
+    "codePath": "msr3d/run.py",
+    "git": {
+        "remote": "https://github.com/PanagiotisDemetriou/Msqa_Thesis_2025.git",
+        "commit": "48dd491001402a42d275169e89dfda383302a281"
+    },
+    "email": null,
+    "root": "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025",
+    "host": "gpu01.cluster",
+    "username": "pdemetriou",
+    "executable": "/lustreFS/data/vcg/pdemetriou/miniconda3/envs/ptv3/bin/python"
+}

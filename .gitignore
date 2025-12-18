@@ -170,3 +170,5 @@ msr3d/MSR3D_baseline_3_dataset/
 hub/
 *.Zone.Identifier
 *.wandb
+msr3d/data/data.tar.gz
+msr3d/data/data/
