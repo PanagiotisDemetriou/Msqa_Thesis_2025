@@ -500,17 +500,26 @@ class LeoTrainer(BaseTrainer):
                     self.accelerator.print(f"[Epoch {epoch + 1}] finished eval, is_best: {is_best}")
 
                     self.accelerator.wait_for_everyone()
-                    if is_best and self.accelerator.is_main_process:
-                        self.save("best.pth")
+                    # if is_best and self.accelerator.is_main_process:
+                    #     self.save("best.pth")
+                    if is_best:
+                        self.accelerator.wait_for_everyone()
+                        if self.accelerator.is_main_process:
+                            self.save("best.pth")
+                        self.accelerator.wait_for_everyone()
 
             # load best checkpoint for test
+            self.accelerator.wait_for_everyone()
             self.accelerator.print(f"Load best ckpt from {str(os.path.join(self.exp_dir, 'best.pth'))} for testing")
             self.load_model(os.path.join(self.exp_dir, 'best.pth'))
+            self.accelerator.wait_for_everyone()
             self.accelerator.print(f"Successfully loaded from {str(os.path.join(self.exp_dir, 'best.pth'))}")
         else:
             if os.path.exists(os.path.join(self.exp_dir, 'best.pth')):
+                self.accelerator.wait_for_everyone()
                 self.accelerator.print(f"Load best ckpt from {str(os.path.join(self.exp_dir, 'best.pth'))} for testing")
                 self.load_model(os.path.join(self.exp_dir, 'best.pth'))
+                self.accelerator.wait_for_everyone()
                 self.accelerator.print(f"Successfully loaded from {str(os.path.join(self.exp_dir, 'best.pth'))}")
             else:
                 # directly load a specified checkpoint for test
