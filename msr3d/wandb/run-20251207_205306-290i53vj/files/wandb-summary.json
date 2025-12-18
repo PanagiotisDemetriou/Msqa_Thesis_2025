@@ -1,1 +1,1 @@
-{"train/default/loss": 1.1588212251663208, "train/default/loss_txt": 1.1588212251663208, "lr/group_0": 2.9999998020578715e-05, "_timestamp": 1765138217, "_runtime": 1031, "_step": 2595}
+{"train/default/loss": 0.4996274709701538, "train/default/loss_txt": 0.4996274709701538, "lr/group_0": 2.999338217159974e-05, "_timestamp": 1765151272, "_runtime": 14086, "_step": 36404}
