@@ -136,7 +136,7 @@ task:
     evaluator: MSQAEval
   msqa_3rscan:
     mode: [val, test]
-    mode: []
+    #mode: []
     dataset: MSQA3RScan
     dataset_wrapper: LeoScanFamilyDatasetWrapper
     dataset_wrapper_args: ${dataset_wrapper.args}
@@ -144,7 +144,7 @@ task:
     evaluator: MSQAEval
   msqa_arkitscenes:
     mode: [val, test]
-    mode: []
+    #mode: []
     dataset: MSQAARkitScenes
     dataset_wrapper: LeoScanFamilyDatasetWrapper
     dataset_wrapper_args: ${dataset_wrapper.args}
