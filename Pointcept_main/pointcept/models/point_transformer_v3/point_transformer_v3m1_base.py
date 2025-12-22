@@ -57,10 +57,10 @@ class RPE(torch.nn.Module):
         return out
 
 # Flash attention is a memory-efficient attention mechanism that can handle long sequences
-#  by computing attention in a more efficient wayusing CUDA.
+# by computing attention in a more efficient way using CUDA.
 
 # Module = Object
-# Self Attention Laye that gets Points as Input
+# Self Attention Layer that gets Points as Input
 class SerializedAttention(PointModule):
     def __init__(
         self,
