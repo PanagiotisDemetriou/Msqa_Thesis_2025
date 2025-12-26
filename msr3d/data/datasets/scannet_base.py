@@ -58,7 +58,7 @@ class ScanNetBase(Dataset):
         if load_pc_info:
             # load pcd data
             pcd_data = torch.load(os.path.join(self.base_dir, "scan_data",
-                                            "pcd_with_global_alignment", f'{scan_id}.pth'))
+                                            "pcd_with_global_alignment", f'{scan_id}.pth'), weights_only=False)
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)

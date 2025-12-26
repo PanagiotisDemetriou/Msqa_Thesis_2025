@@ -1,0 +1,9 @@
+data:
+  # IMPORTANT: this must point to the folder that contains:
+  # annotations/meta_data/scannetv2_raw_categories.json
+  # annotations/meta_data/scannetv2-labels.combined.tsv
+  scan_family_base: "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base"
+
+  # Optional; ScanNetBase accesses it through rgetattr(..., False)
+  mvdatasettings:
+    use_cache: false

@@ -2,7 +2,7 @@ import torch
 import pprint
 
 # 🧠 Set your .pth file path here
-path = "/home/panagiotis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0642_01.pth"
+path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/pcd_with_global_alignment/scene0000_00.pth"
 
 # Load the file
 try:

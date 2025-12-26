@@ -1,5 +1,14 @@
+# TO Run
+# PYTHONPATH="$PWD:$PWD/msr3d:$PWD/Pointcept_main:$PYTHONPATH" python data_transform.py
+import os
 import torch
+import sys
+from pathlib import Path
+import numpy as np
+from scipy import sparse
+from data.datasets.scannet_base import ScanNetBase
 from pointcept.models.utils import batch2offset
+from omegaconf import OmegaConf
 def transform_data(obj_pcds):
    """Transform input data from Pointnet++ format to PTv3 format.
       Args:
@@ -35,17 +44,46 @@ def transform_data(obj_pcds):
 
 
 
-
 def main():
    # Example usage
+   path = "pcd_with_global_alignment/scene0000_00"
+   cfg = OmegaConf.load("msr3d/configs/data.yaml")
 
+   loader = ScanNetBase(cfg, split="train")
+   loader.num_points = 1024  # required by _obj_processing_post
 
-   B, N, P, C = 2, 4, 8, 6  # Example dimensions
-   obj_pcds = torch.randn(B, N, P, C)  # Random point cloud data
-   
+   scan_id_in = "scene0000_00"  # keep your current approach
+
+   scan_id, one_scan = loader._load_one_scan(
+      scan_id_in,
+      load_inst_info=True,
+      load_pc_info=True
+   )
+
+   # one_scan is a dict; get list of per-object point clouds
+   obj_pcds_list = one_scan["obj_pcds"]          # list of (Ni, 6) arrays
+   obj_labels = one_scan["inst_labels"]          # list/array of labels
+
+   # convert list -> fixed tensor (N, P, C)
+   obj_fts, obj_locs, obj_boxes, obj_labels = loader._obj_processing_post(
+      obj_pcds=obj_pcds_list,
+      obj_labels=obj_labels,
+      is_need_bbox=False,
+      rot_aug=True
+   )  # obj_fts: (N, P, C)
+
+   obj_pcds = obj_fts.unsqueeze(0)  # (B=1, N, P, C)
+
    point_data = transform_data(obj_pcds)
+   point_data["offset"] = batch2offset(point_data["batch"])
+
+   print("obj_pcds tensor:", obj_pcds.shape)      # (1, N, P, C)
+   print("coord:", point_data["coord"].shape)     # (N*P, 3)
+   print("feat:", point_data["feat"].shape)       # (N*P, C)
+   print("offset:", point_data["offset"].shape)
+   # point_data = transform_data(obj_pcds)
    print(obj_pcds)
    print("Point Coordinates Shape:", point_data['offset'])  # Should be (B*N*P, 3)
-
+   torch.save(obj_pcds, "new_data.pth")
 if __name__ == "__main__":
     main()
