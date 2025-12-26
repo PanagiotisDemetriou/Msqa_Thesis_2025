@@ -1,14 +1,14 @@
 #!/bin/bash
-#SBATCH -o msr3d_debug.txt      # output file
-#SBATCH -e msr3d_debug.err      # error file
-#SBATCH -J msr3d     # job name
-#SBATCH --partition=defq   # partition
-#SBATCH --qos=normal       # priority queue
-#SBATCH --ntasks=1         # number of tasks
-#SBATCH --cpus-per-task=4  # CPU cores per task
-#SBATCH --gres=gpu:2       # number of GPUs
-#SBATCH --mem=128000        # memory in MB
-#SBATCH --time=24:00     # time limit (1 day, 12 hours)
+#SBATCH -J msr3d_training
+#SBATCH --partition=a6000
+#SBATCH --qos=long-a6000
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=16
+#SBATCH --gres=gpu:3        # Use 3 of 4 A6000 GPUs
+#SBATCH --mem=256000        # 256GB RAM
+#SBATCH --time=3-00:00:00   # 5 days
+#SBATCH -o msr3d_inference.out
+#SBATCH -e msr3d_inference.err
 
 module purge
 
