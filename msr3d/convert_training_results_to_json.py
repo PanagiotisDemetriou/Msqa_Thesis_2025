@@ -3,8 +3,8 @@ import torch, json
 from pathlib import Path
 from collections import defaultdict
 
-IN_PATH = "MSR3D_BLIPT_PNPPF_VIC_LORA/eval_results/msqa_scannet/results.pt"   # change if different
-OUT_PATH = "msqa_input.json"
+IN_PATH = "MSR3D_BLIPT_PTPNPP_VIC_LORA_3DS/eval_results/msqa_arkitscenes/results.pt"   # change if different
+OUT_PATH = "msqa_input_arkit.json"
 
 data = torch.load(IN_PATH, map_location="cpu")
 print("Loaded:", type(data), "Num items:", len(data))
