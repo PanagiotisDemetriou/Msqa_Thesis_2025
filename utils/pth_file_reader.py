@@ -2,8 +2,9 @@ import torch
 import pprint
 
 # 🧠 Set your .pth file path here
-path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/pcd_with_global_alignment/scene0000_00.pth"
-
+#ath = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0000_00.pth"
+#path = "/mnt/d/Thesis/PTv3/model_best.pth"
+path = "scene_with_normals.pth"
 # Load the file
 try:
     data = torch.load(path, map_location="cpu",weights_only=False)  # load safely on CPU

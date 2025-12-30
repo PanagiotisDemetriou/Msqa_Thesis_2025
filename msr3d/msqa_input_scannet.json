@@ -1,5 +1,5 @@
 {
-  "scannet": [
+  "msqa_scannet": [
     {
       "response_pred": "no",
       "response_gt": [

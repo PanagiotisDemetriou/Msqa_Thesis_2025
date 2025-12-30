@@ -137,3 +137,5 @@ else
 fi
 
 exit $?
+# run
+#./msr3d/tools/compare_visualizer.sh   -p /home/panagiotis/miniconda3/envs/pointcept-torch2.5.0-cu12.4/bin/python   --old /mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0000_00.pth   --new /home/panagiotis/msqa/Msqa_Thesis_2025/msr3d/tools/scene0000_00_new_obj_pcds.pth   --obj_idx 30

@@ -8,7 +8,7 @@ def evaluate(user_submission_file, phase_codename="test", **kwargs):
         "result_file": user_submission_file,
         'gpt_score_flag': False,
         #"evaluate_dataset": ['scannet', 'RScan', 'ARKitScenes'],
-        "evaluate_dataset": ['scannet'],
+         "evaluate_dataset": ['ARKitScenes'],
         "gpt_score_flag": False,
         "gpt_model": "gpt-4o-2024-08-06",
         "api_key": "",

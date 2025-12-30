@@ -1,7 +1,7 @@
 {
-  "ARKitScenes": [
+  "msqa_arkitscenes": [
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "two"
       ],
@@ -19,7 +19,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the chair is brown, rectangular, made of wood, with a smooth texture, four-legged structure, and is currently upside down.",
+      "response_pred": "the chair is brown, made of wood with a smooth texture, rectangular in shape, has four legs, and is upside down.",
       "response_gt": [
         "it's an orange wooden chair with a smooth texture and four legs."
       ],
@@ -28,7 +28,7 @@
       "index": "description"
     },
     {
-      "response_pred": "turn to your right.",
+      "response_pred": "turn to the front-left",
       "response_gt": [
         "move to the front-left"
       ],
@@ -37,7 +37,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "a table",
+      "response_pred": "a stool",
       "response_gt": [
         "in front of the cabinet"
       ],
@@ -46,7 +46,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "four"
       ],
@@ -64,7 +64,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "table",
+      "response_pred": "the table",
       "response_gt": [
         "a table"
       ],
@@ -73,7 +73,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "the cabinet used for storage is at your 10 o'clock direction.",
+      "response_pred": "the cabinet used for storage is at your 10 o'clock.",
       "response_gt": [
         "the cabinet is at your 10 o'clock."
       ],
@@ -91,7 +91,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "the primary function of the objects at your 4 o'clock is not provided in the dictionary.",
+      "response_pred": "fire extinguishing",
       "response_gt": [
         "hygiene"
       ],
@@ -100,7 +100,7 @@
       "index": "affordance"
     },
     {
-      "response_pred": "it is left behind me.",
+      "response_pred": "it is right behind me.",
       "response_gt": [
         "it is left behind me."
       ],
@@ -109,7 +109,7 @@
       "index": "refer"
     },
     {
-      "response_pred": "the oven is below the cabinet.",
+      "response_pred": "the oven is beside the cabinet.",
       "response_gt": [
         "the oven is next to the cabinet."
       ],
@@ -145,7 +145,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "turn left and walk to the middle distance.",
+      "response_pred": "turn left and walk a short distance.",
       "response_gt": [
         "turn to your left and walk a short distance."
       ],
@@ -163,7 +163,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "one"
       ],
@@ -181,7 +181,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "two"
       ],
@@ -208,7 +208,7 @@
       "index": "refer"
     },
     {
-      "response_pred": "turn to your left and walk a short distance.",
+      "response_pred": "walk straight ahead to the near distance.",
       "response_gt": [
         "walk straight ahead to the far distance."
       ],
@@ -217,7 +217,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "a table and a chair",
+      "response_pred": "a stool and a cabinet",
       "response_gt": [
         "a tv and a sink"
       ],
@@ -226,7 +226,7 @@
       "index": "refer"
     },
     {
-      "response_pred": "turn around and walk to the middle distance.",
+      "response_pred": "turn to your right and walk a short distance.",
       "response_gt": [
         "turn to your right and walk a short distance."
       ],
@@ -271,7 +271,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "turn to the back-left",
+      "response_pred": "turn to the front-left",
       "response_gt": [
         "turn to the back-left"
       ],
@@ -289,7 +289,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "at your 3 o'clock",
+      "response_pred": "at your 2 o'clock",
       "response_gt": [
         "at your 2 o'clock"
       ],
@@ -298,7 +298,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "it's a light brown rectangular stool made of wood with a smooth texture, four-legged structure, and is upright.",
+      "response_pred": "it's a light blue cylindrical stool made of wood with a smooth texture, four-legged structure, and is upright.",
       "response_gt": [
         "it is a light blue stool with a cuboid shape made of wood. it is for seating, has a smooth texture, and is four-legged and upright."
       ],
@@ -316,7 +316,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "the oven supports the stove.",
+      "response_pred": "the oven is lower than the stove.",
       "response_gt": [
         "lower than"
       ],
@@ -343,7 +343,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "turn to the back-left",
+      "response_pred": "turn to the back-right",
       "response_gt": [
         "turn to the back-right"
       ],
@@ -406,7 +406,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "the white chair is at your 7 o'clock.",
+      "response_pred": "the stool is at your 5 o'clock.",
       "response_gt": [
         "the white chair is at your 7 o'clock."
       ],
@@ -415,7 +415,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "turn to your right and walk a short distance.",
+      "response_pred": "turn to your left and walk a short distance.",
       "response_gt": [
         "turn right and walk a short distance."
       ],
@@ -424,7 +424,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "at your 6 o'clock",
+      "response_pred": "at your 4 o'clock",
       "response_gt": [
         "at your 6 o'clock"
       ],
@@ -451,7 +451,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "the stove is placed on the oven.",
+      "response_pred": "the stove is inside the oven.",
       "response_gt": [
         "the stove is resting on the oven."
       ],
@@ -460,7 +460,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "at your 10 o'clock",
+      "response_pred": "at your 12 o'clock",
       "response_gt": [
         "the chair behind is at your 8 o'clock direction."
       ],
@@ -487,7 +487,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "four",
+      "response_pred": "five",
       "response_gt": [
         "three"
       ],
@@ -550,7 +550,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the sink is placed within the area of the cabinet.",
+      "response_pred": "a refrigerator",
       "response_gt": [
         "the sink is placed within the area of the cabinet."
       ],
@@ -613,7 +613,7 @@
       "index": "affordance"
     },
     {
-      "response_pred": "the sofa is at your 5 o'clock direction.",
+      "response_pred": "the sofa is at your 4 o'clock.",
       "response_gt": [
         "at your 5 o'clock"
       ],
@@ -631,7 +631,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -640,7 +640,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "the oven is near the stove.",
+      "response_pred": "the cabinet",
       "response_gt": [
         "table"
       ],
@@ -649,7 +649,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "two",
+      "response_pred": "one",
       "response_gt": [
         "two"
       ],
@@ -676,7 +676,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "at your 10 o'clock",
+      "response_pred": "at your 1 o'clock",
       "response_gt": [
         "at your 11 o'clock"
       ],
@@ -685,7 +685,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "the sofa is at your 12 o'clock direction.",
+      "response_pred": "the sofa is at your 12 o'clock.",
       "response_gt": [
         "the sofa is at your 3 o'clock direction."
       ],
@@ -703,7 +703,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the sofa is gray, rectangular in shape, made of fabric with a soft texture, cushioned structure, and is currently upright.",
+      "response_pred": "the sofa is gray, made of fabric with a soft texture, rectangular in shape, cushioned, and currently upside down.",
       "response_gt": [
         "the sofa is beige and brown, made of soft fabric, rectangular in shape, cushioned in structure, and has been used."
       ],
@@ -721,7 +721,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "gray",
+      "response_pred": "green",
       "response_gt": [
         "beige and brown"
       ],
@@ -730,7 +730,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "no",
+      "response_pred": "yes",
       "response_gt": [
         "yes"
       ],
@@ -748,7 +748,7 @@
       "index": "affordance"
     },
     {
-      "response_pred": "the chair used for sitting with a stable structure is at your 6 o'clock.",
+      "response_pred": "the chair used for sitting with a stable structure is at your 10 o'clock.",
       "response_gt": [
         "chairs with stable structures are around your 5 o'clock and 8 o'clock."
       ],
@@ -775,7 +775,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "four",
+      "response_pred": "five",
       "response_gt": [
         "seven"
       ],
@@ -802,7 +802,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the cabinet is at your 5 o'clock.",
+      "response_pred": "the cabinet is at your 4 o'clock.",
       "response_gt": [
         "the storage cabinet is at your 11 o'clock direction."
       ],
@@ -820,7 +820,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "at your 5 o'clock",
+      "response_pred": "at your 6 o'clock",
       "response_gt": [
         "at your 6 o'clock"
       ],
@@ -829,7 +829,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "brown",
+      "response_pred": "green",
       "response_gt": [
         "brown"
       ],
@@ -865,7 +865,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "three",
+      "response_pred": "six",
       "response_gt": [
         "three"
       ],
@@ -910,7 +910,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "no",
+      "response_pred": "yes",
       "response_gt": [
         "yes"
       ],
@@ -946,7 +946,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "turn to the back-right",
+      "response_pred": "turn to the back-left",
       "response_gt": [
         "turn to the back-left"
       ],
@@ -1081,7 +1081,7 @@
       "index": "refer"
     },
     {
-      "response_pred": "turn around and walk to the middle distance.",
+      "response_pred": "turn to your left and walk a short distance.",
       "response_gt": [
         "turn to your right and walk to the middle distance."
       ],
@@ -1108,7 +1108,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the cabinet is lower than the sink.",
+      "response_pred": "the cabinet is higher than the sink.",
       "response_gt": [
         "the cabinet is positioned below the sink and the sink is positioned above the cabinet."
       ],
@@ -1117,7 +1117,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "a table and a chair",
+      "response_pred": "a stool and a cabinet",
       "response_gt": [
         "a chair and a cabinet"
       ],
@@ -1171,7 +1171,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "at your 7 o'clock",
+      "response_pred": "at your 6 o'clock",
       "response_gt": [
         "at your 7 o'clock"
       ],
@@ -1216,7 +1216,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "one"
       ],
@@ -1234,7 +1234,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "a table and a chair",
+      "response_pred": "a tv and a table",
       "response_gt": [
         "a tv and a sofa"
       ],
@@ -1270,7 +1270,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "no",
+      "response_pred": "yes",
       "response_gt": [
         "yes"
       ],
@@ -1279,7 +1279,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "to your left in the middle distance",
+      "response_pred": "in front of you",
       "response_gt": [
         "on the left side near you"
       ],
@@ -1306,7 +1306,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "a table and a sofa",
+      "response_pred": "a tv, a table, and a sofa",
       "response_gt": [
         "a table, a sofa, a shelf, and a cabinet"
       ],
@@ -1333,7 +1333,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "a cabinet and a shelf",
+      "response_pred": "a stool and a cabinet",
       "response_gt": [
         "a cabinet"
       ],
@@ -1351,7 +1351,7 @@
       "index": "refer"
     },
     {
-      "response_pred": "the cabinet is lower than the shelf.",
+      "response_pred": "higher",
       "response_gt": [
         "higher"
       ],
@@ -1369,7 +1369,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the table is beside the sofa at your 7 o'clock.",
+      "response_pred": "the stool is beside the sofa at your 7 o'clock.",
       "response_gt": [
         "the stool is at your 10 o'clock."
       ],
@@ -1378,7 +1378,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "two",
+      "response_pred": "one",
       "response_gt": [
         "two"
       ],
@@ -1486,7 +1486,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "a cabinet, a table, and a sofa",
+      "response_pred": "a cabinet and a stool",
       "response_gt": [
         "a tv and a stool"
       ],
@@ -1495,7 +1495,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "turn around and walk to the middle distance.",
+      "response_pred": "turn to your left and walk a short distance.",
       "response_gt": [
         "walk straight ahead to the middle distance."
       ],
@@ -1504,7 +1504,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "a table and a sofa",
+      "response_pred": "a tv, a table, and a sofa",
       "response_gt": [
         "a tv and a stool"
       ],
@@ -1558,7 +1558,7 @@
       "index": "navigation"
     },
     {
-      "response_pred": "the tv is placed on the cabinet.",
+      "response_pred": "the tv is behind the cabinet.",
       "response_gt": [
         "the tv is supported by the cabinet."
       ],
@@ -1567,7 +1567,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "the cabinet is brown, made of wood, rectangular in shape, with a smooth texture, solid structure, and currently closed.",
+      "response_pred": "the cabinet is white, made of wood with a smooth texture, rectangular in shape, used for storage, has doors and shelves, and is currently closed.",
       "response_gt": [
         "the cabinet is dark brown, made of wood, rectangular prism in shape, with a smooth texture, two doors, and is currently closed."
       ],
@@ -1585,7 +1585,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "at your 12 o'clock",
+      "response_pred": "in front of you at a near distance.",
       "response_gt": [
         "behind you, in the back far distance."
       ],
@@ -1594,7 +1594,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "two",
+      "response_pred": "one",
       "response_gt": [
         "one"
       ],
@@ -1603,7 +1603,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the cabinet is to the right of the other cabinet.",
+      "response_pred": "behind",
       "response_gt": [
         "beside"
       ],
@@ -1657,7 +1657,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "cabinet",
+      "response_pred": "cabinet with doors",
       "response_gt": [
         "two drawers"
       ],
@@ -1738,7 +1738,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "the oven is next to the dishwasher.",
+      "response_pred": "the oven is beside the dishwasher.",
       "response_gt": [
         "beside"
       ],
@@ -1756,7 +1756,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "two",
+      "response_pred": "three",
       "response_gt": [
         "seven"
       ],
@@ -1765,7 +1765,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "cabinet",
+      "response_pred": "cabinet with doors",
       "response_gt": [
         "vertical with shelves"
       ],
@@ -1792,7 +1792,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "seating",
+      "response_pred": "sitting",
       "response_gt": [
         "sitting"
       ],
@@ -1837,7 +1837,7 @@
       "index": "affordance"
     },
     {
-      "response_pred": "four",
+      "response_pred": "five",
       "response_gt": [
         "four"
       ],
@@ -1873,7 +1873,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "it's a brown rectangular table made of wood with a smooth texture, four-legged structure, and is stationary.",
+      "response_pred": "it's a brown rectangular table made of wood with a smooth texture. it has four legs and is stationary.",
       "response_gt": [
         "the table is present, but the description is not given."
       ],
@@ -1891,7 +1891,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the chair is brown, made of wood with a smooth texture, rectangular in shape, has four legs, and is currently upside down.",
+      "response_pred": "the chair is brown, made of wood, rectangular in shape, has a smooth texture, four legs, and is currently upside down.",
       "response_gt": [
         "the chair is black and brown, made of wood and fabric, rectangular and cylindrical in shape, upside down, with a smooth and soft texture, and is used for sitting."
       ],
@@ -2008,7 +2008,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "three"
       ],
@@ -2017,7 +2017,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "turn to the back-right",
+      "response_pred": "turn to the back-left",
       "response_gt": [
         "turn to the back-left"
       ],
@@ -2044,7 +2044,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "the oven is below the cabinet.",
+      "response_pred": "the oven",
       "response_gt": [
         "oven"
       ],
@@ -2071,7 +2071,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "it's a grey rectangular cabinet made of wood with a smooth texture. it is used for storage, has a solid structure, and is currently closed.",
+      "response_pred": "it's a cabinet.",
       "response_gt": [
         "it's a dark brown rectangular-shaped cabinet made of wood with a smooth texture, solid structure, and is closed."
       ],
@@ -2080,7 +2080,7 @@
       "index": "description"
     },
     {
-      "response_pred": "the oven is below the cabinet.",
+      "response_pred": "oven",
       "response_gt": [
         "the oven is below the cabinet."
       ],
@@ -2089,7 +2089,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "two"
       ],
@@ -2116,7 +2116,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "the cabinet is brown, rectangular, made of wood, used for storage, has a smooth texture, and is currently closed.",
+      "response_pred": "the cabinet is white, rectangular, made of wood, used for storage, has a smooth texture, and is in a closed state.",
       "response_gt": [
         "the cabinet is brown, made of wood, rectangular in shape, has a smooth texture, works for storage, has a solid structure, and is currently closed."
       ],
@@ -2143,7 +2143,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "three",
+      "response_pred": "two",
       "response_gt": [
         "two"
       ],
@@ -2152,7 +2152,7 @@
       "index": "counting"
     },
     {
-      "response_pred": "four",
+      "response_pred": "five",
       "response_gt": [
         "eight"
       ],
@@ -2170,7 +2170,7 @@
       "index": "refer"
     },
     {
-      "response_pred": "cabinet",
+      "response_pred": "cabinet with doors",
       "response_gt": [
         "drawer"
       ],
@@ -2215,7 +2215,7 @@
       "index": "attribute"
     },
     {
-      "response_pred": "the sofa is to the right of the cabinet.",
+      "response_pred": "the sofa is beside the cabinet.",
       "response_gt": [
         "the sofa is adjacent to the cabinet."
       ],
@@ -2224,7 +2224,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "the chair",
+      "response_pred": "the chair.",
       "response_gt": [
         "the chair"
       ],
@@ -2251,7 +2251,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "it's a grey rectangular sofa made of fabric with a soft texture, cushioned structure, and is in an upright state.",
+      "response_pred": "the sofa is brown, rectangular in shape, made of fabric, used for seating, has a soft texture, cushioned structure, and is currently in use.",
       "response_gt": [
         "the sofa is present at your 12 o'clock."
       ],
@@ -2314,7 +2314,7 @@
       "index": "spatial relationship"
     },
     {
-      "response_pred": "yes",
+      "response_pred": "no",
       "response_gt": [
         "yes"
       ],
@@ -2323,7 +2323,7 @@
       "index": "existence"
     },
     {
-      "response_pred": "two",
+      "response_pred": "one",
       "response_gt": [
         "one"
       ],
