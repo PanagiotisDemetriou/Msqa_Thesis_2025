@@ -495,29 +495,29 @@ class MSR3D(nn.Module):
         #     print(f"index: {data_dict['index']}")
         #     print(data_dict['prompt'])
         #############
-        try:
-            print("DEBUG: About to call build_embeds", flush=True)
-            inputs_embeds, attention_mask = self.build_embeds(
-                scene_dict=data_dict, 
-                input_ids=inputs['input_ids'], 
-                attention_mask=inputs['attention_mask']
-            )
-            print(f"DEBUG: build_embeds succeeded", flush=True)
-            bs = inputs_embeds.shape[0]
-            print(f"DEBUG: bs = {bs}", flush=True)
-        except Exception as e:
-            import traceback
-            print("="*50, flush=True)
-            print(f"EXCEPTION TYPE: {type(e).__name__}", flush=True)
-            print(f"EXCEPTION MESSAGE: {str(e)}", flush=True)
-            print("FULL TRACEBACK:", flush=True)
-            traceback.print_exc()
-            print("="*50, flush=True)
-            print(f"source: {data_dict['source']}", flush=True)
-            print(f"scan id: {data_dict['scan_id']}", flush=True)
-            print(f"index: {data_dict['index']}", flush=True)
-            print(f"prompt: {data_dict['prompt']}", flush=True)
-            raise
+        # try:
+        #     print("DEBUG: About to call build_embeds", flush=True)
+        #     inputs_embeds, attention_mask = self.build_embeds(
+        #         scene_dict=data_dict, 
+        #         input_ids=inputs['input_ids'], 
+        #         attention_mask=inputs['attention_mask']
+        #     )
+        #     print(f"DEBUG: build_embeds succeeded", flush=True)
+        #     bs = inputs_embeds.shape[0]
+        #     print(f"DEBUG: bs = {bs}", flush=True)
+        # except Exception as e:
+        #     import traceback
+        #     print("="*50, flush=True)
+        #     print(f"EXCEPTION TYPE: {type(e).__name__}", flush=True)
+        #     print(f"EXCEPTION MESSAGE: {str(e)}", flush=True)
+        #     print("FULL TRACEBACK:", flush=True)
+        #     traceback.print_exc()
+        #     print("="*50, flush=True)
+        #     print(f"source: {data_dict['source']}", flush=True)
+        #     print(f"scan id: {data_dict['scan_id']}", flush=True)
+        #     print(f"index: {data_dict['index']}", flush=True)
+        #     print(f"prompt: {data_dict['prompt']}", flush=True)
+        #     raise
         #############
 
         # give bos token as condition

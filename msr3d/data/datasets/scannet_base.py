@@ -307,6 +307,13 @@ class ScanNetBase(Dataset):
             # build locs
             if rot_matrix is not None:
                 obj_pcd[:, :3] = np.matmul(obj_pcd[:, :3], rot_matrix.transpose())
+                # rotate normals too, if present (assumes normals are cols 6:9)
+                if obj_pcd.shape[1] >= 9:
+                    obj_pcd[:, 6:9] = np.matmul(obj_pcd[:, 6:9], rot_matrix.transpose())
+                    # re-normalize normals to unit length (numerical safety)
+                    n = np.linalg.norm(obj_pcd[:, 6:9], axis=1, keepdims=True)
+                    obj_pcd[:, 6:9] = obj_pcd[:, 6:9] / np.clip(n, 1e-6, None)
+                    
             obj_center = obj_pcd[:, :3].mean(0)
             obj_size = obj_pcd[:, :3].max(0) - obj_pcd[:, :3].min(0)
             obj_locs.append(np.concatenate([obj_center, obj_size], 0))

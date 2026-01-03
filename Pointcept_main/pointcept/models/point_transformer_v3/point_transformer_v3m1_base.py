@@ -222,8 +222,8 @@ class SerializedAttention(PointModule):
             if self.upcast_attention:
                 q = q.float()
                 k = k.float()
-            print("q stats:", q.min(), q.max(), q.mean())
-            print("k stats:", k.min(), k.max(), k.mean())
+            # print("q stats:", q.min(), q.max(), q.mean())
+            # print("k stats:", k.min(), k.max(), k.mean())
             # ######################
             # print("DEBUG: K type/val:", type(K), getattr(K, "item", lambda: K)())
             # print("DEBUG: H type/val:", type(H), getattr(H, "item", lambda: H)())
