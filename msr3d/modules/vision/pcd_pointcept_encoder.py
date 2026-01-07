@@ -123,6 +123,7 @@ class PTv3PcdObjEncoder(nn.Module):
     def __init__(
         self,
         cfg,
+        embedding_size: int,
         ptv3_cfg_path: str,
         weight_path: str = None,
         grid_size: float = 0.02,
