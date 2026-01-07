@@ -343,7 +343,7 @@ class PTv3PcdObjEncoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         # Optional projection head to match a target dimension
-        # self.proj = None
+        self.proj = None
         # self.proj_out_dim = None
         # if out_dim is not None:
         #     self.proj_out_dim = int(out_dim)
