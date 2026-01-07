@@ -179,65 +179,141 @@ class MSR3DBase(Dataset):
         return scan_cache_data[dataset_name][scan_id]
     
     def preprocess_pcd(self, obj_pcds, return_anchor = False, rot_aug = True, situation = None):
-        # rotate scene
-        rot_matrix = build_rotate_mat(self.split, rot_aug = rot_aug)
+        # # rotate scene
+        # rot_matrix = build_rotate_mat(self.split, rot_aug = rot_aug)
 
-        # normalize pc and calculate location
+        # # normalize pc and calculate location
+        # obj_fts = []
+        # obj_locs = []
+        # for i, obj_pcd in enumerate(obj_pcds):
+        #     if rot_matrix is not None:
+        #         obj_pcd[:, :3] = np.matmul(obj_pcd[:, :3], rot_matrix.transpose())
+
+        #     obj_center = obj_pcd[:, :3].mean(0)
+        #     obj_size = obj_pcd[:, :3].max(0) - obj_pcd[:, :3].min(0)
+        #     obj_locs.append(np.concatenate([obj_center, obj_size], 0))
+        #     if return_anchor and i == 0:
+        #         # Select a loc within the obj bbox as the anchor.
+        #         anchor_loc = obj_pcd[:, :3].min(0) + np.random.rand(3) * obj_size
+
+        #     # subsample
+        #     pcd_idxs = np.random.choice(len(obj_pcd), size=self.num_points,
+        #                                 replace=len(obj_pcd) < self.num_points)
+        #     obj_pcd = obj_pcd[pcd_idxs]
+
+        #     # normalize
+        #     obj_pcd[:, :3] = obj_pcd[:, :3] - obj_pcd[:, :3].mean(0)
+        #     max_dist = np.sqrt((obj_pcd[:, :3]**2).sum(1)).max()
+        #     if max_dist < 1e-6:   # take care of tiny point-clouds, i.e., padding
+        #         max_dist = 1
+        #     obj_pcd[:, :3] = obj_pcd[:, :3] / max_dist
+        #     obj_fts.append(obj_pcd)
+
+        # # convert to torch
+        # obj_fts = torch.from_numpy(np.stack(obj_fts, 0))
+        # obj_locs = torch.from_numpy(np.array(obj_locs))
+        # if return_anchor:
+        #     anchor_loc = torch.from_numpy(anchor_loc)
+        # else:
+        #     anchor_loc = torch.zeros(3).float()
+
+        # output_dict = {
+        #     'obj_fts': obj_fts,
+        #     'obj_locs': obj_locs,
+        #     'anchor_loc': anchor_loc,
+        # }
+        
+        # if situation is not None:
+        #     if rot_matrix is None:
+        #         output_dict["situation"] = situation
+        #     else:
+        #         # print(f"rot_matrix: {rot_matrix}")
+        #         pos, ori = situation
+        #         pos = np.array(pos)
+        #         ori = np.array(ori)
+        #         pos_new = pos.reshape(1, 3) @ rot_matrix.transpose()
+        #         pos_new = pos_new.reshape(-1)
+        #         ori_new = R.from_quat(ori).as_matrix()
+        #         ori_new = rot_matrix @ ori_new
+        #         ori_new = R.from_matrix(ori_new).as_quat()
+        #         ori_new = ori_new.reshape(-1)
+        #         output_dict["situation"] = (pos_new, ori_new)
+        # return output_dict
+        rot_matrix = build_rotate_mat(self.split, rot_aug=rot_aug)
+
         obj_fts = []
         obj_locs = []
-        for i, obj_pcd in enumerate(obj_pcds):
-            if rot_matrix is not None:
-                obj_pcd[:, :3] = np.matmul(obj_pcd[:, :3], rot_matrix.transpose())
 
+        for i, obj_pcd in enumerate(obj_pcds):
+            # Ensure float32 numpy
+            if isinstance(obj_pcd, torch.Tensor):
+                obj_pcd = obj_pcd.detach().cpu().numpy()
+            obj_pcd = obj_pcd.astype(np.float32, copy=False)
+
+            has_normals = (obj_pcd.shape[1] >= 9)  # expects xyzrgb + normals in cols 6:9
+
+            # rotate xyz (+ normals if present)
+            if rot_matrix is not None:
+                obj_pcd[:, :3] = obj_pcd[:, :3] @ rot_matrix.T
+
+                if has_normals:
+                    obj_pcd[:, 6:9] = obj_pcd[:, 6:9] @ rot_matrix.T
+                    # re-normalize normals
+                    n = np.linalg.norm(obj_pcd[:, 6:9], axis=1, keepdims=True)
+                    obj_pcd[:, 6:9] = obj_pcd[:, 6:9] / np.clip(n, 1e-6, None)
+
+            # object location/size from rotated xyz (pre-subsample, pre-normalize)
             obj_center = obj_pcd[:, :3].mean(0)
             obj_size = obj_pcd[:, :3].max(0) - obj_pcd[:, :3].min(0)
             obj_locs.append(np.concatenate([obj_center, obj_size], 0))
-            if return_anchor and i == 0:
-                # Select a loc within the obj bbox as the anchor.
-                anchor_loc = obj_pcd[:, :3].min(0) + np.random.rand(3) * obj_size
 
-            # subsample
-            pcd_idxs = np.random.choice(len(obj_pcd), size=self.num_points,
-                                        replace=len(obj_pcd) < self.num_points)
+            if return_anchor and i == 0:
+                anchor_loc = obj_pcd[:, :3].min(0) + np.random.rand(3).astype(np.float32) * obj_size
+
+            # subsample points (applies to all channels consistently)
+            pcd_idxs = np.random.choice(
+                len(obj_pcd),
+                size=self.num_points,
+                replace=(len(obj_pcd) < self.num_points)
+            )
             obj_pcd = obj_pcd[pcd_idxs]
 
-            # normalize
+            # normalize xyz only (do NOT touch rgb or normals here)
             obj_pcd[:, :3] = obj_pcd[:, :3] - obj_pcd[:, :3].mean(0)
-            max_dist = np.sqrt((obj_pcd[:, :3]**2).sum(1)).max()
-            if max_dist < 1e-6:   # take care of tiny point-clouds, i.e., padding
-                max_dist = 1
+            max_dist = np.sqrt((obj_pcd[:, :3] ** 2).sum(1)).max()
+            if max_dist < 1e-6:
+                max_dist = 1.0
             obj_pcd[:, :3] = obj_pcd[:, :3] / max_dist
+
             obj_fts.append(obj_pcd)
 
-        # convert to torch
         obj_fts = torch.from_numpy(np.stack(obj_fts, 0))
-        obj_locs = torch.from_numpy(np.array(obj_locs))
+        obj_locs = torch.from_numpy(np.asarray(obj_locs, dtype=np.float32))
+
         if return_anchor:
-            anchor_loc = torch.from_numpy(anchor_loc)
+            anchor_loc = torch.from_numpy(anchor_loc.astype(np.float32))
         else:
-            anchor_loc = torch.zeros(3).float()
+            anchor_loc = torch.zeros(3, dtype=torch.float32)
 
         output_dict = {
-            'obj_fts': obj_fts,
-            'obj_locs': obj_locs,
-            'anchor_loc': anchor_loc,
+            "obj_fts": obj_fts,
+            "obj_locs": obj_locs,
+            "anchor_loc": anchor_loc,
         }
-        
+
         if situation is not None:
             if rot_matrix is None:
                 output_dict["situation"] = situation
             else:
-                # print(f"rot_matrix: {rot_matrix}")
                 pos, ori = situation
-                pos = np.array(pos)
-                ori = np.array(ori)
-                pos_new = pos.reshape(1, 3) @ rot_matrix.transpose()
-                pos_new = pos_new.reshape(-1)
+                pos = np.asarray(pos, dtype=np.float32)
+                ori = np.asarray(ori, dtype=np.float32)
+                pos_new = (pos.reshape(1, 3) @ rot_matrix.T).reshape(-1)
                 ori_new = R.from_quat(ori).as_matrix()
                 ori_new = rot_matrix @ ori_new
-                ori_new = R.from_matrix(ori_new).as_quat()
-                ori_new = ori_new.reshape(-1)
+                ori_new = R.from_matrix(ori_new).as_quat().reshape(-1)
                 output_dict["situation"] = (pos_new, ori_new)
+
         return output_dict
 
     def _split_sentence(self, sentence, max_length, prefix=''):
@@ -410,6 +486,7 @@ class MSQAScanNet(MSR3DBase):
         qa_type = one_sample['type']
         index = one_sample['index']
         anchor_orientation = face_vector_in_xy_to_quaternion(anchor_orientation)
+        # normals=one_sample['noarmals']
 
         scan_id = one_sample['scan_id']
         data_dict = {}
@@ -479,7 +556,8 @@ class MSQAScanNet(MSR3DBase):
             'anchor_orientation': torch.tensor(anchor_orientation).float(),
             'anchor_locs' : torch.tensor(anchor_loc).float(),
             'index': index,
-            'type': qa_type
+            'type': qa_type,
+            # 'obj_normals': normals
         })
 
         return self.check_output_and_fill_dummy(data_dict)

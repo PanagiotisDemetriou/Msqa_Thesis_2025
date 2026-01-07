@@ -353,7 +353,7 @@
 #     main()
 
 # TO RUN (example)
-# PYTHONPATH="$PWD:$PWD/msr3d:$PWD/Pointcept_main:$PYTHONPATH" python batch_test_pointcept.py
+# PYTHONPATH="$PWD:$PWD/msr3d:$PWD/Pointcept_main:$PYTHONPATH" python data_transform.py
 
 import os
 import numpy as np
@@ -611,6 +611,10 @@ def main():
     model = load_pointcept_checkpoint(model, weight_path, strict=False)
 
     core = model.module if hasattr(model, "module") else model
+    if( hasattr(core, "module") ):
+        print("Core has module")
+    else:
+        print("Core has NO module")
     core = core.to(device).eval()
 
     # ---- Move input to device ----

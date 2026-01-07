@@ -180,6 +180,11 @@ class LeoScanFamilyDatasetWrapper(Dataset):
                 data_dict['msr3d_imgs'] = torch.stack(data_dict['msr3d_imgs'], dim=0)
                 data_dict['msr3d_imgs'] = self.pad_tensors(data_dict['msr3d_imgs'], lens=self.msr3d_max_img_num, pad=0.0)
 
+
+        if 'obj_normals' in data_dict:
+            data_dict['obj_normals'] = self.pad_tensors(data_dict['obj_normals'],
+                                                        lens=self.max_obj_len,
+                                                        pad=0.0).float()   # O, num_points, 3
         return data_dict
 
 

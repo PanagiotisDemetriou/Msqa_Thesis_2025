@@ -59,16 +59,35 @@ class ScanNetBase(Dataset):
             # load pcd data
             pcd_data = torch.load(os.path.join(self.base_dir, "scan_data",
                                             "pcd_with_global_alignment", f'{scan_id}.pth'), weights_only=False)
+            pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
+                                            "pcd_normals", f'{scan_id}.pth'), weights_only=False)
+            pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
+            
             # convert to gt object
             if load_inst_info:
                 obj_pcds = []
                 for i in range(instance_labels.max() + 1):
-                    mask = instance_labels == i     # time consuming
-                    obj_pcds.append(pcds[mask])
+                    # mask = instance_labels == i     # time consuming
+                    # obj_pcds.append(pcds[mask])
+                    for i in range(instance_labels.max() + 1):
+                        mask = (instance_labels == i)
+                        obj_xyzrgb = pcds[mask]                 # (Ni, 6)
+                        obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
+
+                        # Safety check (this is the key)
+                        if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+                            raise ValueError(
+                                f"Normals/points mismatch for inst {i}: "
+                                f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+                            )
+
+                        obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
+                    
                 one_scan['obj_pcds'] = obj_pcds
+
                 # calculate box for matching
                 obj_center = []
                 obj_box_size = []
@@ -134,7 +153,7 @@ class ScanNetBase(Dataset):
         if load_segment_info:
             one_scan["scene_pcds"] = np.load(os.path.join(self.base_dir, "scan_data", "pcd_mask3d", f'{scan_id[-7:]}.npy'))
         ######### testing ########
-
+        
         return (scan_id, one_scan)
 
     def _load_scannet(self, scan_ids, pc_type = 'gt', load_inst_info = False, 
