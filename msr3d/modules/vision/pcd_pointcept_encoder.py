@@ -162,7 +162,7 @@ class PTv3PcdObjEncoder(nn.Module):
 
         # Optional semantic classifier head (like your obj3d_clf_pre_head)
         self.sem_num_classes = cfg.model.prompter.model.vision.args.sem_num_classes
-        self.sem_head = None
+        self.sem_head = get_mlp_head(64, 384, self.sem_num_classes, dropout=0.3)
         if sem_num_classes is not None:
             self.sem_num_classes = int(sem_num_classes)
             self._lazy_sem = True
