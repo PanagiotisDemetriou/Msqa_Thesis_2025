@@ -515,6 +515,7 @@ def main():
 
     # Build encoder once
     encoder = PTv3PcdObjEncoder(
+        cfg=args.cfg,
         ptv3_cfg_path=args.ptv3_cfg,
         weight_path=args.ptv3_ckpt,
         sem_num_classes=args.sem_classes,
