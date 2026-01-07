@@ -231,6 +231,6 @@ class PTv3PcdObjEncoder(nn.Module):
         obj_sem_cls = None
         if self.sem_head is not None:
             obj_sem_cls = self.sem_head(obj_embeds)
-
+        print("pqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqp")
         return obj_embeds, obj_sem_cls
 
