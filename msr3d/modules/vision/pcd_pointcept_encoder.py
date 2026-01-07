@@ -161,6 +161,7 @@ class PTv3PcdObjEncoder(nn.Module):
         #     self._lazy_proj = False
 
         # Optional semantic classifier head (like your obj3d_clf_pre_head)
+        self.sem_num_classes = cfg.model.prompter.model.vision.args.sem_num_classes
         self.sem_head = None
         if sem_num_classes is not None:
             self.sem_num_classes = int(sem_num_classes)
@@ -176,19 +177,19 @@ class PTv3PcdObjEncoder(nn.Module):
         core = self.model.module if hasattr(self.model, "module") else self.model
         return core
 
-    def _maybe_build_heads(self, in_dim: int):
-        if self._lazy_proj and self.proj is None:
-            self.proj = nn.Sequential(
-                nn.Linear(in_dim, self.proj_out_dim),
-                nn.ReLU(inplace=True),
-            )
-            self._lazy_proj = False
+    # def _maybe_build_heads(self, in_dim: int):
+    #     if self._lazy_proj and self.proj is None:
+    #         self.proj = nn.Sequential(
+    #             nn.Linear(in_dim, self.proj_out_dim),
+    #             nn.ReLU(inplace=True),
+    #         )
+    #         self._lazy_proj = False
 
-        if self._lazy_sem and self.sem_head is None:
-            # mirror your style: MLP head to sem classes
-            # (replace 384 with whatever your downstream expects if needed)
-            self.sem_head = get_mlp_head(in_dim, 384, self.sem_num_classes, dropout=0.3)
-            self._lazy_sem = False
+    #     if self._lazy_sem and self.sem_head is None:
+    #         # mirror your style: MLP head to sem classes
+    #         # (replace 384 with whatever your downstream expects if needed)
+    #         self.sem_head = get_mlp_head(in_dim, 384, self.sem_num_classes, dropout=0.3)
+    #         self._lazy_sem = False
 
     def forward(self, obj_pcds, obj_locs=None, obj_masks=None, obj_sem_masks=None, **kwargs):
         """
@@ -218,8 +219,8 @@ class PTv3PcdObjEncoder(nn.Module):
             reduce=self.feat_reduce,
         )
 
-        D = int(obj_feats.shape[-1])
-        self._maybe_build_heads(D)
+        # D = int(obj_feats.shape[-1])
+        # self._maybe_build_heads(D)
 
         obj_feats = self.dropout(obj_feats)
         if self.proj is not None:
