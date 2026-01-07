@@ -309,59 +309,95 @@ def pool_point_features_to_objects(point_feats, obj_id, num_objs, reduce="mean")
 # PTv3 object encoder (test version: no proj head)
 # -----------------------------
 class PTv3PcdObjEncoder(nn.Module):
+    """
+    Object-level encoder using PointTransformerV3 backbone (Pointcept).
+    Produces per-object embeddings by pooling per-point backbone features.
+    """
     def __init__(
         self,
+        cfg,
         ptv3_cfg_path: str,
         weight_path: str = None,
         grid_size: float = 0.02,
         feat_reduce: str = "mean",
-        sem_num_classes: int = None,
+        out_dim: int = None,          
+        sem_num_classes: int = None,  
         dropout: float = 0.1,
         freeze: bool = False,
     ):
         super().__init__()
+        self.cfg = cfg
         self.grid_size = float(grid_size)
         self.feat_reduce = feat_reduce
         self.freeze = freeze
 
+        # Build Pointcept model from config file
         self.ptv3_cfg = PCConfig.fromfile(ptv3_cfg_path)
         model = build_model(self.ptv3_cfg.model)
+       
         if weight_path is not None:
             model = load_pointcept_checkpoint(model, weight_path, strict=False)
-        self.model = model
 
+        # Keep only the backbone path you already validated
+        self.model = model
         self.dropout = nn.Dropout(dropout)
 
-        self.sem_head = None
-        self._lazy_sem = sem_num_classes is not None
-        self.sem_num_classes = int(sem_num_classes) if sem_num_classes is not None else None
+        # Optional projection head to match a target dimension
+        # self.proj = None
+        # self.proj_out_dim = None
+        # if out_dim is not None:
+        #     self.proj_out_dim = int(out_dim)
+        #     # We can’t know backbone dim until first forward unless you hardcode.
+        #     # So we create proj lazily.
+        #     self._lazy_proj = True
+        # else:
+        #     self._lazy_proj = False
+
+        # Optional semantic classifier head (like your obj3d_clf_pre_head)
+        self.sem_num_classes = cfg.model.prompter.model.vision.args.sem_num_classes
+        self.sem_head = get_mlp_head(64, 384, self.sem_num_classes, dropout=0.3)
+        if sem_num_classes is not None:
+            self.sem_num_classes = int(sem_num_classes)
+            self._lazy_sem = True
+        else:
+            self._lazy_sem = False
 
         if self.freeze:
             for p in self.parameters():
                 p.requires_grad = False
 
     def _get_core(self):
-        return self.model.module if hasattr(self.model, "module") else self.model
+        core = self.model.module if hasattr(self.model, "module") else self.model
+        return core
 
-    def _maybe_build_sem(self, in_dim: int):
-        if self._lazy_sem and self.sem_head is None:
-            self.sem_head = get_mlp_head(in_dim, 384, self.sem_num_classes, dropout=0.3)
-            self._lazy_sem = False
+    # def _maybe_build_heads(self, in_dim: int):
+    #     if self._lazy_proj and self.proj is None:
+    #         self.proj = nn.Sequential(
+    #             nn.Linear(in_dim, self.proj_out_dim),
+    #             nn.ReLU(inplace=True),
+    #         )
+    #         self._lazy_proj = False
 
-    def forward(self, obj_pcds, obj_masks=None):
+    #     if self._lazy_sem and self.sem_head is None:
+    #         # mirror your style: MLP head to sem classes
+    #         # (replace 384 with whatever your downstream expects if needed)
+    #         self.sem_head = get_mlp_head(in_dim, 384, self.sem_num_classes, dropout=0.3)
+    #         self._lazy_sem = False
+
+    def forward(self, obj_pcds, obj_locs=None, obj_masks=None, obj_sem_masks=None, **kwargs):
         """
-        obj_pcds: (B,O,P,C>=9) [xyz,rgb,normals,...]
-        obj_masks: optional (B,O) bool/0-1; NOT used for pooling (pooling is per-object id),
-                   but you can use it downstream to ignore padded objects.
+        obj_pcds: (B,O,P,9) [xyz,rgb,normals]
         """
         B, O, P, C = obj_pcds.shape
         device = obj_pcds.device
 
-        point_data = transform_obj_pcds_to_pointcept(obj_pcds, grid_size=self.grid_size)
+        point_data = transform_obj_pcds_to_pointcept(
+            obj_pcds=obj_pcds,
+            grid_size=self.grid_size,
+        )
         point_data = move_pointcept_data_to_device(point_data, device)
 
-        core = self._get_core().to(device)
-        core = core.eval() if self.freeze else core
+        core = self._get_core().to(device).eval() if self.freeze else self._get_core().to(device)
 
         if self.freeze:
             with torch.no_grad():
@@ -374,16 +410,24 @@ class PTv3PcdObjEncoder(nn.Module):
             obj_id=point_data["obj_id"],
             num_objs=B * O,
             reduce=self.feat_reduce,
-        )  # (B*O, D)
+        )
 
-        D = int(obj_feats.shape[-1])
-        self._maybe_build_sem(D)
+        # D = int(obj_feats.shape[-1])
+        # self._maybe_build_heads(D)
 
         obj_feats = self.dropout(obj_feats)
+        if self.proj is not None:
+            obj_feats = self.proj(obj_feats)
+
         obj_embeds = obj_feats.view(B, O, -1)
 
-        obj_sem_cls = self.sem_head(obj_embeds) if self.sem_head is not None else None
+        obj_sem_cls = None
+        if self.sem_head is not None:
+            obj_sem_cls = self.sem_head(obj_embeds)
+        print("pqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqpqp")
         return obj_embeds, obj_sem_cls
+
+
 
 
 # -----------------------------
