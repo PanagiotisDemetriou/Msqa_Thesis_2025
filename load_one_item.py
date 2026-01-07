@@ -178,8 +178,8 @@ from collections import OrderedDict
 from omegaconf import OmegaConf
 
 # Project registries (adjust if your repo layout differs)
-from msr3d.data.datasets.default import DATASET_REGISTRY
-from msr3d.data.datasets.dataset_wrapper import DATASETWRAPPER_REGISTRY
+from data.datasets.default import DATASET_REGISTRY
+from data.datasets.dataset_wrapper import DATASETWRAPPER_REGISTRY
 
 # Pointcept imports (must be available in PYTHONPATH)
 from pointcept.utils.config import Config as PCConfig
@@ -189,7 +189,7 @@ import pointcept.utils.comm as comm
 
 # Optional: if you want sem head like your other encoder
 from modules.utils import get_mlp_head
-
+import modules.vision as vision
 
 # -----------------------------
 # Registry helper
