@@ -485,15 +485,15 @@ class MSR3D(nn.Module):
 
         inputs = self.processor(text=data_dict["prompt"])
         data_dict['img_tokens'] = self.llm_proj_img(self.image_encoder(data_dict['img_fts']))
-        # try:
-        #     inputs_embeds, attention_mask = self.build_embeds(scene_dict=data_dict, input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'])
-        #     bs = inputs_embeds.shape[0]
-        # except:
-        #     ValueError("Error in building embeddings")
-        #     print(f"source: {data_dict['source']}")
-        #     print(f"scan id: {data_dict['scan_id']}")
-        #     print(f"index: {data_dict['index']}")
-        #     print(data_dict['prompt'])
+        try:
+            inputs_embeds, attention_mask = self.build_embeds(scene_dict=data_dict, input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'])
+            bs = inputs_embeds.shape[0]
+        except:
+            ValueError("Error in building embeddings")
+            print(f"source: {data_dict['source']}")
+            print(f"scan id: {data_dict['scan_id']}")
+            print(f"index: {data_dict['index']}")
+            print(data_dict['prompt'])
         #############
         # try:
         #     print("DEBUG: About to call build_embeds", flush=True)
@@ -519,7 +519,7 @@ class MSR3D(nn.Module):
         #     print(f"prompt: {data_dict['prompt']}", flush=True)
         #     raise
         #############
-
+        
         # give bos token as condition
         bos_tokens = self.llm_tokenizer(
             [self.llm_tokenizer.bos_token] * bs,
