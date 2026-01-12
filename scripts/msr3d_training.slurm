@@ -7,8 +7,8 @@
 #SBATCH --gres=gpu:3        # Use 3 of 4 A6000 GPUs
 #SBATCH --mem=256000        # 256GB RAM
 #SBATCH --time=3-00:00:00   # 5 days
-#SBATCH -o msr3d_training_3ds.out
-#SBATCH -e msr3d_training_3ds.err
+#SBATCH -o msr3d_training_ptv3_eval.out
+#SBATCH -e msr3d_training_ptv3_eval.err
 
 module purge
 
@@ -31,4 +31,5 @@ export CUDA_VISIBLE_DEVICES=0,1
 
 # Run your training script
 cd /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d
+export PYTHONPATH="$PWD:$PWD/../Pointcept_main:$PYTHONPATH"
 ./msr3d.sh
