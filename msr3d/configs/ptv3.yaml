@@ -4,7 +4,7 @@ note: BLIPT_PTv3_VIC_LORA # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 2
-mode: train
+mode: inference
 # Choose keywords to feature your saving directory
 naming_keywords: [note]
 base_dir: '' # the output directory, must be set 
