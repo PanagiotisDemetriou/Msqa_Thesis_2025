@@ -23,38 +23,58 @@ def move_pointcept_data_to_device(data_dict, device):
         return type(data_dict)(move_pointcept_data_to_device(v, device) for v in data_dict)
     return data_dict
 
+# def load_pointcept_checkpoint(model, weight_path, strict=False):
+
+#     import inspect, os
+#     print("="*60, flush=True)
+#     print("[PTv3 LOAD] model type:", type(model), flush=True)
+#     print("[PTv3 LOAD] model first key:", list(model.state_dict().keys())[:3], flush=True)
+
+#     checkpoint = torch.load(weight_path, map_location="cpu", weights_only=False)
+#     sd = checkpoint["state_dict"] if isinstance(checkpoint, dict) and "state_dict" in checkpoint else checkpoint
+#     print("[PTv3 LOAD] ckpt first key:", list(sd.keys())[:3], flush=True)
+#     print("[PTv3 LOAD] weight_path:", os.path.abspath(weight_path), flush=True)
+#     print("[PTv3 LOAD] encoder file:", inspect.getfile(model.__class__), flush=True)
+#     print("="*60, flush=True)
+
+
+#     #checkpoint = torch.load(weight_path, map_location="cpu", weights_only=False)
+#     #sd = checkpoint["state_dict"] if isinstance(checkpoint, dict) and "state_dict" in checkpoint else checkpoint
+
+#     weight = OrderedDict()
+#     for k, v in sd.items():
+#         # normalize to "module." keys first (matches Pointcept logic)
+#         if not k.startswith("module."):
+#             k = "module." + k
+#         # if single process, strip module.
+#         if comm.get_world_size() == 1:
+#             k = k[7:]
+#         weight[k] = v
+
+#     missing, unexpected = model.load_state_dict(weight, strict=strict)
+#     print(f"[PTv3 Checkpoint] Missing: {len(missing)}  Unexpected: {len(unexpected)}")
+#     return model
 def load_pointcept_checkpoint(model, weight_path, strict=False):
-
-    import inspect, os
-    print("="*60, flush=True)
-    print("[PTv3 LOAD] model type:", type(model), flush=True)
-    print("[PTv3 LOAD] model first key:", list(model.state_dict().keys())[:3], flush=True)
-
     checkpoint = torch.load(weight_path, map_location="cpu", weights_only=False)
     sd = checkpoint["state_dict"] if isinstance(checkpoint, dict) and "state_dict" in checkpoint else checkpoint
-    print("[PTv3 LOAD] ckpt first key:", list(sd.keys())[:3], flush=True)
-    print("[PTv3 LOAD] weight_path:", os.path.abspath(weight_path), flush=True)
-    print("[PTv3 LOAD] encoder file:", inspect.getfile(model.__class__), flush=True)
-    print("="*60, flush=True)
 
-
-    #checkpoint = torch.load(weight_path, map_location="cpu", weights_only=False)
-    sd = checkpoint["state_dict"] if isinstance(checkpoint, dict) and "state_dict" in checkpoint else checkpoint
+    model_keys = model.state_dict().keys()
+    model_has_module = any(k.startswith("module.") for k in model_keys)
+    ckpt_has_module = any(k.startswith("module.") for k in sd.keys())
 
     weight = OrderedDict()
     for k, v in sd.items():
-        # normalize to "module." keys first (matches Pointcept logic)
-        if not k.startswith("module."):
-            k = "module." + k
-        # if single process, strip module.
-        if comm.get_world_size() == 1:
-            k = k[7:]
-        weight[k] = v
+        kk = k
+        # Strip/add 'module.' to match the model
+        if ckpt_has_module and not model_has_module and kk.startswith("module."):
+            kk = kk[7:]
+        elif (not ckpt_has_module) and model_has_module:
+            kk = "module." + kk
+        weight[kk] = v
 
     missing, unexpected = model.load_state_dict(weight, strict=strict)
     print(f"[PTv3 Checkpoint] Missing: {len(missing)}  Unexpected: {len(unexpected)}")
     return model
-
 
 def transform_obj_pcds_to_pointcept(obj_pcds, grid_size=0.02, rgb_div=255.0):
     """
