@@ -81,16 +81,69 @@ class ScanDataLoader(object):
             scan_data['mv_info'] = obj_dict
 
         if 'obj_pcds' in data_type:
-            pcd_data = torch.load(os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "pcds.pth"))
-            points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[2]
+            # scene pcds
+            pcd_data = torch.load(
+                os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "pcds.pth")
+            )
+            points, colors = pcd_data[0], pcd_data[1]
+
+            # ensure numpy arrays
+            if torch.is_tensor(points):
+                points = points.cpu().numpy()
+            if torch.is_tensor(colors):
+                colors = colors.cpu().numpy()
+
             colors = colors / 127.5 - 1
-            pcds = np.concatenate([points, colors], 1)
-            # build obj_pcds
-            inst_to_label = torch.load(os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id,"inst_to_label.pth"))
+            pcds = np.concatenate([points, colors], axis=1)  # (N, 6)
+            N = pcds.shape[0]
+
+            # inst_to_label to decide which instances to keep
+            inst_to_label = torch.load(
+                os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "inst_to_label.pth")
+            )
+
+            # normals file (you said it has keys: scene_id, normals_by_inst, indices_by_inst, meta)
+            # NOTE: adjust this path if your normals file lives elsewhere / has a different filename.
+            normals_path = os.path.join(
+                self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "normals.pth"
+            )
+            normals_dict = torch.load(normals_path, weights_only=False)
+
+            normals_by_inst = normals_dict['normals_by_inst']   # dict: inst_id -> (Ni, 3)
+            indices_by_inst = normals_dict['indices_by_inst']   # dict: inst_id -> (Ni,) global indices
+
             obj_pcds = {}
             for inst_id in inst_to_label.keys():
-                mask = instance_labels == inst_id
-                obj_pcds.update({inst_id: pcds[mask]})
+                if type(inst_id) != int:
+                    continue
+
+                # require normals + indices
+                if inst_id not in indices_by_inst or inst_id not in normals_by_inst:
+                    continue
+
+                idx = np.asarray(indices_by_inst[inst_id], dtype=np.int64)
+                if idx.size < 10:
+                    continue
+
+                # bounds safety
+                if idx.min() < 0 or idx.max() >= N:
+                    raise ValueError(
+                        f"[{scan_id}] indices out of bounds for inst {inst_id}: "
+                        f"min={idx.min()}, max={idx.max()}, N={N}"
+                    )
+
+                obj_xyzrgb = pcds[idx]  # (Ni, 6)
+                obj_normals = np.asarray(normals_by_inst[inst_id])  # (Ni, 3)
+
+                # safety check: normals count must match points count
+                if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+                    raise ValueError(
+                        f"[{scan_id}] Normals/points mismatch for inst {inst_id}: "
+                        f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+                    )
+
+                obj_pcds[inst_id] = np.concatenate([obj_xyzrgb, obj_normals], axis=1)  # (Ni, 9)
+
             scan_data['obj_pcds'] = obj_pcds
         return scan_data
 
@@ -133,6 +186,11 @@ class ScanDataLoader(object):
 
         if 'obj_pcds' in data_type:
             pcd_data = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd-align", f"{scan_id}.pth"))
+            normals_dict = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd_normals", f"{scan_id}.pth"),weights_only=False)
+            
+            normals_by_inst = normals_dict['normals_by_inst']   
+            indices_by_inst = normals_dict['indices_by_inst']
+            
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[2]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
@@ -142,11 +200,35 @@ class ScanDataLoader(object):
             for inst_id in inst_to_label.keys():
                 if type(inst_id) != int:
                     continue
-                mask = instance_labels == inst_id
-                if mask.sum() < 10:
+
+                # require normals+indices for this inst_id
+                if inst_id not in indices_by_inst or inst_id not in normals_by_inst:
                     continue
-                obj_pcds.update({inst_id: pcds[mask]})
+
+                idx = np.asarray(indices_by_inst[inst_id])
+                if idx.size < 10:
+                    continue
+
+                obj_xyzrgb = pcds[idx]                    # (Ni, 6) using explicit indices
+                obj_normals = np.asarray(normals_by_inst[inst_id])  # (Ni, 3)
+
+                # safety check: normals count must match indexed points count
+                if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+                    raise ValueError(
+                        f"[{scan_id}] Normals/points mismatch for inst {inst_id}: "
+                        f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+                    )
+
+                obj_pcds[inst_id] = np.concatenate([obj_xyzrgb, obj_normals], axis=1)  # (Ni, 9)
+            # for inst_id in inst_to_label.keys():
+            #     if type(inst_id) != int:
+            #         continue
+            #     mask = instance_labels == inst_id
+            #     if mask.sum() < 10:
+            #         continue
+            #     obj_pcds.update({inst_id: pcds[mask]})
             scan_data['obj_pcds'] = obj_pcds
+            
 
         return scan_data
 

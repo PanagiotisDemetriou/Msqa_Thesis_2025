@@ -1,10 +1,10 @@
 # Experiment general info
 name: MSR3D # this will be the project name of wandb
-note: BLIPT_PTv3_VIC_LORA # this will be the run name of wandb
+note: BLIPT_PTv3_VIC_LORA_3DS # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 2
-mode: inference
+mode: train
 # Choose keywords to feature your saving directory
 naming_keywords: [note]
 base_dir: '' # the output directory, must be set 
@@ -134,22 +134,22 @@ task:
     dataset_wrapper_args: ${dataset_wrapper.args}
     eval_dataloader_args: ${dataloader.eval}
     evaluator: MSQAEval
-  # msqa_3rscan:
-  #   #mode: [val, test]
-  #   mode: []
-  #   dataset: MSQA3RScan
-  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
-  #   dataset_wrapper_args: ${dataset_wrapper.args}
-  #   eval_dataloader_args: ${dataloader.eval}
-  #   evaluator: MSQAEval
-  # msqa_arkitscenes:
-  #   #mode: [val, test]
-  #   mode: []
-  #   dataset: MSQAARkitScenes
-  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
-  #   dataset_wrapper_args: ${dataset_wrapper.args}
-  #   eval_dataloader_args: ${dataloader.eval}
-  #   evaluator: MSQAEval
+  msqa_3rscan:
+    mode: [val, test]
+    # mode: []
+    dataset: MSQA3RScan
+    dataset_wrapper: LeoScanFamilyDatasetWrapper
+    dataset_wrapper_args: ${dataset_wrapper.args}
+    eval_dataloader_args: ${dataloader.eval}
+    evaluator: MSQAEval
+  msqa_arkitscenes:
+    mode: [val, test]
+    # mode: []
+    dataset: MSQAARkitScenes
+    dataset_wrapper: LeoScanFamilyDatasetWrapper
+    dataset_wrapper_args: ${dataset_wrapper.args}
+    eval_dataloader_args: ${dataloader.eval}
+    evaluator: MSQAEval
 
 # shared dataset_wrapper args
 dataset_wrapper:

@@ -2,7 +2,7 @@ import numpy as np
 import pprint
 
 # 🧠 Set your .npy file path here
-path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/instance_id_to_label/scene0000_00.npy"
+path = "/home/panagiotis/msqa/Msqa_Thesis_2025/SHS-Net/log/001/results_Scannet/ckpt_800/pred_normal/scene0000_00_normal.npy"
 
 try:
     # Load the numpy array

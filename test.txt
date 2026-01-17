@@ -1,0 +1,97 @@
+Dataset (cfg.task.msr3d_train): MSR3DMix
+Wrapper (cfg.task.msr3d_train): LeoScanFamilyDatasetWrapper
+MSR3DMix about to load: ['msqa_scannet'].
+Loading MSQAScanNet train-set language
+Finish loading MSQAScanNet train-set language, collected 145623 data
+MSR3DMix finishes loading dataset: msqa_scannet.
+Indecies of these datasets: [0, 145623]
+Wrapped dataset length: 145623
+Using device: cuda
+5
+5
+================================================================================
+Index: 0
+msr3d_prompt        : str -> You are an AI visual assistant situated in a 3D scene. You are at a selected location in the 3D scene. There is a varied object at my 12 o'clock direction. A wh...
+msr3d_imgs          : Tensor(shape=(60, 3, 224, 224), dtype=torch.float32, device=cpu), min=0, max=0
+obj_fts             : Tensor(shape=(60, 1024, 9), dtype=torch.float32, device=cpu), min=-1, max=1
+obj_locs            : Tensor(shape=(60, 6), dtype=torch.float32, device=cpu), min=-2.135, max=2.412
+img_fts             : Tensor(shape=(3, 224, 224), dtype=torch.float32, device=cpu), min=0, max=0
+img_masks           : Tensor(shape=(1,), dtype=torch.bool, device=cpu)
+text_output         : str -> soft
+anchor_orientation  : Tensor(shape=(4,), dtype=torch.float32, device=cpu), min=-0.192, max=0.9814
+anchor_locs         : Tensor(shape=(3,), dtype=torch.float32, device=cpu), min=-0.737, max=0
+source              : str -> msqa_scannet
+scan_id             : str -> scene0413_00
+prompt_before_obj   : str ->
+prompt_middle_1     : str ->
+prompt_middle_2     : str ->
+prompt_after_obj    : str ->
+index               : int -> 0
+type                : str -> attribute
+obj_masks           : Tensor(shape=(60,), dtype=torch.bool, device=cpu)
+msr3d_img_masks     : Tensor(shape=(60,), dtype=torch.bool, device=cpu)
+
+obj_fts: (O=60, P=1024, C=9)
+Normals ||n||: mean=1.0000, min=1.0000, max=1.0000
+
+[ENCODER OUTPUT]
+obj_embeds: Tensor(shape=(1, 60, 64), dtype=torch.float32, device=cuda:0)
+obj_sem_cls: Tensor(shape=(1, 60, 607), dtype=torch.float32, device=cuda:0)
+================================================================================
+Index: 1
+msr3d_prompt        : str -> You are an AI visual assistant situated in a 3D scene. You are at a selected location in the 3D scene. I am installing a door. A white oval sink is at my 8 o'cl...
+msr3d_imgs          : Tensor(shape=(60, 3, 224, 224), dtype=torch.float32, device=cpu), min=0, max=0
+obj_fts             : Tensor(shape=(60, 1024, 9), dtype=torch.float32, device=cpu), min=-1, max=1
+obj_locs            : Tensor(shape=(60, 6), dtype=torch.float32, device=cpu), min=-1.623, max=2.355
+img_fts             : Tensor(shape=(3, 224, 224), dtype=torch.float32, device=cpu), min=0, max=0
+img_masks           : Tensor(shape=(1,), dtype=torch.bool, device=cpu)
+text_output         : str -> zero
+anchor_orientation  : Tensor(shape=(4,), dtype=torch.float32, device=cpu), min=0, max=0.9814
+anchor_locs         : Tensor(shape=(3,), dtype=torch.float32, device=cpu), min=0, max=0.737
+source              : str -> msqa_scannet
+scan_id             : str -> scene0413_00
+prompt_before_obj   : str ->
+prompt_middle_1     : str ->
+prompt_middle_2     : str ->
+prompt_after_obj    : str ->
+index               : int -> 1
+type                : str -> counting
+obj_masks           : Tensor(shape=(60,), dtype=torch.bool, device=cpu)
+msr3d_img_masks     : Tensor(shape=(60,), dtype=torch.bool, device=cpu)
+
+obj_fts: (O=60, P=1024, C=9)
+Normals ||n||: mean=1.0000, min=1.0000, max=1.0000
+
+[ENCODER OUTPUT]
+obj_embeds: Tensor(shape=(1, 60, 64), dtype=torch.float32, device=cuda:0)
+obj_sem_cls: Tensor(shape=(1, 60, 607), dtype=torch.float32, device=cuda:0)
+================================================================================
+Index: 2
+msr3d_prompt        : str -> You are an AI visual assistant situated in a 3D scene. You are at a selected location in the 3D scene. I am installing a door.Objects (including you) in the sce...
+msr3d_imgs          : Tensor(shape=(60, 3, 224, 224), dtype=torch.float32, device=cpu), min=0, max=0
+obj_fts             : Tensor(shape=(60, 1024, 9), dtype=torch.float32, device=cpu), min=-1, max=1
+obj_locs            : Tensor(shape=(60, 6), dtype=torch.float32, device=cpu), min=-1.741, max=4.413
+img_fts             : Tensor(shape=(3, 224, 224), dtype=torch.float32, device=cpu), min=0, max=0
+img_masks           : Tensor(shape=(1,), dtype=torch.bool, device=cpu)
+text_output         : str -> the shoe
+anchor_orientation  : Tensor(shape=(4,), dtype=torch.float32, device=cpu), min=-0.5582, max=0.8297
+anchor_locs         : Tensor(shape=(3,), dtype=torch.float32, device=cpu), min=-0.737, max=0.06306
+source              : str -> msqa_scannet
+scan_id             : str -> scene0413_00
+prompt_before_obj   : str ->
+prompt_middle_1     : str ->
+prompt_middle_2     : str ->
+prompt_after_obj    : str ->
+index               : int -> 2
+type                : str -> spatial relationship
+obj_masks           : Tensor(shape=(60,), dtype=torch.bool, device=cpu)
+msr3d_img_masks     : Tensor(shape=(60,), dtype=torch.bool, device=cpu)
+
+obj_fts: (O=60, P=1024, C=9)
+Normals ||n||: mean=1.0000, min=1.0000, max=1.0000
+
+[ENCODER OUTPUT]
+obj_embeds: Tensor(shape=(1, 60, 64), dtype=torch.float32, device=cuda:0)
+obj_sem_cls: Tensor(shape=(1, 60, 607), dtype=torch.float32, device=cuda:0)
+
+Done.

@@ -2,9 +2,9 @@ import torch
 import pprint
 
 # 🧠 Set your .pth file path here
-path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_normals/scene0001_00.pth"
-#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align/00d42bed-778d-2ac6-86a7-0e0e5f5f5660/pcds.pth"
-#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align/41069021.pth"
+#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0001_00.pth"
+path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align/00d42bed-778d-2ac6-86a7-0e0e5f5f5660/normals.pth"
+#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd_normals/41069021.pth"
 
 #path = "/mnt/d/Thesis/PTv3/model_best.pth"
 #path = "scene_with_normals.pth"
@@ -25,7 +25,9 @@ try:
             pprint.pprint(list(data["state_dict"].keys()))
     else:
         print("\n🧾 File contents:")
-        pprint.pprint(data)
+        pprint.pprint(data[0])
+        print("length:", len(data[0]))
+        print(data[0].shape)
 
 
 except Exception as e:
