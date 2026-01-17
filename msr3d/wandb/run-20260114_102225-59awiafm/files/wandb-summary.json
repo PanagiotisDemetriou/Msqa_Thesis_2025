@@ -1,0 +1,1 @@
+{"test/msqa_scannet/ans1_acc_llm":0.37001209189842804,"_timestamp":1.7683830000306547e+09,"_wandb":{"runtime":453},"test/msqa_scannet/bleu":0.3854686054255489,"test/msqa_scannet/cider":2.6982020222583967,"test/msqa_scannet/target_metric":0.37001209189842804,"_runtime":453,"_step":0,"test/msqa_scannet/meteor":0.3584811888046747,"test/msqa_scannet/rouge":0.6304905805138732}

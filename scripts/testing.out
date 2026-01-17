@@ -9,6 +9,7 @@ Wrapped dataset length: 145623
 Using device: cuda
 5
 5
+[PTv3 Checkpoint] Missing: 0  Unexpected: 0
 ================================================================================
 Index: 0
 msr3d_prompt        : str -> You are an AI visual assistant situated in a 3D scene. You are at a selected location in the 3D scene. There is a varied object at my 12 o'clock direction. A wh...
@@ -98,10 +99,10 @@ Done.
 Your remaining balance (at the time of job end)
 User           Usage |        Account     Usage | Account Limit Available (CPU hrs)
 ---------- --------- + -------------- --------- + ------------- ---------
-cpoullis           0 |            VCG       773 |             0       N/A
-ekalogerakis       590 |            VCG       773 |             0       N/A
-maverkiou          0 |            VCG       773 |             0       N/A
-mloizou           12 |            VCG       773 |             0       N/A
-pdemetriou *       119 |            VCG       773 |             0       N/A
-yadimoolam        51 |            VCG       773 |             0       N/A
-ygeorgiou          0 |            VCG       773 |             0       N/A
+cpoullis           0 |            VCG     1,267 |             0       N/A
+ekalogerakis     1,004 |            VCG     1,267 |             0       N/A
+maverkiou          0 |            VCG     1,267 |             0       N/A
+mloizou            6 |            VCG     1,267 |             0       N/A
+pdemetriou *       208 |            VCG     1,267 |             0       N/A
+yadimoolam        48 |            VCG     1,267 |             0       N/A
+ygeorgiou          0 |            VCG     1,267 |             0       N/A
