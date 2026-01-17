@@ -55,8 +55,8 @@ data:
   obj_img_base: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data
   msr3dmix:
     args:
-      #mix: [msqa_scannet,msqa_3rscan, msqa_arkitscenes]
-      mix: [msqa_scannet]
+      mix: [msqa_scannet,msqa_3rscan, msqa_arkitscenes]
+      #mix: [msqa_scannet]
       ratio: 1.0
       few_shot_num: 0
       num_points: 1024
