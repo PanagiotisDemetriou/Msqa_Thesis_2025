@@ -11,7 +11,8 @@ parser.add_argument('--ckpt_iters', type=str, default='800')
 parser.add_argument('--resume', type=str, default='')
 FLAGS = parser.parse_args()
 
-dataset_root = '/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/'
+#dataset_root = '/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/'
+dataset_root = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/'
 gpu = FLAGS.gpu
 lr = 0.0009
 encode_knn = 16
@@ -46,8 +47,8 @@ elif FLAGS.mode == 'test':
     testset_list = None
     eval_list = None
     if data_set == 'Scannet':
-        #testset_list = 'test'
-        testset_list = 'fourth_batch'
+        testset_list = 'test_1'
+        #testset_list = 'fourth_batch'
         eval_list =[]
     else:
         if data_set == 'PCPNet':

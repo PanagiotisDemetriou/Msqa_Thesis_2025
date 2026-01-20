@@ -186,7 +186,7 @@ def test(ckpt_dir, ckpt_iter):
     ### Input/Output
     ckpt_path = os.path.join(args.log_root, ckpt_dir, 'ckpts/ckpt_%s.pt' % ckpt_iter)
     #output_dir = os.path.join(args.log_root, ckpt_dir, 'results_%s/ckpt_%s' % (args.data_set, ckpt_iter))
-    output_dir = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_normals_shs"
+    output_dir = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_normals_shs"
     if args.tag is not None and len(args.tag) != 0:
         output_dir += '_' + args.tag
     if not os.path.exists(ckpt_path):
