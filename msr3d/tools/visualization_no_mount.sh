@@ -26,8 +26,9 @@ fi
 #  Config & Defaults
 # =========================
 
-PYTHON_SCRIPT="situation_visualization_w_instances.py"
-PYTHON_BIN="python3"
+#PYTHON_SCRIPT="situation_visualization_w_instances.py"
+PYTHON_SCRIPT="user_interface.py"
+PYTHON_BIN="/home/panagiotis/miniconda3/envs/pointcept-torch2.5.0-cu12.4/bin/python3"
 MODE_CHOICE=""   # "wsl" or "normal" (auto-detect if empty)
 
 # Colors

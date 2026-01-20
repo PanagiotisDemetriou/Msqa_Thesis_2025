@@ -45,7 +45,133 @@ class ScanNetBase(Dataset):
 
     def __getitem__(self, index):
         raise NotImplementedError
+    ####### Function for normals PCA ########
+    # def _load_one_scan(self, scan_id, pc_type = 'gt', load_inst_info = False, 
+    #                   load_multiview_info = False, is_load_mv_feat = True, load_pc_info = True, load_segment_info=False):
+    #     one_scan = {}
+    #     if load_inst_info:
+    #         inst_labels, inst_locs, inst_colors = self._load_inst_info(scan_id)
+    #         one_scan['inst_labels'] = inst_labels # (n_obj, )
+    #         one_scan['inst_locs'] = inst_locs # (n_obj, 6) center xyz, whl
+    #         one_scan['inst_colors'] = inst_colors # (n_obj, 3x4) cluster * (weight, mean rgb)
 
+    #     if load_pc_info:
+    #         # load pcd data
+    #         pcd_data = torch.load(os.path.join(self.base_dir, "scan_data",
+    #                                         "pcd_with_global_alignment", f'{scan_id}.pth'), weights_only=False)
+    #         pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
+    #                                         "pcd_normals", f'{scan_id}.pth'), weights_only=False)
+    #         pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
+    #         points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
+    #         colors = colors / 127.5 - 1
+    #         pcds = np.concatenate([points, colors], 1)
+            
+    #         # convert to gt object
+    #         if load_inst_info:
+    #             obj_pcds = []
+    #             for i in range(instance_labels.max() + 1):
+    #                 # mask = instance_labels == i     # time consuming
+    #                 # obj_pcds.append(pcds[mask])
+    #                 for i in range(instance_labels.max() + 1):
+    #                     mask = (instance_labels == i)
+    #                     obj_xyzrgb = pcds[mask]                 # (Ni, 6)
+    #                     obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
+
+    #                     # Safety check (this is the key)
+    #                     if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+    #                         raise ValueError(
+    #                             f"Normals/points mismatch for inst {i}: "
+    #                             f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+    #                         )
+
+    #                     obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
+                    
+    #             one_scan['obj_pcds'] = obj_pcds
+
+    #             # calculate box for matching
+    #             obj_center = []
+    #             obj_box_size = []
+    #             for obj_pcd in obj_pcds:
+    #                 _c, _b = convert_pc_to_box(obj_pcd)
+    #                 obj_center.append(_c)
+    #                 obj_box_size.append(_b)
+    #             one_scan['obj_center'] = obj_center
+    #             one_scan['obj_box_size'] = obj_box_size
+    #         if pc_type == 'pred':
+    #             obj_mask_path = os.path.join(self.base_dir, "mask", str(scan_id) + ".mask" + ".npz")
+    #             obj_label_path = os.path.join(self.base_dir, "mask",
+    #                                         str(scan_id) + ".label" + ".npy")
+    #             obj_pcds = []
+    #             obj_mask = np.array(sparse.load_npz(obj_mask_path).todense())[:50, :]
+    #             obj_labels = np.load(obj_label_path)[:50]
+    #             obj_l = []
+    #             for i in range(obj_mask.shape[0]):
+    #                 mask = obj_mask[i]
+    #                 if pcds[mask == 1, :].shape[0] > 0:
+    #                     obj_pcds.append(pcds[mask == 1, :])
+    #                     obj_l.append(obj_labels[i])
+    #             one_scan['obj_pcds_pred'] = obj_pcds
+    #             one_scan['inst_labels_pred'] = obj_l
+    #             # calculate box for pred
+    #             obj_center_pred = []
+    #             obj_box_size_pred = []
+    #             for obj_pcd in obj_pcds:
+    #                 _c, _b = convert_pc_to_box(obj_pcd)
+    #                 obj_center_pred.append(_c)
+    #                 obj_box_size_pred.append(_b)
+    #             one_scan['obj_center_pred'] = obj_center_pred
+    #             one_scan['obj_box_size_pred'] = obj_box_size_pred
+
+    #             #######
+    #             #print("Pred Obj Pcds:", obj_pcds)
+    #             #######
+    #             ##################
+    #             # obj_pcds = []
+    #             # obj_mask = np.load(obj_mask_path)
+    #             # obj_labels = np.load(obj_label_path)
+    #             # obj_labels = [self.label_converter.nyu40id_to_id[int(l)] for l in obj_labels]
+    #             # for i in range(obj_mask.shape[0]):
+    #             #     mask = obj_mask[i]
+    #             #     obj_pcds.append(pcds[mask == 1, :])
+    #             # one_scan['obj_pcds_pred'] = obj_pcds
+    #             # one_scan['inst_labels_pred'] = obj_labels
+    #             # # calculate box for pred
+    #             # obj_center_pred = []
+    #             # obj_box_size_pred = []
+    #             # for obj_pcd in obj_pcds:
+    #             #     _c, _b = convert_pc_to_box(obj_pcd)
+    #             #     obj_center_pred.append(_c)
+    #             #     obj_box_size_pred.append(_b)
+    #             # one_scan['obj_center_pred'] = obj_center_pred
+    #             # one_scan['obj_box_size_pred'] = obj_box_size_pred
+    #             ##################
+
+    #     if load_multiview_info:
+    #         one_scan['multiview_info'] = self._load_multiview_info(scan_id, is_load_mv_feat = is_load_mv_feat)
+        
+    #     # load segment for mask3d
+    #     if load_segment_info:
+    #         one_scan["scene_pcds"] = np.load(os.path.join(self.base_dir, "scan_data", "pcd_mask3d", f'{scan_id[-7:]}.npy'))
+    #     ######### testing ########
+        
+    #     return (scan_id, one_scan)
+    ####### Function for normals SHS ########
+    def _load_scene_normals_txt(self, scan_id: str) -> np.ndarray:
+        normals_path = os.path.join(
+            self.base_dir, "scan_data", "pcd_normals_shs", f"{scan_id}.normals"
+        )
+        if not os.path.exists(normals_path):
+            raise FileNotFoundError(f"Missing normals file: {normals_path}")
+
+        # Text file with 3 floats per line
+        normals = np.loadtxt(normals_path, dtype=np.float32)
+        if normals.ndim == 1:
+            normals = normals.reshape(1, 3)
+        if normals.shape[1] != 3:
+            raise ValueError(f"Invalid normals shape in {normals_path}: {normals.shape}")
+
+        return normals  # (N,3)
+    
     def _load_one_scan(self, scan_id, pc_type = 'gt', load_inst_info = False, 
                       load_multiview_info = False, is_load_mv_feat = True, load_pc_info = True, load_segment_info=False):
         one_scan = {}
@@ -56,47 +182,52 @@ class ScanNetBase(Dataset):
             one_scan['inst_colors'] = inst_colors # (n_obj, 3x4) cluster * (weight, mean rgb)
 
         if load_pc_info:
-            # load pcd data
-            pcd_data = torch.load(os.path.join(self.base_dir, "scan_data",
-                                            "pcd_with_global_alignment", f'{scan_id}.pth'), weights_only=False)
-            pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
-                                            "pcd_normals", f'{scan_id}.pth'), weights_only=False)
-            pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
+            pcd_data = torch.load(
+                os.path.join(self.base_dir, "scan_data", "pcd_with_global_alignment", f"{scan_id}.pth"),
+                weights_only=False
+            )
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
-            pcds = np.concatenate([points, colors], 1)
-            
-            # convert to gt object
+            pcds = np.concatenate([points, colors], 1)  # (N,6)
+
+            # Load scene-level normals (N,3) from pcd_normals_shs
+            scene_normals = self._load_scene_normals_txt(scan_id)  # (N,3)
+
+            # Hard safety check: must match number of points
+            if scene_normals.shape[0] != pcds.shape[0]:
+                raise ValueError(
+                    f"{scan_id}: scene normals count != points count: "
+                    f"{scene_normals.shape[0]} vs {pcds.shape[0]}"
+                )
+
             if load_inst_info:
                 obj_pcds = []
-                for i in range(instance_labels.max() + 1):
-                    # mask = instance_labels == i     # time consuming
-                    # obj_pcds.append(pcds[mask])
-                    for i in range(instance_labels.max() + 1):
-                        mask = (instance_labels == i)
-                        obj_xyzrgb = pcds[mask]                 # (Ni, 6)
-                        obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
+                n_inst = int(instance_labels.max()) + 1
 
-                        # Safety check (this is the key)
-                        if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
-                            raise ValueError(
-                                f"Normals/points mismatch for inst {i}: "
-                                f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
-                            )
+                for inst_id in range(n_inst):
+                    mask = (instance_labels == inst_id)
+                    obj_xyzrgb = pcds[mask]                 # (Ni,6)
+                    obj_normals = scene_normals[mask]       # (Ni,3)
 
-                        obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
-                    
-                one_scan['obj_pcds'] = obj_pcds
+                    # Safety check (should always pass if global check passes)
+                    if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+                        raise ValueError(
+                            f"{scan_id}: normals/points mismatch for inst {inst_id}: "
+                            f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+                        )
 
-                # calculate box for matching
-                obj_center = []
-                obj_box_size = []
+                    obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni,9)
+
+                one_scan["obj_pcds"] = obj_pcds
+
+                # boxes as before
+                obj_center, obj_box_size = [], []
                 for obj_pcd in obj_pcds:
                     _c, _b = convert_pc_to_box(obj_pcd)
                     obj_center.append(_c)
                     obj_box_size.append(_b)
-                one_scan['obj_center'] = obj_center
-                one_scan['obj_box_size'] = obj_box_size
+                one_scan["obj_center"] = obj_center
+                one_scan["obj_box_size"] = obj_box_size
             if pc_type == 'pred':
                 obj_mask_path = os.path.join(self.base_dir, "mask", str(scan_id) + ".mask" + ".npz")
                 obj_label_path = os.path.join(self.base_dir, "mask",
@@ -121,10 +252,6 @@ class ScanNetBase(Dataset):
                     obj_box_size_pred.append(_b)
                 one_scan['obj_center_pred'] = obj_center_pred
                 one_scan['obj_box_size_pred'] = obj_box_size_pred
-
-                #######
-                #print("Pred Obj Pcds:", obj_pcds)
-                #######
                 ##################
                 # obj_pcds = []
                 # obj_mask = np.load(obj_mask_path)
@@ -153,9 +280,10 @@ class ScanNetBase(Dataset):
         if load_segment_info:
             one_scan["scene_pcds"] = np.load(os.path.join(self.base_dir, "scan_data", "pcd_mask3d", f'{scan_id[-7:]}.npy'))
         ######### testing ########
-        
+
         return (scan_id, one_scan)
 
+    #########################################
     def _load_scannet(self, scan_ids, pc_type = 'gt', load_inst_info = False, 
                       load_multiview_info = False, load_pc_info = True, load_segment_info = False, 
                       use_multi_process = False, process_num = 20):
