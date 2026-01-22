@@ -640,7 +640,9 @@ def project_normals_nn(xyz_src: np.ndarray, n_src: np.ndarray, xyz_tgt: np.ndarr
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Robust SHS-Net normals viewer with optional normal-direction coloring.")
+    parser = argparse.ArgumentParser(
+        description="Robust SHS-Net normals viewer with optional normal-direction coloring."
+    )
     parser.add_argument("--cfg", default="msr3d/configs/data.yaml", help="Path to msr3d data.yaml")
     parser.add_argument("--split", default="train", help="Dataset split (train/val/test)")
     parser.add_argument("--scan_id", default="scene0000_00", help="ScanNet scene id, e.g. scene0000_00")
@@ -675,9 +677,9 @@ def main():
 
     parser.add_argument("--voxel", type=float, default=0.0, help="Voxel downsample size (0 disables)")
     parser.add_argument("--point_size", type=float, default=2.0, help="Open3D point size")
-    parser.add_argument("--no_normals", action="store_true", help="Do not show normals (points only)")
+    parser.add_argument("--no_normals", action="store_true", help="Do not show normals glyphs (arrows)")
 
-    # NEW: normal-direction color indexing
+    # Existing: normal-direction color indexing
     parser.add_argument(
         "--color_by_normals",
         action="store_true",
@@ -689,7 +691,18 @@ def main():
         help="If set, do NOT override scene RGB even when --color_by_normals is enabled.",
     )
 
+    # NEW: normal colors WITHOUT glyphs
+    parser.add_argument(
+        "--normal_colors",
+        action="store_true",
+        help="Color points by normal direction (RGB=(n+1)/2) without drawing normal glyphs.",
+    )
+
     args = parser.parse_args()
+
+    # Decouple "use normals for coloring" from "draw normal glyphs"
+    use_normals_for_color = args.color_by_normals or args.normal_colors
+    draw_normal_glyphs = (not args.no_normals) and (not args.normal_colors)
 
     # Load normals
     if args.normals_path is None and not args.normals_dir:
@@ -718,12 +731,12 @@ def main():
         visualize_open3d(
             xyz=xyz,
             rgb01=rgb01,
-            normals=None if args.no_normals else normals,
+            normals=normals if (use_normals_for_color or draw_normal_glyphs) else None,
             voxel=args.voxel,
             point_size=args.point_size,
-            show_normals=(not args.no_normals),
+            show_normals=draw_normal_glyphs,
             window_name="SHS-Net Normals (PTH points)",
-            color_by_normals=args.color_by_normals,
+            color_by_normals=use_normals_for_color,
             keep_scene_rgb=args.keep_scene_rgb,
         )
         return
@@ -754,7 +767,7 @@ def main():
             )
             normals_vis = None
         else:
-            normals_vis = None if args.no_normals else normals
+            normals_vis = normals if (use_normals_for_color or draw_normal_glyphs) else None
 
         visualize_open3d(
             xyz=xyz_scene,
@@ -762,9 +775,9 @@ def main():
             normals=normals_vis,
             voxel=args.voxel,
             point_size=args.point_size,
-            show_normals=(not args.no_normals),
+            show_normals=draw_normal_glyphs,
             window_name="Dense Scene Viewer",
-            color_by_normals=args.color_by_normals,
+            color_by_normals=use_normals_for_color,
             keep_scene_rgb=args.keep_scene_rgb,
         )
         return
@@ -782,12 +795,15 @@ def main():
                 f"Make sure --pc_pth is the exact point set used to produce these normals."
             )
 
-        if args.no_normals:
-            normals_scene = None
-        else:
-            print("[info] projecting normals to dense scene via nearest neighbor (this may take a bit for millions of points)...")
+        if use_normals_for_color or draw_normal_glyphs:
+            print(
+                "[info] projecting normals to dense scene via nearest neighbor "
+                "(this may take a bit for millions of points)..."
+            )
             normals_scene = project_normals_nn(xyz_src=xyz_src, n_src=normals, xyz_tgt=xyz_scene)
             print(f"[info] projected normals: {normals_scene.shape}")
+        else:
+            normals_scene = None
 
         visualize_open3d(
             xyz=xyz_scene,
@@ -795,12 +811,13 @@ def main():
             normals=normals_scene,
             voxel=args.voxel,
             point_size=args.point_size,
-            show_normals=(not args.no_normals),
+            show_normals=draw_normal_glyphs,
             window_name="Dense Scene + NN-projected SHS-Net Normals",
-            color_by_normals=args.color_by_normals,
+            color_by_normals=use_normals_for_color,
             keep_scene_rgb=args.keep_scene_rgb,
         )
         return
+
 
 
 if __name__ == "__main__":

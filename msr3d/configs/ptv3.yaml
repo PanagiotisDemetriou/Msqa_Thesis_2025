@@ -1,6 +1,6 @@
 # Experiment general info
 name: MSR3D # this will be the project name of wandb
-note: BLIPT_PTv3_VIC_LORA_3DS # this will be the run name of wandb
+note: BLIPT_PTv3_VIC_LORA_2 # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 2
@@ -12,7 +12,7 @@ exp_dir: "" # must be empty, will be set by run.py as base_dir + name + *naming_
 pretrain_ckpt_path: ""
 hf_hub_cache_dir: '/lustreFS/data/vcg/pdemetriou/hub' # the cache directory for huggingface models, optional
 
-resume: True
+resume: False
 save_frequency: 10000 # how many training steps to save a checkpoint using accerlerator
 ckpt_path: "" # where to resume from, leave empty to resume from the latest checkpoint
 
@@ -55,8 +55,8 @@ data:
   obj_img_base: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data
   msr3dmix:
     args:
-      mix: [msqa_scannet,msqa_3rscan, msqa_arkitscenes]
-      #mix: [msqa_scannet]
+      #mix: [msqa_scannet,msqa_3rscan, msqa_arkitscenes]
+      mix: [msqa_scannet]
       ratio: 1.0
       few_shot_num: 0
       num_points: 1024
@@ -134,22 +134,22 @@ task:
     dataset_wrapper_args: ${dataset_wrapper.args}
     eval_dataloader_args: ${dataloader.eval}
     evaluator: MSQAEval
-  msqa_3rscan:
-    mode: [val, test]
-    # mode: []
-    dataset: MSQA3RScan
-    dataset_wrapper: LeoScanFamilyDatasetWrapper
-    dataset_wrapper_args: ${dataset_wrapper.args}
-    eval_dataloader_args: ${dataloader.eval}
-    evaluator: MSQAEval
-  msqa_arkitscenes:
-    mode: [val, test]
-    # mode: []
-    dataset: MSQAARkitScenes
-    dataset_wrapper: LeoScanFamilyDatasetWrapper
-    dataset_wrapper_args: ${dataset_wrapper.args}
-    eval_dataloader_args: ${dataloader.eval}
-    evaluator: MSQAEval
+  # msqa_3rscan:
+  #   mode: [val, test]
+  #   # mode: []
+  #   dataset: MSQA3RScan
+  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
+  #   dataset_wrapper_args: ${dataset_wrapper.args}
+  #   eval_dataloader_args: ${dataloader.eval}
+  #   evaluator: MSQAEval
+  # msqa_arkitscenes:
+  #   mode: [val, test]
+  #   # mode: []
+  #   dataset: MSQAARkitScenes
+  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
+  #   dataset_wrapper_args: ${dataset_wrapper.args}
+  #   eval_dataloader_args: ${dataloader.eval}
+  #   evaluator: MSQAEval
 
 # shared dataset_wrapper args
 dataset_wrapper:

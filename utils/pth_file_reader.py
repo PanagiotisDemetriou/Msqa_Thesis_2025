@@ -1,5 +1,6 @@
 import torch
 import pprint
+import numpy as np
 
 # 🧠 Set your .pth file path here
 path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0000_00.pth"
@@ -18,16 +19,19 @@ try:
         print("📦 Keys in this .pth file:")
         pprint.pprint(list(data.keys()))
         print("\n🔍 Inspecting contents of first key (0):")
-        pprint.pprint(data)
+        pprint.pprint(data['meta'])
+        #print(len(data['obj_normals_list']))
         # Optional: show summary of tensors under 'state_dict' if present
         if "state_dict" in data:
             print("\n🧠 Model state_dict keys:")
             pprint.pprint(list(data["state_dict"].keys()))
+            
     else:
         print("\n🧾 File contents:")
-        pprint.pprint(data[0])
+        pprint.pprint(data[-1])
         print("length:", len(data[0]))
         print(data[0].shape)
+        #print(np.unique(data[-1], return_counts=True))
 
 
 except Exception as e:

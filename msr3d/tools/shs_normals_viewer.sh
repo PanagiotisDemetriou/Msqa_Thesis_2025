@@ -306,7 +306,8 @@ ARGS=( --cfg "$CFG" --split "$SPLIT"
        --normals_dir "$NORMALS_DIR"
        --mode "$VIEW_MODE"
        --voxel "$VOXEL" --point_size "$POINT_SIZE" 
-       --color_by_normals)
+       --normal_colors
+       )
 
 # Only pass pc_pth when provided (and required for pth/scene_nn)
 if [[ -n "$PC_PTH" ]]; then

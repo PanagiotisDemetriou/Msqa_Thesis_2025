@@ -112,13 +112,15 @@ if [[ "$MODE_CHOICE" == "wsl" ]]; then
     --cfg "$CFG" --split "$SPLIT" \
     --scan_id "$SCAN_ID" --obj_idx "$OBJ_IDX" \
     --normals_dir "$NORMALS_DIR" \
-    --voxel "$VOXEL" --point_size "$POINT_SIZE"
+    --voxel "$VOXEL" --point_size "$POINT_SIZE" 
+
 else
   "$PYTHON_BIN" "$PYTHON_SCRIPT" \
     --cfg "$CFG" --split "$SPLIT" \
     --scan_id "$SCAN_ID" --obj_idx "$OBJ_IDX" \
     --normals_dir "$NORMALS_DIR" \
-    --voxel "$VOXEL" --point_size "$POINT_SIZE"
+    --voxel "$VOXEL" --point_size "$POINT_SIZE" 
+
 fi
 
 EXIT_CODE=$?

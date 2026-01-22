@@ -76,53 +76,90 @@ def load_pointcept_checkpoint(model, weight_path, strict=False):
     print(f"[PTv3 Checkpoint] Missing: {len(missing)}  Unexpected: {len(unexpected)}")
     return model
 
-def transform_obj_pcds_to_pointcept(obj_pcds, grid_size=0.02, rgb_div=255.0):
-    """
-    obj_pcds: (B, O, P, 9) with [xyz(3), rgb(3), normals(3)]
-             rgb expected in 0..255 range (will be scaled to 0..1).
-    returns point_data dict for PTv3 backbone.
-    """
-    if obj_pcds.ndim != 4:
-        raise ValueError(f"obj_pcds must be (B,O,P,C). Got {tuple(obj_pcds.shape)}")
+# def transform_obj_pcds_to_pointcept(obj_pcds, grid_size=0.02, rgb_div=255.0):
+#     """
+#     obj_pcds: (B, O, P, 9) with [xyz(3), rgb(3), normals(3)]
+#              rgb expected in 0..255 range (will be scaled to 0..1).
+#     returns point_data dict for PTv3 backbone.
+#     """
+#     if obj_pcds.ndim != 4:
+#         raise ValueError(f"obj_pcds must be (B,O,P,C). Got {tuple(obj_pcds.shape)}")
 
+#     B, O, P, C = obj_pcds.shape
+#     if C < 9:
+#         raise ValueError(f"Expected at least 9 channels [xyz,rgb,normals]. Got C={C}")
+
+#     total_points = B * O * P
+
+#     coord = obj_pcds[..., :3].reshape(total_points, 3)
+
+#     rgb = obj_pcds[..., 3:6].reshape(total_points, 3) / float(rgb_div)
+#     normals = obj_pcds[..., 6:9].reshape(total_points, 3)
+
+#     # Pointcept feature: concatenate rgb + normals -> (N_total, 6)
+#     feat = torch.cat([rgb, normals], dim=1)
+
+#     batch = (
+#         torch.arange(B, device=obj_pcds.device)
+#         .view(B, 1, 1)
+#         .expand(B, O, P)
+#         .reshape(total_points)
+#         .long()
+#     )
+
+#     obj_id = (
+#         torch.arange(B * O, device=obj_pcds.device)
+#         .repeat_interleave(P)
+#         .long()
+#     )
+
+#     point_data = {
+#         "coord": coord,
+#         "feat": feat,
+#         "batch": batch,
+#         "offset": batch2offset(batch),
+#         "grid_size": float(grid_size),
+#         "obj_id": obj_id,
+#         "condition": ["ScanNet"],
+#     }
+#     return point_data
+def transform_obj_pcds_to_pointcept(obj_pcds, grid_size=0.02):
     B, O, P, C = obj_pcds.shape
     if C < 9:
-        raise ValueError(f"Expected at least 9 channels [xyz,rgb,normals]. Got C={C}")
+        raise ValueError(f"Expected >=9 channels [xyz,rgb,normals]. Got {C}")
 
-    total_points = B * O * P
+    total = B * O * P
+    coord = obj_pcds[..., :3].reshape(total, 3)
 
-    coord = obj_pcds[..., :3].reshape(total_points, 3)
+    rgb = obj_pcds[..., 3:6].reshape(total, 3)
+    rgb_min = float(rgb.min())
+    rgb_max = float(rgb.max())
+    if rgb_min < 0.0:
+        rgb = (rgb + 1.0) * 0.5
+    elif rgb_max > 1.5:
+        rgb = rgb / 255.0
+    rgb = rgb.clamp(0.0, 1.0)
 
-    rgb = obj_pcds[..., 3:6].reshape(total_points, 3) / float(rgb_div)
-    normals = obj_pcds[..., 6:9].reshape(total_points, 3)
+    normals = obj_pcds[..., 6:9].reshape(total, 3)
+    normals = normals / normals.norm(dim=1, keepdim=True).clamp_min(1e-6)
 
-    # Pointcept feature: concatenate rgb + normals -> (N_total, 6)
     feat = torch.cat([rgb, normals], dim=1)
 
-    batch = (
-        torch.arange(B, device=obj_pcds.device)
-        .view(B, 1, 1)
-        .expand(B, O, P)
-        .reshape(total_points)
-        .long()
-    )
+    obj_id = torch.arange(B * O, device=obj_pcds.device).repeat_interleave(P).long()
 
-    obj_id = (
-        torch.arange(B * O, device=obj_pcds.device)
-        .repeat_interleave(P)
-        .long()
-    )
+    # CRITICAL: treat each object as its own sample
+    batch = obj_id
+    offset = batch2offset(batch)
 
-    point_data = {
+    return {
         "coord": coord,
         "feat": feat,
         "batch": batch,
-        "offset": batch2offset(batch),
+        "offset": offset,
         "grid_size": float(grid_size),
         "obj_id": obj_id,
         "condition": ["ScanNet"],
     }
-    return point_data
 
 
 def pool_point_features_to_objects(point_feats, obj_id, num_objs, reduce="mean"):
