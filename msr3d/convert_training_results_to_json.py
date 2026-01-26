@@ -3,7 +3,7 @@ import torch, json
 from pathlib import Path
 from collections import defaultdict
 
-IN_PATH = "MSR3D_BLIPT_PTv3_VIC_LORA/eval_results/msqa_scannet/results.pt"   # change if different
+IN_PATH = "MSR3D_BLIPT_PTv3_VIC_LORA_2/eval_results/msqa_scannet/results.pt"   # change if different
 OUT_PATH = "msqa_ptv3_scannet.json"
 
 data = torch.load(IN_PATH, map_location="cpu")
