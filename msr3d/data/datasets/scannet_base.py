@@ -59,9 +59,10 @@ class ScanNetBase(Dataset):
             # load pcd data
             pcd_data = torch.load(os.path.join(self.base_dir, "scan_data",
                                             "pcd_with_global_alignment", f'{scan_id}.pth'), weights_only=False)
-            pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
-                                            "pcd_normals", f'{scan_id}.pth'), weights_only=False)
-            pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
+            ##### ------ ##### uncoment
+            # pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
+            #                                 "pcd_normals", f'{scan_id}.pth'), weights_only=False)
+            #pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
@@ -70,21 +71,24 @@ class ScanNetBase(Dataset):
             if load_inst_info:
                 obj_pcds = []
                 for i in range(instance_labels.max() + 1):
-                    # mask = instance_labels == i     # time consuming
-                    # obj_pcds.append(pcds[mask])
-                    for i in range(instance_labels.max() + 1):
-                        mask = (instance_labels == i)
-                        obj_xyzrgb = pcds[mask]                 # (Ni, 6)
-                        obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
+                    ##### to be commented #####
+                    mask = instance_labels == i     # time consuming
+                    obj_pcds.append(pcds[mask])
+                    ##### ------ ##### uncoment
+                    # for i in range(instance_labels.max() + 1):
+                    #     mask = (instance_labels == i)
+                    #     obj_xyzrgb = pcds[mask]                 # (Ni, 6)
 
-                        # Safety check (this is the key)
-                        if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
-                            raise ValueError(
-                                f"Normals/points mismatch for inst {i}: "
-                                f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
-                            )
+                    #     obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
 
-                        obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
+                    #     # Safety check (this is the key)
+                    #     if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+                    #         raise ValueError(
+                    #             f"Normals/points mismatch for inst {i}: "
+                    #             f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+                    #         )
+
+                    #     obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
                     
                 one_scan['obj_pcds'] = obj_pcds
 
