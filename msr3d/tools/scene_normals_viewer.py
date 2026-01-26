@@ -482,7 +482,37 @@ def visualize_scene(
 
     vis.run()
     vis.destroy_window()
+def build_pcd_for_export(
+    xyz: np.ndarray,
+    rgb01: np.ndarray | None,
+    normals: np.ndarray | None,
+    *,
+    voxel: float = 0.0,
+    color_by_normals: bool = True,
+    keep_scene_rgb: bool = False,
+    orient_viewpoint: np.ndarray | None = None,
+) -> o3d.geometry.PointCloud:
+    pcd = o3d.geometry.PointCloud()
+    pcd.points = o3d.utility.Vector3dVector(xyz)
 
+    n_vis = None
+    if normals is not None:
+        n_vis = normalize_normals(normals)
+        if orient_viewpoint is not None:
+            n_vis = orient_normals_toward_viewpoint(xyz, n_vis, orient_viewpoint)
+        pcd.normals = o3d.utility.Vector3dVector(n_vis)
+
+    if color_by_normals and n_vis is not None and not keep_scene_rgb:
+        pcd.colors = o3d.utility.Vector3dVector(normals_to_rgb01(n_vis))
+    elif rgb01 is not None:
+        pcd.colors = o3d.utility.Vector3dVector(np.clip(rgb01, 0.0, 1.0))
+    else:
+        pcd.paint_uniform_color([0.7, 0.7, 0.7])
+
+    if voxel and voxel > 0:
+        pcd = pcd.voxel_down_sample(voxel_size=float(voxel))
+
+    return pcd
 
 def main():
     parser = argparse.ArgumentParser(description="Visualize dense ScanNet scene normals from _load_one_scan().")
@@ -504,7 +534,11 @@ def main():
         metavar=("X", "Y", "Z"),
         help="Optional viewpoint (x y z) to flip normals toward.",
     )
-
+    parser.add_argument(
+    "--save_obj",
+    action="store_true",
+    help="Save the scene point cloud as a .ply file to pcd_obj directory.",
+    )
     args = parser.parse_args()
 
     cfg = OmegaConf.load(args.cfg)
@@ -514,6 +548,32 @@ def main():
     _, one_scan = loader._load_one_scan(args.scan_id, load_inst_info=True, load_pc_info=True)
 
     xyz_scene, rgb01_scene, normals_scene = load_scene_from_loader(one_scan, require_normals=True)
+
+    import os
+    OBJ_OUT_DIR = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_obj"
+    if args.save_obj:
+        os.makedirs(OBJ_OUT_DIR, exist_ok=True)
+
+        pcd = build_pcd_for_export(
+            xyz_scene,
+            rgb01_scene,
+            normals_scene,
+            voxel=args.voxel,
+            color_by_normals=args.color_by_normals or args.normal_colors,
+            keep_scene_rgb=args.keep_scene_rgb,
+            orient_viewpoint=None if args.orient_viewpoint is None else np.array(args.orient_viewpoint, dtype=np.float32),
+        )
+
+        out_path = os.path.join(OBJ_OUT_DIR, f"{args.scan_id}.ply")
+        ok = o3d.io.write_point_cloud(out_path, pcd, write_ascii=False)
+
+        if not ok:
+            raise RuntimeError(f"Failed to write PLY: {out_path}")
+
+        print(f"[info] Saved point cloud: {out_path}")
+
+
+
 
     print(f"[info] scan_id={args.scan_id}")
     print(f"[info] scene points={xyz_scene.shape[0]} scene normals={normals_scene.shape[0]}")

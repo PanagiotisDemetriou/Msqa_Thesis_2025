@@ -120,7 +120,7 @@ ARGS=(
   --cfg "$CFG" --split "$SPLIT"
   --scan_id "$SCAN_ID"
   --normals_dir "$NORMALS_DIR"
-  --voxel "$VOXEL" --point_size "$POINT_SIZE" --normal_colors
+  --voxel "$VOXEL" --point_size "$POINT_SIZE" --normal_colors --save_obj
 )
 
 if [[ "$NO_NORMALS" == "1" ]]; then
