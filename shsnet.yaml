@@ -1,0 +1,23 @@
+name: shsnet
+channels:
+  - pytorch
+  - nvidia
+  - pytorch3d
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - numpy=1.23.*
+  - scipy=1.10.*        # compatible with numpy 1.23
+  - pytorch=2.2.*       # modern build supports Ampere (SM86)
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.1   # runtime compatible with your driver (shows CUDA 12.2 in nvidia-smi)
+  - pytorch3d=0.7.8     # has py38 + cu121 builds matched to recent torch versions
+  - fvcore
+  - iopath
+  - yacs
+  - tqdm
+  - pyyaml
+  - pillow
+

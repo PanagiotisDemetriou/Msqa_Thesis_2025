@@ -1,0 +1,178 @@
+_wandb:
+    value:
+        cli_version: 0.21.3
+        e:
+            ruf6avcwablt7bohhdsumkashbp0nm09:
+                args:
+                    - --config-path
+                    - configs
+                    - --config-name
+                    - ptv3.yaml
+                    - num_gpu=2
+                    - hydra.run.dir=.
+                    - hydra.output_subdir=null
+                    - hydra/job_logging=disabled
+                    - hydra/hydra_logging=disabled
+                    - num_gpu=2
+                codePath: msr3d/run.py
+                codePathLocal: run.py
+                cpu_count: 32
+                cpu_count_logical: 64
+                cudaVersion: "12.2"
+                disk:
+                    /:
+                        total: "270441000960"
+                        used: "20357435392"
+                email: pdemet07@ucy.ac.cy
+                executable: /lustreFS/data/vcg/pdemetriou/miniconda3/envs/ptv3/bin/python3.10
+                git:
+                    commit: 6be44b6294303001333a1b230802ea303c8d6867
+                    remote: https://github.com/PanagiotisDemetriou/Msqa_Thesis_2025.git
+                gpu: NVIDIA RTX 6000 Ada Generation
+                gpu_count: 3
+                gpu_nvidia:
+                    - architecture: Ada
+                      cudaCores: 18176
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX 6000 Ada Generation
+                      uuid: GPU-726832fb-4e68-7d4c-984f-956ff68b6fde
+                    - architecture: Ada
+                      cudaCores: 18176
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX 6000 Ada Generation
+                      uuid: GPU-af54528f-4896-75f8-9b79-b6901177be35
+                    - architecture: Ada
+                      cudaCores: 18176
+                      memoryTotal: "51527024640"
+                      name: NVIDIA RTX 6000 Ada Generation
+                      uuid: GPU-ad8f1d75-4710-4a93-9782-26f29a0c5487
+                host: gpu09.cluster
+                memory:
+                    total: "540882006016"
+                os: Linux-4.18.0-372.19.1.el8_6.x86_64-x86_64-with-glibc2.28
+                program: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/run.py
+                python: CPython 3.10.19
+                root: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d
+                slurm:
+                    cluster_name: cluster
+                    conf: /etc/slurm/slurm.conf
+                    cpus_on_node: "16"
+                    cpus_per_task: "16"
+                    gtids: "0"
+                    job_account: vcg
+                    job_cpus_per_node: "16"
+                    job_gid: "154"
+                    job_gpus: 0,1,2
+                    job_id: "271794"
+                    job_name: msr3d_training
+                    job_nodelist: gpu09
+                    job_num_nodes: "1"
+                    job_partition: a6000
+                    job_qos: long-a6000
+                    job_uid: "1181"
+                    job_user: pdemetriou
+                    jobid: "271794"
+                    localid: "0"
+                    mem_per_node: "256000"
+                    nnodes: "1"
+                    node_aliases: (null)
+                    nodeid: "0"
+                    nodelist: gpu09
+                    nprocs: "1"
+                    ntasks: "1"
+                    prio_process: "0"
+                    procid: "0"
+                    submit_dir: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/scripts
+                    submit_host: controller1
+                    task_pid: "3457"
+                    tasks_per_node: "1"
+                    tmpdir: /tmp/pdemetriou.271794
+                    topology_addr: gpu09
+                    topology_addr_pattern: node
+                    working_cluster: cluster:10.141.255.254:6817:9216:109
+                startedAt: "2026-01-21T15:07:36.687361Z"
+                writerId: ruf6avcwablt7bohhdsumkashbp0nm09
+        m: []
+        python_version: 3.10.19
+        t:
+            "1":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 50
+                - 53
+                - 63
+                - 71
+                - 75
+                - 77
+                - 98
+            "2":
+                - 1
+                - 5
+                - 11
+                - 41
+                - 49
+                - 50
+                - 53
+                - 63
+                - 71
+                - 75
+                - 77
+                - 98
+            "3":
+                - 13
+                - 14
+            "4": 3.10.19
+            "5": 0.21.3
+            "6": 4.35.2
+            "12": 0.21.3
+            "13": linux-x86_64
+base_dir:
+    value: ""
+ckpt_path:
+    value: ""
+data:
+    value: '{''obj_img_base'': ''/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data'', ''msr3dmix'': {''args'': {''mix'': [''msqa_scannet'', ''msqa_3rscan'', ''msqa_arkitscenes''], ''ratio'': 1.0, ''few_shot_num'': 0, ''num_points'': 1024}}, ''msqa_scannet'': {''args'': {''scannet_base'': ''${data.scan_family_base}'', ''anno_dir'': ''${data.msr3d_base}/scannet'', ''max_obj_len'': ''${dataset_wrapper.args.max_obj_len}'', ''num_points'': ''${data.msr3dmix.args.num_points}'', ''few_shot_num'': ''${data.msr3dmix.args.few_shot_num}'', ''msr3d_max_img_num'': ''${dataset_wrapper.args.msr3d_max_img_num}'', ''val_num'': 1000}}, ''msqa_3rscan'': {''args'': {''rscan_base'': ''${data.rscan_base}'', ''anno_dir'': ''${data.msr3d_base}/rscan'', ''max_obj_len'': ''${dataset_wrapper.args.max_obj_len}'', ''num_points'': ''${data.msr3dmix.args.num_points}'', ''few_shot_num'': ''${data.msr3dmix.args.few_shot_num}'', ''msr3d_max_img_num'': ''${dataset_wrapper.args.msr3d_max_img_num}'', ''val_num'': 1000}}, ''msqa_arkitscenes'': {''args'': {''arkit_base'': ''${data.ARkit_base}'', ''anno_dir'': ''${data.msr3d_base}/arkitscenes'', ''max_obj_len'': ''${dataset_wrapper.args.max_obj_len}'', ''num_points'': ''${data.msr3dmix.args.num_points}'', ''few_shot_num'': ''${data.msr3dmix.args.few_shot_num}'', ''msr3d_max_img_num'': ''${dataset_wrapper.args.msr3d_max_img_num}'', ''val_num'': 1000}}, ''sqa3d'': {''args'': {''max_obj_len'': 60, ''max_seq_len'': 80, ''num_points'': 1024, ''pc_type'': ''gt'', ''sem_type'': ''607'', ''filter_lang'': False, ''use_unanswer'': True}}, ''process_args'': {''img_process_args'': {''bbox_keep_ratio'': 0.5, ''bbox_expand'': 0.1, ''img_processer'': ''openai/clip-vit-base-patch32'', ''tgt_img_size'': [224, 224]}}, ''scan_family_base'': ''data/data/MSR3D_v2_pcds/scannet_base'', ''rscan_base'': ''data/data/MSR3D_v2_pcds/rscan_base'', ''ARkit_base'': ''data/data/MSR3D_v2_pcds/ARkit_base'', ''mv_info_base'': '''', ''msr3d_base'': ''data/data/text_annotations/msqa/'', ''max_text_out_token_len'': ''${model.llm.max_out_len}''}'
+dataloader:
+    value: '{''train'': {''batchsize'': 2, ''num_workers'': 0}, ''eval'': {''batchsize'': 2, ''num_workers'': 0}}'
+dataset_wrapper:
+    value: '{''args'': {''max_obj_len'': 60, ''msr3d_max_img_num'': 60}}'
+debug:
+    value: '{''flag'': False, ''debug_test'': False, ''debug_size'': 30, ''save_tensor_flag'': False}'
+eval:
+    value: '{''save'': True}'
+exp_dir:
+    value: MSR3D_BLIPT_PTv3_VIC_LORA_3DS
+hf_hub_cache_dir:
+    value: /lustreFS/data/vcg/pdemetriou/hub
+logger:
+    value: '{''name'': ''wandb'', ''entity'': ''pdemet07-university-of-cyprus''}'
+mode:
+    value: train
+model:
+    value: '{''name'': ''MSR3D'', ''prompter'': {''model'': {''name'': ''OSE3DSituation'', ''situation_type'': ''as_transform_for_objects'', ''scene_token_len'': 60, ''loc_fourier_dim'': 63, ''hidden_size'': 256, ''label_size'': 300, ''vision_backbone_name'': ''gtpcd'', ''use_spatial_attn'': True, ''use_anchor'': True, ''use_orientation'': True, ''fourier_size'': 84, ''attn_flat'': {''use_attn_flat'': False, ''mcan_flat_mlp_size'': 512, ''mcan_flat_glimpses'': 1, ''mcan_flat_out_size'': 1024}, ''vision'': {''name'': ''PTv3PcdObjEncoder'', ''args'': {''embedding_size'': 64, ''freeze'': True, ''grid_size'': 0.02, ''feat_reduce'': ''mean'', ''sem_num_classes'': 607, ''ptv3_cfg_path'': ''/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py'', ''weight_path'': ''/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/PTv3/model_best.pth''}}, ''spatial_encoder'': {''dim_loc'': 6, ''num_attention_heads'': 8, ''dim_feedforward'': 2048, ''dropout'': 0.1, ''activation'': ''gelu'', ''spatial_multihead'': True, ''spatial_dim'': 5, ''spatial_dist_norm'': True, ''spatial_attn_fusion'': ''cond'', ''num_layers'': 3, ''obj_loc_encoding'': ''same_all'', ''pairwise_rel_type'': ''center''}}}, ''vision_2d'': {''name'': ''BLIP2Backbone'', ''freeze'': False, ''args'': {''model_name'': ''Salesforce/blip2-opt-2.7b'', ''use_pretrain'': True}}, ''llm'': {''name'': ''Vicuna7B'', ''cfg_path'': ''huangjy-pku/vicuna-7b'', ''truncation_side'': ''right'', ''prompt'': '''', ''max_out_len'': 256, ''max_context_len'': 256, ''inference_mode'': ''generation'', ''clip_fusion'': False, ''lora'': {''flag'': True, ''rank'': 16, ''alpha'': 16, ''target_modules'': [''q_proj'', ''k_proj'', ''v_proj'', ''o_proj'', ''gate_proj'', ''up_proj'', ''down_proj''], ''dropout'': 0.0}}}'
+name:
+    value: MSR3D
+naming_keywords:
+    value:
+        - note
+note:
+    value: BLIPT_PTv3_VIC_LORA_3DS
+num_gpu:
+    value: 2
+pretrain_ckpt_path:
+    value: ""
+resume:
+    value: true
+rng_seed:
+    value: 42
+save_frequency:
+    value: 10000
+solver:
+    value: '{''gradient_accumulation_steps'': 5, ''lr'': ''${solver.optim.args.lr}'', ''grad_norm'': 5.0, ''epochs'': 10, ''eval_interval'': 1, ''num_batch_eval'': 100, ''optim'': {''name'': ''AdamW'', ''args'': {''lr'': 3e-05, ''betas'': [0.9, 0.999], ''weight_decay'': 0.05}}, ''sched'': {''name'': ''warmup_cosine_instructblip'', ''args'': {''warmup_steps'': 400}}}'
+task:
+    value: '{''msr3d_train'': {''mode'': [''train''], ''dataset'': ''MSR3DMix'', ''dataset_wrapper'': ''LeoScanFamilyDatasetWrapper'', ''dataset_wrapper_args'': ''${dataset_wrapper.args}'', ''train_dataloader_args'': ''${dataloader.train}'', ''eval_dataloader_args'': ''${dataloader.eval}''}, ''msqa_scannet'': {''mode'': [''val'', ''test''], ''dataset'': ''MSQAScanNet'', ''dataset_wrapper'': ''LeoScanFamilyDatasetWrapper'', ''dataset_wrapper_args'': ''${dataset_wrapper.args}'', ''eval_dataloader_args'': ''${dataloader.eval}'', ''evaluator'': ''MSQAEval''}, ''msqa_3rscan'': {''mode'': [''val'', ''test''], ''dataset'': ''MSQA3RScan'', ''dataset_wrapper'': ''LeoScanFamilyDatasetWrapper'', ''dataset_wrapper_args'': ''${dataset_wrapper.args}'', ''eval_dataloader_args'': ''${dataloader.eval}'', ''evaluator'': ''MSQAEval''}, ''msqa_arkitscenes'': {''mode'': [''val'', ''test''], ''dataset'': ''MSQAARkitScenes'', ''dataset_wrapper'': ''LeoScanFamilyDatasetWrapper'', ''dataset_wrapper_args'': ''${dataset_wrapper.args}'', ''eval_dataloader_args'': ''${dataloader.eval}'', ''evaluator'': ''MSQAEval''}}'
+trainer:
+    value: LeoTrainer

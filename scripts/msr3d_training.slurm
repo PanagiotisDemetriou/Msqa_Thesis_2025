@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=16
 #SBATCH --gres=gpu:3        # Use 3 of 4 A6000 GPUs
 #SBATCH --mem=256000        # 256GB RAM
-#SBATCH --time=3-00:00:00   # 5 days
+#SBATCH --time=3-12:00:00   # 5 days
 #SBATCH -o msr3d_training_ptv3_eval.out
 #SBATCH -e msr3d_training_ptv3_eval.err
 

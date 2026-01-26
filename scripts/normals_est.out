@@ -1,0 +1,1102 @@
+Arguments:
+     gpu: 0
+    dataset_root: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/
+    data_set: Scannet
+    log_root: SHS-Net/log/
+    ckpt_dirs: 001
+    ckpt_iters: 800
+    seed: 2022
+    num_workers: 8
+    batch_size: 700
+    tag: 
+    testset_list: test_1
+    eval_list: ['[]']
+    patch_size: 700
+    sample_size: 200
+    encode_knn: 16
+    sparse_patches: False
+    save_pn: True
+
+Current test dataset:
+    scene0000_00
+    scene0000_01
+    scene0000_02
+    scene0001_00
+    scene0001_01
+    scene0002_00
+    scene0002_01
+    scene0003_00
+    scene0003_01
+    scene0003_02
+    scene0004_00
+    scene0005_00
+    scene0005_01
+    scene0006_00
+    scene0006_01
+    scene0006_02
+    scene0007_00
+    scene0008_00
+    scene0009_00
+    scene0009_01
+    scene0009_02
+    scene0010_00
+    scene0010_01
+    scene0011_00
+    scene0011_01
+    scene0012_00
+    scene0012_01
+    scene0012_02
+    scene0013_00
+    scene0013_01
+    scene0013_02
+    scene0014_00
+    scene0015_00
+    scene0016_00
+    scene0016_01
+    scene0016_02
+    scene0017_00
+    scene0017_01
+    scene0017_02
+    scene0018_00
+    scene0019_00
+    scene0019_01
+    scene0020_00
+    scene0020_01
+    scene0021_00
+    scene0022_00
+    scene0022_01
+    scene0023_00
+    scene0024_00
+    scene0024_01
+    scene0024_02
+    scene0025_00
+    scene0025_01
+    scene0025_02
+    scene0026_00
+    scene0027_00
+    scene0027_01
+    scene0027_02
+    scene0028_00
+    scene0029_00
+    scene0029_01
+    scene0029_02
+    scene0030_00
+    scene0030_01
+    scene0030_02
+    scene0031_00
+    scene0031_01
+    scene0031_02
+    scene0032_00
+    scene0032_01
+    scene0033_00
+    scene0034_00
+    scene0034_01
+    scene0034_02
+    scene0035_00
+    scene0035_01
+    scene0036_00
+    scene0036_01
+    scene0037_00
+    scene0038_00
+    scene0038_01
+    scene0038_02
+    scene0039_00
+    scene0039_01
+    scene0040_00
+    scene0040_01
+    scene0041_00
+    scene0041_01
+    scene0042_00
+    scene0042_01
+    scene0042_02
+    scene0043_00
+    scene0043_01
+    scene0044_00
+    scene0044_01
+    scene0044_02
+    scene0045_00
+    scene0045_01
+    scene0046_00
+    scene0046_01
+    scene0046_02
+    scene0047_00
+    scene0048_00
+    scene0048_01
+    scene0049_00
+    scene0050_00
+    scene0050_01
+    scene0050_02
+    scene0051_00
+    scene0051_01
+    scene0051_02
+    scene0051_03
+    scene0052_00
+    scene0052_01
+    scene0052_02
+    scene0053_00
+    scene0054_00
+    scene0055_00
+    scene0055_01
+    scene0055_02
+    scene0056_00
+    scene0056_01
+    scene0057_00
+    scene0057_01
+    scene0058_00
+    scene0058_01
+    scene0059_00
+    scene0059_01
+    scene0059_02
+    scene0060_00
+    scene0060_01
+    scene0061_00
+    scene0061_01
+    scene0062_00
+    scene0062_01
+    scene0062_02
+    scene0063_00
+    scene0064_00
+    scene0064_01
+    scene0065_00
+    scene0065_01
+    scene0065_02
+    scene0066_00
+    scene0067_00
+    scene0067_01
+    scene0067_02
+    scene0068_00
+    scene0068_01
+    scene0069_00
+    scene0070_00
+    scene0071_00
+    scene0072_00
+    scene0072_01
+    scene0072_02
+    scene0073_00
+    scene0073_01
+    scene0073_02
+    scene0073_03
+    scene0074_00
+    scene0074_01
+    scene0074_02
+    scene0075_00
+    scene0076_00
+    scene0077_00
+    scene0077_01
+    scene0078_00
+    scene0078_01
+    scene0078_02
+    scene0079_00
+    scene0079_01
+    scene0080_00
+    scene0080_01
+    scene0080_02
+    scene0081_00
+    scene0081_01
+    scene0081_02
+    scene0082_00
+    scene0083_00
+    scene0083_01
+    scene0084_00
+    scene0084_01
+    scene0084_02
+    scene0085_00
+    scene0085_01
+    scene0086_00
+    scene0086_01
+    scene0086_02
+    scene0087_00
+    scene0087_01
+    scene0087_02
+    scene0088_00
+    scene0088_01
+    scene0088_02
+    scene0088_03
+    scene0089_00
+    scene0089_01
+    scene0089_02
+    scene0090_00
+    scene0091_00
+    scene0092_00
+    scene0092_01
+    scene0092_02
+    scene0092_03
+    scene0092_04
+    scene0093_00
+    scene0093_01
+    scene0093_02
+    scene0094_00
+    scene0095_00
+    scene0095_01
+    scene0096_00
+    scene0096_01
+    scene0096_02
+    scene0097_00
+    scene0098_00
+    scene0098_01
+    scene0099_00
+    scene0099_01
+    scene0100_00
+    scene0100_01
+    scene0100_02
+    scene0101_00
+    scene0101_01
+    scene0101_02
+    scene0101_03
+    scene0101_04
+    scene0101_05
+    scene0102_00
+    scene0102_01
+    scene0103_00
+    scene0103_01
+    scene0104_00
+    scene0105_00
+    scene0105_01
+    scene0105_02
+    scene0106_00
+    scene0106_01
+    scene0106_02
+    scene0107_00
+    scene0108_00
+    scene0109_00
+    scene0109_01
+    scene0110_00
+    scene0110_01
+    scene0110_02
+    scene0111_00
+    scene0111_01
+    scene0111_02
+    scene0112_00
+    scene0112_01
+    scene0112_02
+    scene0113_00
+    scene0113_01
+    scene0114_00
+    scene0114_01
+    scene0114_02
+    scene0115_00
+    scene0115_01
+    scene0115_02
+    scene0116_00
+    scene0116_01
+    scene0116_02
+    scene0117_00
+    scene0118_00
+    scene0118_01
+    scene0118_02
+    scene0119_00
+    scene0120_00
+    scene0120_01
+    scene0121_00
+    scene0121_01
+    scene0121_02
+    scene0122_00
+    scene0122_01
+    scene0123_00
+    scene0123_01
+    scene0123_02
+    scene0124_00
+    scene0124_01
+    scene0125_00
+    scene0126_00
+    scene0126_01
+    scene0126_02
+    scene0127_00
+    scene0127_01
+    scene0128_00
+    scene0129_00
+    scene0130_00
+    scene0131_00
+    scene0131_01
+    scene0131_02
+    scene0132_00
+    scene0132_01
+    scene0132_02
+    scene0133_00
+    scene0134_00
+    scene0134_01
+    scene0134_02
+    scene0135_00
+    scene0136_00
+    scene0136_01
+    scene0136_02
+    scene0137_00
+    scene0137_01
+    scene0137_02
+    scene0138_00
+    scene0139_00
+    scene0140_00
+    scene0140_01
+    scene0141_00
+    scene0141_01
+    scene0141_02
+    scene0142_00
+    scene0142_01
+    scene0143_00
+    scene0143_01
+    scene0143_02
+    scene0144_00
+    scene0144_01
+    scene0145_00
+    scene0146_00
+    scene0146_01
+    scene0146_02
+    scene0147_00
+    scene0147_01
+    scene0148_00
+    scene0149_00
+    scene0150_00
+    scene0150_01
+    scene0150_02
+    scene0151_00
+    scene0151_01
+    scene0152_00
+    scene0152_01
+    scene0152_02
+    scene0153_00
+    scene0153_01
+    scene0154_00
+    scene0155_00
+    scene0155_01
+    scene0155_02
+    scene0156_00
+    scene0157_00
+    scene0157_01
+    scene0158_00
+    scene0158_01
+    scene0158_02
+    scene0159_00
+    scene0160_00
+    scene0160_01
+    scene0160_02
+    scene0160_03
+    scene0160_04
+    scene0161_00
+    scene0161_01
+    scene0161_02
+    scene0162_00
+    scene0163_00
+    scene0163_01
+    scene0164_00
+    scene0164_01
+    scene0164_02
+    scene0164_03
+    scene0165_00
+    scene0165_01
+    scene0165_02
+    scene0166_00
+    scene0166_01
+    scene0166_02
+    scene0167_00
+    scene0168_00
+    scene0168_01
+    scene0168_02
+    scene0169_00
+    scene0169_01
+    scene0170_00
+    scene0170_01
+    scene0170_02
+    scene0171_00
+    scene0171_01
+    scene0172_00
+    scene0172_01
+    scene0173_00
+    scene0173_01
+    scene0173_02
+    scene0174_00
+    scene0174_01
+    scene0175_00
+    scene0176_00
+    scene0177_00
+    scene0177_01
+    scene0177_02
+    scene0178_00
+    scene0179_00
+    scene0180_00
+    scene0181_00
+    scene0181_01
+    scene0181_02
+    scene0181_03
+    scene0182_00
+    scene0182_01
+    scene0182_02
+    scene0183_00
+    scene0184_00
+    scene0185_00
+    scene0186_00
+    scene0186_01
+    scene0187_00
+    scene0187_01
+    scene0188_00
+    scene0189_00
+    scene0190_00
+    scene0191_00
+    scene0191_01
+    scene0191_02
+    scene0192_00
+    scene0192_01
+    scene0192_02
+    scene0193_00
+    scene0193_01
+    scene0194_00
+    scene0195_00
+    scene0195_01
+    scene0195_02
+    scene0196_00
+    scene0197_00
+    scene0197_01
+    scene0197_02
+    scene0198_00
+    scene0199_00
+    scene0200_00
+    scene0200_01
+    scene0200_02
+    scene0201_00
+    scene0201_01
+    scene0201_02
+    scene0202_00
+    scene0203_00
+    scene0203_01
+    scene0203_02
+    scene0204_00
+    scene0204_01
+    scene0204_02
+    scene0205_00
+    scene0205_01
+    scene0205_02
+    scene0206_00
+    scene0206_01
+    scene0206_02
+    scene0207_00
+    scene0207_01
+    scene0207_02
+    scene0208_00
+    scene0209_00
+    scene0209_01
+    scene0209_02
+    scene0210_00
+    scene0210_01
+    scene0211_00
+    scene0211_01
+    scene0211_02
+    scene0211_03
+    scene0212_00
+    scene0212_01
+    scene0212_02
+    scene0213_00
+    scene0214_00
+    scene0214_01
+    scene0214_02
+    scene0215_00
+    scene0215_01
+    scene0216_00
+    scene0217_00
+    scene0218_00
+    scene0218_01
+    scene0219_00
+    scene0220_00
+    scene0220_01
+    scene0220_02
+    scene0221_00
+    scene0221_01
+    scene0222_00
+    scene0222_01
+    scene0223_00
+    scene0223_01
+    scene0223_02
+    scene0224_00
+    scene0225_00
+    scene0226_00
+    scene0226_01
+    scene0227_00
+    scene0228_00
+    scene0229_00
+    scene0229_01
+    scene0229_02
+    scene0230_00
+    scene0231_00
+    scene0231_01
+    scene0231_02
+    scene0232_00
+    scene0232_01
+    scene0232_02
+    scene0233_00
+    scene0233_01
+    scene0234_00
+    scene0235_00
+    scene0236_00
+    scene0236_01
+    scene0237_00
+    scene0237_01
+    scene0238_00
+    scene0238_01
+    scene0239_00
+    scene0239_01
+    scene0239_02
+    scene0240_00
+    scene0241_00
+    scene0241_01
+    scene0241_02
+    scene0242_00
+    scene0242_01
+    scene0242_02
+    scene0243_00
+    scene0244_00
+    scene0244_01
+    scene0245_00
+    scene0246_00
+    scene0247_00
+    scene0247_01
+    scene0248_00
+    scene0248_01
+    scene0248_02
+    scene0249_00
+    scene0250_00
+    scene0250_01
+    scene0250_02
+[scene0000_00] pcl shape=(81369, 3), dtype=float32, min=-3.636, max=3.637
+[scene0000_01] pcl shape=(80583, 3), dtype=float32, min=-3.626, max=3.750
+[scene0000_02] pcl shape=(86001, 3), dtype=float32, min=-3.564, max=3.844
+[scene0001_00] pcl shape=(125526, 3), dtype=float32, min=-4.129, max=3.783
+[scene0001_01] pcl shape=(124429, 3), dtype=float32, min=-4.171, max=3.539
+[scene0002_00] pcl shape=(297362, 3), dtype=float32, min=-2.712, max=2.867
+[scene0002_01] pcl shape=(286378, 3), dtype=float32, min=-2.833, max=2.733
+[scene0003_00] pcl shape=(82063, 3), dtype=float32, min=-3.179, max=2.927
+[scene0003_01] pcl shape=(89197, 3), dtype=float32, min=-2.060, max=3.196
+[scene0003_02] pcl shape=(87066, 3), dtype=float32, min=-3.431, max=3.001
+[scene0004_00] pcl shape=(173649, 3), dtype=float32, min=-4.991, max=5.034
+[scene0005_00] pcl shape=(119502, 3), dtype=float32, min=-2.929, max=2.387
+[scene0005_01] pcl shape=(123403, 3), dtype=float32, min=-3.167, max=2.435
+[scene0006_00] pcl shape=(203795, 3), dtype=float32, min=-3.634, max=3.899
+[scene0006_01] pcl shape=(215787, 3), dtype=float32, min=-3.341, max=4.154
+[scene0006_02] pcl shape=(241044, 3), dtype=float32, min=-3.055, max=4.282
+[scene0007_00] pcl shape=(85905, 3), dtype=float32, min=-2.684, max=3.088
+[scene0008_00] pcl shape=(272168, 3), dtype=float32, min=-7.026, max=4.413
+[scene0009_00] pcl shape=(108419, 3), dtype=float32, min=-3.134, max=3.796
+[scene0009_01] pcl shape=(102674, 3), dtype=float32, min=-3.677, max=3.814
+[scene0009_02] pcl shape=(114774, 3), dtype=float32, min=-5.447, max=3.684
+[scene0010_00] pcl shape=(162573, 3), dtype=float32, min=-2.629, max=2.822
+[scene0010_01] pcl shape=(143461, 3), dtype=float32, min=-2.699, max=2.668
+[scene0011_00] pcl shape=(237360, 3), dtype=float32, min=-4.671, max=3.797
+[scene0011_01] pcl shape=(239261, 3), dtype=float32, min=-4.089, max=4.110
+[scene0012_00] pcl shape=(240937, 3), dtype=float32, min=-2.030, max=2.633
+[scene0012_01] pcl shape=(180500, 3), dtype=float32, min=-2.536, max=2.427
+[scene0012_02] pcl shape=(188662, 3), dtype=float32, min=-2.479, max=2.384
+[scene0013_00] pcl shape=(57236, 3), dtype=float32, min=-2.521, max=2.946
+[scene0013_01] pcl shape=(35772, 3), dtype=float32, min=-2.554, max=2.126
+[scene0013_02] pcl shape=(87558, 3), dtype=float32, min=-3.048, max=2.561
+[scene0014_00] pcl shape=(97118, 3), dtype=float32, min=-1.985, max=2.595
+[scene0015_00] pcl shape=(217086, 3), dtype=float32, min=-4.533, max=3.212
+[scene0016_00] pcl shape=(112628, 3), dtype=float32, min=-2.656, max=3.199
+[scene0016_01] pcl shape=(105292, 3), dtype=float32, min=-2.435, max=2.752
+[scene0016_02] pcl shape=(96870, 3), dtype=float32, min=-2.704, max=2.843
+[scene0017_00] pcl shape=(176355, 3), dtype=float32, min=-2.287, max=3.476
+[scene0017_01] pcl shape=(185163, 3), dtype=float32, min=-2.846, max=3.071
+[scene0017_02] pcl shape=(179052, 3), dtype=float32, min=-3.866, max=2.536
+[scene0018_00] pcl shape=(108462, 3), dtype=float32, min=-1.564, max=2.273
+[scene0019_00] pcl shape=(136769, 3), dtype=float32, min=-3.375, max=3.935
+[scene0019_01] pcl shape=(165356, 3), dtype=float32, min=-3.965, max=3.355
+[scene0020_00] pcl shape=(151489, 3), dtype=float32, min=-2.675, max=2.357
+[scene0020_01] pcl shape=(127185, 3), dtype=float32, min=-1.996, max=2.317
+[scene0021_00] pcl shape=(86076, 3), dtype=float32, min=-2.793, max=3.082
+[scene0022_00] pcl shape=(180013, 3), dtype=float32, min=-4.124, max=4.332
+[scene0022_01] pcl shape=(282248, 3), dtype=float32, min=-4.635, max=5.822
+[scene0023_00] pcl shape=(166252, 3), dtype=float32, min=-4.338, max=2.658
+[scene0024_00] pcl shape=(273530, 3), dtype=float32, min=-3.978, max=4.418
+[scene0024_01] pcl shape=(225484, 3), dtype=float32, min=-4.532, max=3.864
+[scene0024_02] pcl shape=(277093, 3), dtype=float32, min=-4.037, max=4.003
+[scene0025_00] pcl shape=(173392, 3), dtype=float32, min=-2.960, max=2.575
+[scene0025_01] pcl shape=(165720, 3), dtype=float32, min=-3.041, max=3.132
+[scene0025_02] pcl shape=(177900, 3), dtype=float32, min=-3.026, max=3.032
+[scene0026_00] pcl shape=(163788, 3), dtype=float32, min=-2.034, max=2.351
+[scene0027_00] pcl shape=(128073, 3), dtype=float32, min=-2.348, max=3.565
+[scene0027_01] pcl shape=(138308, 3), dtype=float32, min=-2.659, max=3.204
+[scene0027_02] pcl shape=(107726, 3), dtype=float32, min=-2.430, max=3.535
+[scene0028_00] pcl shape=(207822, 3), dtype=float32, min=-3.851, max=3.770
+[scene0029_00] pcl shape=(42199, 3), dtype=float32, min=-0.985, max=2.387
+[scene0029_01] pcl shape=(41212, 3), dtype=float32, min=-0.984, max=2.377
+[scene0029_02] pcl shape=(38863, 3), dtype=float32, min=-0.909, max=2.274
+[scene0030_00] pcl shape=(293811, 3), dtype=float32, min=-3.101, max=3.201
+[scene0030_01] pcl shape=(284801, 3), dtype=float32, min=-3.073, max=3.324
+[scene0030_02] pcl shape=(284243, 3), dtype=float32, min=-3.199, max=3.153
+[scene0031_00] pcl shape=(270584, 3), dtype=float32, min=-3.856, max=3.827
+[scene0031_01] pcl shape=(235122, 3), dtype=float32, min=-4.010, max=3.671
+[scene0031_02] pcl shape=(201867, 3), dtype=float32, min=-3.178, max=4.017
+[scene0032_00] pcl shape=(69918, 3), dtype=float32, min=-1.909, max=2.059
+[scene0032_01] pcl shape=(75462, 3), dtype=float32, min=-1.818, max=1.933
+[scene0033_00] pcl shape=(205728, 3), dtype=float32, min=-5.633, max=5.393
+[scene0034_00] pcl shape=(130485, 3), dtype=float32, min=-2.355, max=2.433
+[scene0034_01] pcl shape=(142501, 3), dtype=float32, min=-3.013, max=2.396
+[scene0034_02] pcl shape=(155810, 3), dtype=float32, min=-2.702, max=2.456
+[scene0035_00] pcl shape=(83822, 3), dtype=float32, min=-2.791, max=2.622
+[scene0035_01] pcl shape=(71304, 3), dtype=float32, min=-2.018, max=2.106
+[scene0036_00] pcl shape=(86091, 3), dtype=float32, min=-3.546, max=3.328
+[scene0036_01] pcl shape=(74974, 3), dtype=float32, min=-3.457, max=2.850
+[scene0037_00] pcl shape=(209246, 3), dtype=float32, min=-4.605, max=4.269
+[scene0038_00] pcl shape=(185268, 3), dtype=float32, min=-5.051, max=5.622
+[scene0038_01] pcl shape=(128529, 3), dtype=float32, min=-4.478, max=4.000
+[scene0038_02] pcl shape=(181336, 3), dtype=float32, min=-4.921, max=5.718
+[scene0039_00] pcl shape=(81245, 3), dtype=float32, min=-2.533, max=2.039
+[scene0039_01] pcl shape=(81343, 3), dtype=float32, min=-2.829, max=2.003
+[scene0040_00] pcl shape=(233437, 3), dtype=float32, min=-2.767, max=2.845
+[scene0040_01] pcl shape=(266218, 3), dtype=float32, min=-2.897, max=2.834
+[scene0041_00] pcl shape=(232583, 3), dtype=float32, min=-3.973, max=3.644
+[scene0041_01] pcl shape=(58891, 3), dtype=float32, min=-3.669, max=4.131
+[scene0042_00] pcl shape=(96573, 3), dtype=float32, min=-2.122, max=2.079
+[scene0042_01] pcl shape=(85758, 3), dtype=float32, min=-2.436, max=2.316
+[scene0042_02] pcl shape=(84732, 3), dtype=float32, min=-2.267, max=2.295
+[scene0043_00] pcl shape=(130427, 3), dtype=float32, min=-3.178, max=4.046
+[scene0043_01] pcl shape=(110077, 3), dtype=float32, min=-3.186, max=2.571
+[scene0044_00] pcl shape=(188967, 3), dtype=float32, min=-1.960, max=3.497
+[scene0044_01] pcl shape=(158077, 3), dtype=float32, min=-2.061, max=4.242
+[scene0044_02] pcl shape=(170500, 3), dtype=float32, min=-2.144, max=4.035
+[scene0045_00] pcl shape=(102045, 3), dtype=float32, min=-3.589, max=2.969
+[scene0045_01] pcl shape=(142383, 3), dtype=float32, min=-3.293, max=3.385
+[scene0046_00] pcl shape=(186857, 3), dtype=float32, min=-2.584, max=3.344
+[scene0046_01] pcl shape=(198471, 3), dtype=float32, min=-2.701, max=2.878
+[scene0046_02] pcl shape=(199774, 3), dtype=float32, min=-2.684, max=3.041
+[scene0047_00] pcl shape=(115277, 3), dtype=float32, min=-3.275, max=2.786
+[scene0048_00] pcl shape=(101053, 3), dtype=float32, min=-2.646, max=4.216
+[scene0048_01] pcl shape=(103623, 3), dtype=float32, min=-3.463, max=2.640
+[scene0049_00] pcl shape=(118972, 3), dtype=float32, min=-1.980, max=2.458
+[scene0050_00] pcl shape=(211406, 3), dtype=float32, min=-2.556, max=2.843
+[scene0050_01] pcl shape=(199034, 3), dtype=float32, min=-2.306, max=2.651
+[scene0050_02] pcl shape=(196815, 3), dtype=float32, min=-3.175, max=2.615
+[scene0051_00] pcl shape=(225199, 3), dtype=float32, min=-3.544, max=3.672
+[scene0051_01] pcl shape=(251144, 3), dtype=float32, min=-3.672, max=2.728
+[scene0051_02] pcl shape=(268555, 3), dtype=float32, min=-3.731, max=2.900
+[scene0051_03] pcl shape=(269136, 3), dtype=float32, min=-3.706, max=2.899
+[scene0052_00] pcl shape=(175552, 3), dtype=float32, min=-3.660, max=2.650
+[scene0052_01] pcl shape=(151304, 3), dtype=float32, min=-2.693, max=3.140
+[scene0052_02] pcl shape=(145848, 3), dtype=float32, min=-2.769, max=2.866
+[scene0053_00] pcl shape=(65160, 3), dtype=float32, min=-2.921, max=2.479
+[scene0054_00] pcl shape=(537406, 3), dtype=float32, min=-5.167, max=4.890
+[scene0055_00] pcl shape=(95715, 3), dtype=float32, min=-1.818, max=2.163
+[scene0055_01] pcl shape=(106854, 3), dtype=float32, min=-1.818, max=2.362
+[scene0055_02] pcl shape=(99250, 3), dtype=float32, min=-1.845, max=2.450
+[scene0056_00] pcl shape=(275147, 3), dtype=float32, min=-3.495, max=3.466
+[scene0056_01] pcl shape=(163474, 3), dtype=float32, min=-2.608, max=2.905
+[scene0057_00] pcl shape=(289677, 3), dtype=float32, min=-3.773, max=3.638
+[scene0057_01] pcl shape=(245002, 3), dtype=float32, min=-3.777, max=4.143
+[scene0058_00] pcl shape=(146778, 3), dtype=float32, min=-2.309, max=2.943
+[scene0058_01] pcl shape=(149341, 3), dtype=float32, min=-2.441, max=2.835
+[scene0059_00] pcl shape=(295651, 3), dtype=float32, min=-3.748, max=4.429
+[scene0059_01] pcl shape=(180693, 3), dtype=float32, min=-3.893, max=3.088
+[scene0059_02] pcl shape=(147861, 3), dtype=float32, min=-3.275, max=3.141
+[scene0060_00] pcl shape=(135544, 3), dtype=float32, min=-3.972, max=3.813
+[scene0060_01] pcl shape=(123118, 3), dtype=float32, min=-3.721, max=4.431
+[scene0061_00] pcl shape=(184209, 3), dtype=float32, min=-3.086, max=4.004
+[scene0061_01] pcl shape=(177096, 3), dtype=float32, min=-3.488, max=3.123
+[scene0062_00] pcl shape=(51610, 3), dtype=float32, min=-1.495, max=2.163
+[scene0062_01] pcl shape=(53781, 3), dtype=float32, min=-1.572, max=2.149
+[scene0062_02] pcl shape=(54174, 3), dtype=float32, min=-1.465, max=2.242
+[scene0063_00] pcl shape=(76966, 3), dtype=float32, min=-2.969, max=2.609
+[scene0064_00] pcl shape=(230672, 3), dtype=float32, min=-5.421, max=3.722
+[scene0064_01] pcl shape=(195252, 3), dtype=float32, min=-5.972, max=3.329
+[scene0065_00] pcl shape=(60712, 3), dtype=float32, min=-3.235, max=2.607
+[scene0065_01] pcl shape=(49044, 3), dtype=float32, min=-2.726, max=1.976
+[scene0065_02] pcl shape=(53232, 3), dtype=float32, min=-2.549, max=1.928
+[scene0066_00] pcl shape=(147912, 3), dtype=float32, min=-3.282, max=3.869
+[scene0067_00] pcl shape=(44552, 3), dtype=float32, min=-1.475, max=2.684
+[scene0067_01] pcl shape=(38118, 3), dtype=float32, min=-1.410, max=1.919
+[scene0067_02] pcl shape=(50889, 3), dtype=float32, min=-1.315, max=2.445
+[scene0068_00] pcl shape=(69549, 3), dtype=float32, min=-2.545, max=2.759
+[scene0068_01] pcl shape=(57628, 3), dtype=float32, min=-1.541, max=2.540
+[scene0069_00] pcl shape=(189270, 3), dtype=float32, min=-3.011, max=5.843
+[scene0070_00] pcl shape=(109380, 3), dtype=float32, min=-2.500, max=2.523
+[scene0071_00] pcl shape=(91619, 3), dtype=float32, min=-2.136, max=2.756
+[scene0072_00] pcl shape=(109223, 3), dtype=float32, min=-1.834, max=2.494
+[scene0072_01] pcl shape=(111283, 3), dtype=float32, min=-2.356, max=2.490
+[scene0072_02] pcl shape=(132461, 3), dtype=float32, min=-2.389, max=2.472
+[scene0073_00] pcl shape=(92089, 3), dtype=float32, min=-2.069, max=2.547
+[scene0073_01] pcl shape=(93733, 3), dtype=float32, min=-2.112, max=2.608
+[scene0073_02] pcl shape=(95553, 3), dtype=float32, min=-1.903, max=2.464
+[scene0073_03] pcl shape=(99888, 3), dtype=float32, min=-1.876, max=2.236
+[scene0074_00] pcl shape=(60679, 3), dtype=float32, min=-0.883, max=2.606
+[scene0074_01] pcl shape=(70129, 3), dtype=float32, min=-0.978, max=2.593
+[scene0074_02] pcl shape=(70141, 3), dtype=float32, min=-0.983, max=2.560
+[scene0075_00] pcl shape=(80796, 3), dtype=float32, min=-2.358, max=2.865
+[scene0076_00] pcl shape=(246901, 3), dtype=float32, min=-2.940, max=3.557
+[scene0077_00] pcl shape=(92807, 3), dtype=float32, min=-2.659, max=2.682
+[scene0077_01] pcl shape=(90381, 3), dtype=float32, min=-2.766, max=2.562
+[scene0078_00] pcl shape=(69783, 3), dtype=float32, min=-2.146, max=2.828
+[scene0078_01] pcl shape=(80085, 3), dtype=float32, min=-2.079, max=2.868
+[scene0078_02] pcl shape=(85615, 3), dtype=float32, min=-2.183, max=2.606
+[scene0079_00] pcl shape=(304563, 3), dtype=float32, min=-5.357, max=6.437
+[scene0079_01] pcl shape=(115153, 3), dtype=float32, min=-5.232, max=5.738
+[scene0080_00] pcl shape=(42253, 3), dtype=float32, min=-1.371, max=2.143
+[scene0080_01] pcl shape=(38032, 3), dtype=float32, min=-1.519, max=1.888
+[scene0080_02] pcl shape=(37401, 3), dtype=float32, min=-2.255, max=1.689
+[scene0081_00] pcl shape=(51381, 3), dtype=float32, min=-2.605, max=2.871
+[scene0081_01] pcl shape=(179955, 3), dtype=float32, min=-5.403, max=4.726
+[scene0081_02] pcl shape=(153929, 3), dtype=float32, min=-5.192, max=4.578
+[scene0082_00] pcl shape=(83550, 3), dtype=float32, min=-3.976, max=3.995
+[scene0083_00] pcl shape=(26318, 3), dtype=float32, min=-2.271, max=2.196
+[scene0083_01] pcl shape=(22923, 3), dtype=float32, min=-2.371, max=2.217
+[scene0084_00] pcl shape=(116845, 3), dtype=float32, min=-2.783, max=4.573
+[scene0084_01] pcl shape=(111833, 3), dtype=float32, min=-2.771, max=3.800
+[scene0084_02] pcl shape=(98346, 3), dtype=float32, min=-2.563, max=2.636
+[scene0085_00] pcl shape=(187883, 3), dtype=float32, min=-2.892, max=2.753
+[scene0085_01] pcl shape=(173875, 3), dtype=float32, min=-2.584, max=3.178
+[scene0086_00] pcl shape=(124572, 3), dtype=float32, min=-3.055, max=2.689
+[scene0086_01] pcl shape=(124210, 3), dtype=float32, min=-3.137, max=2.592
+[scene0086_02] pcl shape=(124091, 3), dtype=float32, min=-3.133, max=3.412
+[scene0087_00] pcl shape=(141457, 3), dtype=float32, min=-3.044, max=2.889
+[scene0087_01] pcl shape=(152505, 3), dtype=float32, min=-3.078, max=2.661
+[scene0087_02] pcl shape=(166524, 3), dtype=float32, min=-3.065, max=2.541
+[scene0088_00] pcl shape=(166872, 3), dtype=float32, min=-2.991, max=3.180
+[scene0088_01] pcl shape=(145650, 3), dtype=float32, min=-3.433, max=2.736
+[scene0088_02] pcl shape=(170685, 3), dtype=float32, min=-3.289, max=3.335
+[scene0088_03] pcl shape=(136812, 3), dtype=float32, min=-3.828, max=3.285
+[scene0089_00] pcl shape=(109167, 3), dtype=float32, min=-2.087, max=2.532
+[scene0089_01] pcl shape=(112120, 3), dtype=float32, min=-2.078, max=2.394
+[scene0089_02] pcl shape=(110638, 3), dtype=float32, min=-1.888, max=2.444
+[scene0090_00] pcl shape=(89604, 3), dtype=float32, min=-2.081, max=3.569
+[scene0091_00] pcl shape=(120683, 3), dtype=float32, min=-1.541, max=2.519
+[scene0092_00] pcl shape=(141912, 3), dtype=float32, min=-3.505, max=2.221
+[scene0092_01] pcl shape=(141817, 3), dtype=float32, min=-3.514, max=2.211
+[scene0092_02] pcl shape=(151964, 3), dtype=float32, min=-3.569, max=2.512
+[scene0092_03] pcl shape=(224567, 3), dtype=float32, min=-4.804, max=3.294
+[scene0092_04] pcl shape=(209850, 3), dtype=float32, min=-4.527, max=3.508
+[scene0093_00] pcl shape=(110038, 3), dtype=float32, min=-2.640, max=2.362
+[scene0093_01] pcl shape=(98745, 3), dtype=float32, min=-2.487, max=2.341
+[scene0093_02] pcl shape=(102056, 3), dtype=float32, min=-2.472, max=2.383
+[scene0094_00] pcl shape=(94301, 3), dtype=float32, min=-2.647, max=2.696
+[scene0095_00] pcl shape=(214895, 3), dtype=float32, min=-3.696, max=4.418
+[scene0095_01] pcl shape=(216254, 3), dtype=float32, min=-3.955, max=4.032
+[scene0096_00] pcl shape=(143275, 3), dtype=float32, min=-2.745, max=2.441
+[scene0096_01] pcl shape=(183028, 3), dtype=float32, min=-2.101, max=3.032
+[scene0096_02] pcl shape=(151543, 3), dtype=float32, min=-2.673, max=2.444
+[scene0097_00] pcl shape=(72007, 3), dtype=float32, min=-2.572, max=2.656
+[scene0098_00] pcl shape=(137366, 3), dtype=float32, min=-3.240, max=2.488
+[scene0098_01] pcl shape=(156148, 3), dtype=float32, min=-2.976, max=2.613
+[scene0099_00] pcl shape=(153836, 3), dtype=float32, min=-2.822, max=3.489
+[scene0099_01] pcl shape=(170918, 3), dtype=float32, min=-2.553, max=3.298
+[scene0100_00] pcl shape=(52304, 3), dtype=float32, min=-1.571, max=1.799
+[scene0100_01] pcl shape=(51211, 3), dtype=float32, min=-1.447, max=2.322
+[scene0100_02] pcl shape=(50328, 3), dtype=float32, min=-1.440, max=1.858
+[scene0101_00] pcl shape=(281521, 3), dtype=float32, min=-3.931, max=3.059
+[scene0101_01] pcl shape=(261792, 3), dtype=float32, min=-3.565, max=3.306
+[scene0101_02] pcl shape=(274073, 3), dtype=float32, min=-3.679, max=3.280
+[scene0101_03] pcl shape=(241241, 3), dtype=float32, min=-4.116, max=2.892
+[scene0101_04] pcl shape=(188073, 3), dtype=float32, min=-3.113, max=2.523
+[scene0101_05] pcl shape=(189548, 3), dtype=float32, min=-3.343, max=2.617
+[scene0102_00] pcl shape=(245003, 3), dtype=float32, min=-4.272, max=2.951
+[scene0102_01] pcl shape=(258982, 3), dtype=float32, min=-1.978, max=4.480
+[scene0103_00] pcl shape=(63133, 3), dtype=float32, min=-1.768, max=2.434
+[scene0103_01] pcl shape=(64085, 3), dtype=float32, min=-2.238, max=1.668
+[scene0104_00] pcl shape=(104128, 3), dtype=float32, min=-2.208, max=2.493
+[scene0105_00] pcl shape=(35020, 3), dtype=float32, min=-1.316, max=2.334
+[scene0105_01] pcl shape=(29162, 3), dtype=float32, min=-1.232, max=1.835
+[scene0105_02] pcl shape=(32819, 3), dtype=float32, min=-1.017, max=1.892
+[scene0106_00] pcl shape=(306118, 3), dtype=float32, min=-4.993, max=4.050
+[scene0106_01] pcl shape=(263509, 3), dtype=float32, min=-3.788, max=5.274
+[scene0106_02] pcl shape=(93267, 3), dtype=float32, min=-2.928, max=4.209
+[scene0107_00] pcl shape=(192663, 3), dtype=float32, min=-2.779, max=3.579
+[scene0108_00] pcl shape=(106319, 3), dtype=float32, min=-3.143, max=2.850
+[scene0109_00] pcl shape=(102001, 3), dtype=float32, min=-2.483, max=3.278
+[scene0109_01] pcl shape=(92580, 3), dtype=float32, min=-2.949, max=2.856
+[scene0110_00] pcl shape=(134373, 3), dtype=float32, min=-2.588, max=2.783
+[scene0110_01] pcl shape=(131869, 3), dtype=float32, min=-2.462, max=3.029
+[scene0110_02] pcl shape=(126095, 3), dtype=float32, min=-2.964, max=2.499
+[scene0111_00] pcl shape=(206082, 3), dtype=float32, min=-2.379, max=2.767
+[scene0111_01] pcl shape=(182959, 3), dtype=float32, min=-1.990, max=2.789
+[scene0111_02] pcl shape=(240944, 3), dtype=float32, min=-2.566, max=3.671
+[scene0112_00] pcl shape=(69460, 3), dtype=float32, min=-1.688, max=2.327
+[scene0112_01] pcl shape=(105909, 3), dtype=float32, min=-1.592, max=2.336
+[scene0112_02] pcl shape=(105705, 3), dtype=float32, min=-1.706, max=2.316
+[scene0113_00] pcl shape=(91598, 3), dtype=float32, min=-2.382, max=3.314
+[scene0113_01] pcl shape=(82015, 3), dtype=float32, min=-3.055, max=2.326
+[scene0114_00] pcl shape=(176801, 3), dtype=float32, min=-2.982, max=3.103
+[scene0114_01] pcl shape=(201104, 3), dtype=float32, min=-2.926, max=3.069
+[scene0114_02] pcl shape=(191105, 3), dtype=float32, min=-2.699, max=2.916
+[scene0115_00] pcl shape=(155610, 3), dtype=float32, min=-3.852, max=3.735
+[scene0115_01] pcl shape=(181764, 3), dtype=float32, min=-3.546, max=4.623
+[scene0115_02] pcl shape=(162330, 3), dtype=float32, min=-3.322, max=3.088
+[scene0116_00] pcl shape=(61178, 3), dtype=float32, min=-2.509, max=2.322
+[scene0116_01] pcl shape=(67426, 3), dtype=float32, min=-2.188, max=2.271
+[scene0116_02] pcl shape=(75435, 3), dtype=float32, min=-2.469, max=2.308
+[scene0117_00] pcl shape=(96711, 3), dtype=float32, min=-2.141, max=2.647
+[scene0118_00] pcl shape=(137298, 3), dtype=float32, min=-3.973, max=3.988
+[scene0118_01] pcl shape=(128604, 3), dtype=float32, min=-3.768, max=3.773
+[scene0118_02] pcl shape=(137815, 3), dtype=float32, min=-3.922, max=3.821
+[scene0119_00] pcl shape=(47513, 3), dtype=float32, min=-2.028, max=2.446
+[scene0120_00] pcl shape=(103906, 3), dtype=float32, min=-3.246, max=2.656
+[scene0120_01] pcl shape=(83533, 3), dtype=float32, min=-2.988, max=2.887
+[scene0121_00] pcl shape=(91761, 3), dtype=float32, min=-1.594, max=2.611
+[scene0121_01] pcl shape=(91710, 3), dtype=float32, min=-1.787, max=2.479
+[scene0121_02] pcl shape=(94244, 3), dtype=float32, min=-1.789, max=2.531
+[scene0122_00] pcl shape=(75786, 3), dtype=float32, min=-1.713, max=1.889
+[scene0122_01] pcl shape=(74445, 3), dtype=float32, min=-1.797, max=1.821
+[scene0123_00] pcl shape=(157499, 3), dtype=float32, min=-4.236, max=4.269
+[scene0123_01] pcl shape=(141759, 3), dtype=float32, min=-3.787, max=3.747
+[scene0123_02] pcl shape=(144302, 3), dtype=float32, min=-3.853, max=3.603
+[scene0124_00] pcl shape=(55687, 3), dtype=float32, min=-2.117, max=2.602
+[scene0124_01] pcl shape=(54153, 3), dtype=float32, min=-2.239, max=2.596
+[scene0125_00] pcl shape=(105439, 3), dtype=float32, min=-3.333, max=3.076
+[scene0126_00] pcl shape=(206075, 3), dtype=float32, min=-3.014, max=2.748
+[scene0126_01] pcl shape=(175240, 3), dtype=float32, min=-2.497, max=2.971
+[scene0126_02] pcl shape=(232127, 3), dtype=float32, min=-2.739, max=2.779
+[scene0127_00] pcl shape=(155652, 3), dtype=float32, min=-2.939, max=3.643
+[scene0127_01] pcl shape=(146763, 3), dtype=float32, min=-2.581, max=2.617
+[scene0128_00] pcl shape=(108008, 3), dtype=float32, min=-1.864, max=2.714
+[scene0129_00] pcl shape=(138782, 3), dtype=float32, min=-2.924, max=2.764
+[scene0130_00] pcl shape=(95839, 3), dtype=float32, min=-2.545, max=2.357
+[scene0131_00] pcl shape=(177091, 3), dtype=float32, min=-4.079, max=3.633
+[scene0131_01] pcl shape=(172221, 3), dtype=float32, min=-3.755, max=3.888
+[scene0131_02] pcl shape=(140599, 3), dtype=float32, min=-3.448, max=3.746
+[scene0132_00] pcl shape=(167583, 3), dtype=float32, min=-4.630, max=3.180
+[scene0132_01] pcl shape=(177992, 3), dtype=float32, min=-4.996, max=2.422
+[scene0132_02] pcl shape=(175860, 3), dtype=float32, min=-4.814, max=3.053
+[scene0133_00] pcl shape=(94510, 3), dtype=float32, min=-3.524, max=3.687
+[scene0134_00] pcl shape=(112647, 3), dtype=float32, min=-2.884, max=2.542
+[scene0134_01] pcl shape=(135300, 3), dtype=float32, min=-2.792, max=2.320
+[scene0134_02] pcl shape=(119507, 3), dtype=float32, min=-2.592, max=2.554
+[scene0135_00] pcl shape=(44648, 3), dtype=float32, min=-2.071, max=2.569
+[scene0136_00] pcl shape=(110614, 3), dtype=float32, min=-2.611, max=2.340
+[scene0136_01] pcl shape=(96137, 3), dtype=float32, min=-2.096, max=2.125
+[scene0136_02] pcl shape=(126148, 3), dtype=float32, min=-2.871, max=2.461
+[scene0137_00] pcl shape=(199073, 3), dtype=float32, min=-4.159, max=3.224
+[scene0137_01] pcl shape=(196341, 3), dtype=float32, min=-4.069, max=3.239
+[scene0137_02] pcl shape=(240923, 3), dtype=float32, min=-3.604, max=3.680
+[scene0138_00] pcl shape=(326282, 3), dtype=float32, min=-5.157, max=3.465
+[scene0139_00] pcl shape=(72007, 3), dtype=float32, min=-1.748, max=2.777
+[scene0140_00] pcl shape=(372941, 3), dtype=float32, min=-4.027, max=4.257
+[scene0140_01] pcl shape=(337837, 3), dtype=float32, min=-4.283, max=4.044
+[scene0141_00] pcl shape=(149455, 3), dtype=float32, min=-2.642, max=2.844
+[scene0141_01] pcl shape=(155690, 3), dtype=float32, min=-2.694, max=2.792
+[scene0141_02] pcl shape=(144625, 3), dtype=float32, min=-2.495, max=2.614
+[scene0142_00] pcl shape=(264199, 3), dtype=float32, min=-3.148, max=2.777
+[scene0142_01] pcl shape=(403655, 3), dtype=float32, min=-2.765, max=3.123
+[scene0143_00] pcl shape=(52204, 3), dtype=float32, min=-1.928, max=2.617
+[scene0143_01] pcl shape=(270402, 3), dtype=float32, min=-3.868, max=3.802
+[scene0143_02] pcl shape=(247295, 3), dtype=float32, min=-3.364, max=3.371
+[scene0144_00] pcl shape=(126879, 3), dtype=float32, min=-2.610, max=2.384
+[scene0144_01] pcl shape=(116341, 3), dtype=float32, min=-2.754, max=2.154
+[scene0145_00] pcl shape=(177069, 3), dtype=float32, min=-2.814, max=3.848
+[scene0146_00] pcl shape=(60438, 3), dtype=float32, min=-1.662, max=1.973
+[scene0146_01] pcl shape=(59330, 3), dtype=float32, min=-1.674, max=1.936
+[scene0146_02] pcl shape=(64383, 3), dtype=float32, min=-1.464, max=2.334
+[scene0147_00] pcl shape=(140844, 3), dtype=float32, min=-3.304, max=3.365
+[scene0147_01] pcl shape=(159483, 3), dtype=float32, min=-4.122, max=3.372
+[scene0148_00] pcl shape=(115237, 3), dtype=float32, min=-3.176, max=3.512
+[scene0149_00] pcl shape=(162396, 3), dtype=float32, min=-2.337, max=2.382
+[scene0150_00] pcl shape=(68411, 3), dtype=float32, min=-2.672, max=2.329
+[scene0150_01] pcl shape=(77935, 3), dtype=float32, min=-2.750, max=2.303
+[scene0150_02] pcl shape=(34347, 3), dtype=float32, min=-1.821, max=1.768
+[scene0151_00] pcl shape=(357321, 3), dtype=float32, min=-4.490, max=5.435
+[scene0151_01] pcl shape=(288588, 3), dtype=float32, min=-3.450, max=3.905
+[scene0152_00] pcl shape=(210127, 3), dtype=float32, min=-3.695, max=6.343
+[scene0152_01] pcl shape=(347334, 3), dtype=float32, min=-5.519, max=5.527
+[scene0152_02] pcl shape=(424636, 3), dtype=float32, min=-4.578, max=6.673
+[scene0153_00] pcl shape=(47709, 3), dtype=float32, min=-1.174, max=2.349
+[scene0153_01] pcl shape=(49553, 3), dtype=float32, min=-1.255, max=2.344
+[scene0154_00] pcl shape=(117667, 3), dtype=float32, min=-2.763, max=3.360
+[scene0155_00] pcl shape=(243094, 3), dtype=float32, min=-3.742, max=3.904
+[scene0155_01] pcl shape=(187828, 3), dtype=float32, min=-3.374, max=3.430
+[scene0155_02] pcl shape=(160378, 3), dtype=float32, min=-3.361, max=2.879
+[scene0156_00] pcl shape=(125869, 3), dtype=float32, min=-2.484, max=3.620
+[scene0157_00] pcl shape=(56318, 3), dtype=float32, min=-3.158, max=1.933
+[scene0157_01] pcl shape=(53718, 3), dtype=float32, min=-1.636, max=1.805
+[scene0158_00] pcl shape=(100649, 3), dtype=float32, min=-2.622, max=2.317
+[scene0158_01] pcl shape=(100081, 3), dtype=float32, min=-2.642, max=2.320
+[scene0158_02] pcl shape=(104408, 3), dtype=float32, min=-2.704, max=2.302
+[scene0159_00] pcl shape=(168576, 3), dtype=float32, min=-2.807, max=3.374
+[scene0160_00] pcl shape=(83044, 3), dtype=float32, min=-2.650, max=3.975
+[scene0160_01] pcl shape=(89536, 3), dtype=float32, min=-3.239, max=2.550
+[scene0160_02] pcl shape=(77908, 3), dtype=float32, min=-2.458, max=3.541
+[scene0160_03] pcl shape=(68276, 3), dtype=float32, min=-2.521, max=2.979
+[scene0160_04] pcl shape=(60603, 3), dtype=float32, min=-3.037, max=2.142
+[scene0161_00] pcl shape=(38740, 3), dtype=float32, min=-2.318, max=1.484
+[scene0161_01] pcl shape=(35218, 3), dtype=float32, min=-2.290, max=1.421
+[scene0161_02] pcl shape=(36149, 3), dtype=float32, min=-2.341, max=1.474
+[scene0162_00] pcl shape=(179155, 3), dtype=float32, min=-2.675, max=4.081
+[scene0163_00] pcl shape=(164003, 3), dtype=float32, min=-2.877, max=3.374
+[scene0163_01] pcl shape=(174588, 3), dtype=float32, min=-3.303, max=2.975
+[scene0164_00] pcl shape=(94315, 3), dtype=float32, min=-1.619, max=2.431
+[scene0164_01] pcl shape=(88073, 3), dtype=float32, min=-1.732, max=2.387
+[scene0164_02] pcl shape=(92825, 3), dtype=float32, min=-2.131, max=2.447
+[scene0164_03] pcl shape=(89190, 3), dtype=float32, min=-2.129, max=2.431
+[scene0165_00] pcl shape=(95624, 3), dtype=float32, min=-2.407, max=3.124
+[scene0165_01] pcl shape=(98128, 3), dtype=float32, min=-3.074, max=2.581
+[scene0165_02] pcl shape=(111472, 3), dtype=float32, min=-3.461, max=2.398
+[scene0166_00] pcl shape=(225624, 3), dtype=float32, min=-2.244, max=2.745
+[scene0166_01] pcl shape=(223380, 3), dtype=float32, min=-2.160, max=2.731
+[scene0166_02] pcl shape=(227522, 3), dtype=float32, min=-2.181, max=2.679
+[scene0167_00] pcl shape=(170218, 3), dtype=float32, min=-3.373, max=3.628
+[scene0168_00] pcl shape=(213365, 3), dtype=float32, min=-3.560, max=3.571
+[scene0168_01] pcl shape=(164763, 3), dtype=float32, min=-3.292, max=3.157
+[scene0168_02] pcl shape=(176438, 3), dtype=float32, min=-3.033, max=3.456
+[scene0169_00] pcl shape=(239354, 3), dtype=float32, min=-3.778, max=3.271
+[scene0169_01] pcl shape=(228074, 3), dtype=float32, min=-3.429, max=4.826
+[scene0170_00] pcl shape=(45038, 3), dtype=float32, min=-1.816, max=2.337
+[scene0170_01] pcl shape=(49654, 3), dtype=float32, min=-2.141, max=2.269
+[scene0170_02] pcl shape=(49093, 3), dtype=float32, min=-1.369, max=2.214
+[scene0171_00] pcl shape=(132529, 3), dtype=float32, min=-3.415, max=2.819
+[scene0171_01] pcl shape=(29695, 3), dtype=float32, min=-4.641, max=3.806
+[scene0172_00] pcl shape=(108786, 3), dtype=float32, min=-1.937, max=2.313
+[scene0172_01] pcl shape=(98963, 3), dtype=float32, min=-1.863, max=2.501
+[scene0173_00] pcl shape=(252472, 3), dtype=float32, min=-3.279, max=4.642
+[scene0173_01] pcl shape=(128762, 3), dtype=float32, min=-3.009, max=3.469
+[scene0173_02] pcl shape=(127297, 3), dtype=float32, min=-2.974, max=3.270
+[scene0174_00] pcl shape=(131200, 3), dtype=float32, min=-2.655, max=2.675
+[scene0174_01] pcl shape=(114013, 3), dtype=float32, min=-2.399, max=2.676
+[scene0175_00] pcl shape=(72606, 3), dtype=float32, min=-2.789, max=2.471
+[scene0176_00] pcl shape=(93182, 3), dtype=float32, min=-2.082, max=2.754
+[scene0177_00] pcl shape=(194301, 3), dtype=float32, min=-2.987, max=2.867
+[scene0177_01] pcl shape=(187526, 3), dtype=float32, min=-3.070, max=3.034
+[scene0177_02] pcl shape=(221829, 3), dtype=float32, min=-3.046, max=3.338
+[scene0178_00] pcl shape=(247260, 3), dtype=float32, min=-4.449, max=2.967
+[scene0179_00] pcl shape=(168663, 3), dtype=float32, min=-2.683, max=2.959
+[scene0180_00] pcl shape=(349028, 3), dtype=float32, min=-4.834, max=6.457
+[scene0181_00] pcl shape=(284152, 3), dtype=float32, min=-3.114, max=3.806
+[scene0181_01] pcl shape=(282894, 3), dtype=float32, min=-3.828, max=3.187
+[scene0181_02] pcl shape=(246254, 3), dtype=float32, min=-3.529, max=3.734
+[scene0181_03] pcl shape=(150261, 3), dtype=float32, min=-2.490, max=2.876
+[scene0182_00] pcl shape=(87344, 3), dtype=float32, min=-2.046, max=2.767
+[scene0182_01] pcl shape=(56239, 3), dtype=float32, min=-1.710, max=2.461
+[scene0182_02] pcl shape=(83050, 3), dtype=float32, min=-2.017, max=2.965
+[scene0183_00] pcl shape=(15659, 3), dtype=float32, min=-1.424, max=1.479
+[scene0184_00] pcl shape=(222373, 3), dtype=float32, min=-2.435, max=2.616
+[scene0185_00] pcl shape=(86385, 3), dtype=float32, min=-6.269, max=4.233
+[scene0186_00] pcl shape=(80812, 3), dtype=float32, min=-3.776, max=3.940
+[scene0186_01] pcl shape=(170037, 3), dtype=float32, min=-3.203, max=3.044
+[scene0187_00] pcl shape=(173752, 3), dtype=float32, min=-4.010, max=4.200
+[scene0187_01] pcl shape=(144163, 3), dtype=float32, min=-3.833, max=3.445
+[scene0188_00] pcl shape=(175689, 3), dtype=float32, min=-2.707, max=2.557
+[scene0189_00] pcl shape=(412278, 3), dtype=float32, min=-6.140, max=9.160
+[scene0190_00] pcl shape=(96446, 3), dtype=float32, min=-2.710, max=2.529
+[scene0191_00] pcl shape=(145736, 3), dtype=float32, min=-4.118, max=3.300
+[scene0191_01] pcl shape=(144576, 3), dtype=float32, min=-4.285, max=2.955
+[scene0191_02] pcl shape=(99303, 3), dtype=float32, min=-2.627, max=2.110
+[scene0192_00] pcl shape=(92497, 3), dtype=float32, min=-3.139, max=2.644
+[scene0192_01] pcl shape=(85096, 3), dtype=float32, min=-2.707, max=2.563
+[scene0192_02] pcl shape=(86466, 3), dtype=float32, min=-2.094, max=2.720
+[scene0193_00] pcl shape=(101783, 3), dtype=float32, min=-2.154, max=2.499
+[scene0193_01] pcl shape=(93668, 3), dtype=float32, min=-2.375, max=2.627
+[scene0194_00] pcl shape=(156741, 3), dtype=float32, min=-2.790, max=3.716
+[scene0195_00] pcl shape=(78742, 3), dtype=float32, min=-1.941, max=2.754
+[scene0195_01] pcl shape=(82894, 3), dtype=float32, min=-1.972, max=2.260
+[scene0195_02] pcl shape=(81303, 3), dtype=float32, min=-1.871, max=2.332
+[scene0196_00] pcl shape=(146032, 3), dtype=float32, min=-3.190, max=3.830
+[scene0197_00] pcl shape=(99789, 3), dtype=float32, min=-2.476, max=2.356
+[scene0197_01] pcl shape=(97828, 3), dtype=float32, min=-2.184, max=2.330
+[scene0197_02] pcl shape=(96362, 3), dtype=float32, min=-2.327, max=2.401
+[scene0198_00] pcl shape=(68469, 3), dtype=float32, min=-2.808, max=2.253
+[scene0199_00] pcl shape=(168764, 3), dtype=float32, min=-4.408, max=3.046
+[scene0200_00] pcl shape=(83291, 3), dtype=float32, min=-2.132, max=1.918
+[scene0200_01] pcl shape=(86275, 3), dtype=float32, min=-2.604, max=2.050
+[scene0200_02] pcl shape=(93550, 3), dtype=float32, min=-2.115, max=2.410
+[scene0201_00] pcl shape=(126192, 3), dtype=float32, min=-3.052, max=3.833
+[scene0201_01] pcl shape=(121258, 3), dtype=float32, min=-3.669, max=2.870
+[scene0201_02] pcl shape=(135404, 3), dtype=float32, min=-3.137, max=3.583
+[scene0202_00] pcl shape=(119423, 3), dtype=float32, min=-4.231, max=2.522
+[scene0203_00] pcl shape=(205756, 3), dtype=float32, min=-3.904, max=2.786
+[scene0203_01] pcl shape=(206210, 3), dtype=float32, min=-4.127, max=2.835
+[scene0203_02] pcl shape=(238392, 3), dtype=float32, min=-3.530, max=4.114
+[scene0204_00] pcl shape=(173752, 3), dtype=float32, min=-2.758, max=2.835
+[scene0204_01] pcl shape=(137649, 3), dtype=float32, min=-2.834, max=3.042
+[scene0204_02] pcl shape=(160652, 3), dtype=float32, min=-3.019, max=2.721
+[scene0205_00] pcl shape=(74979, 3), dtype=float32, min=-2.113, max=2.626
+[scene0205_01] pcl shape=(82880, 3), dtype=float32, min=-2.100, max=2.402
+[scene0205_02] pcl shape=(77180, 3), dtype=float32, min=-2.323, max=2.416
+[scene0206_00] pcl shape=(225220, 3), dtype=float32, min=-4.135, max=3.056
+[scene0206_01] pcl shape=(219614, 3), dtype=float32, min=-4.098, max=2.964
+[scene0206_02] pcl shape=(198495, 3), dtype=float32, min=-4.103, max=3.037
+[scene0207_00] pcl shape=(304396, 3), dtype=float32, min=-3.621, max=3.374
+[scene0207_01] pcl shape=(269274, 3), dtype=float32, min=-3.589, max=3.263
+[scene0207_02] pcl shape=(347322, 3), dtype=float32, min=-5.079, max=3.358
+[scene0208_00] pcl shape=(407386, 3), dtype=float32, min=-3.667, max=4.728
+[scene0209_00] pcl shape=(208673, 3), dtype=float32, min=-3.104, max=4.204
+[scene0209_01] pcl shape=(206759, 3), dtype=float32, min=-3.860, max=2.852
+[scene0209_02] pcl shape=(216744, 3), dtype=float32, min=-3.465, max=3.773
+[scene0210_00] pcl shape=(114103, 3), dtype=float32, min=-3.001, max=2.662
+[scene0210_01] pcl shape=(72807, 3), dtype=float32, min=-2.872, max=2.642
+[scene0211_00] pcl shape=(144404, 3), dtype=float32, min=-2.649, max=2.518
+[scene0211_01] pcl shape=(159421, 3), dtype=float32, min=-2.029, max=2.528
+[scene0211_02] pcl shape=(182708, 3), dtype=float32, min=-2.253, max=2.524
+[scene0211_03] pcl shape=(151452, 3), dtype=float32, min=-2.741, max=2.515
+[scene0212_00] pcl shape=(173931, 3), dtype=float32, min=-3.103, max=2.932
+[scene0212_01] pcl shape=(165619, 3), dtype=float32, min=-3.168, max=2.828
+[scene0212_02] pcl shape=(178221, 3), dtype=float32, min=-3.466, max=3.305
+[scene0213_00] pcl shape=(189913, 3), dtype=float32, min=-4.105, max=5.158
+[scene0214_00] pcl shape=(100411, 3), dtype=float32, min=-3.941, max=2.428
+[scene0214_01] pcl shape=(102101, 3), dtype=float32, min=-3.078, max=3.807
+[scene0214_02] pcl shape=(113736, 3), dtype=float32, min=-3.274, max=3.020
+[scene0215_00] pcl shape=(159844, 3), dtype=float32, min=-3.528, max=3.595
+[scene0215_01] pcl shape=(200269, 3), dtype=float32, min=-3.407, max=3.744
+[scene0216_00] pcl shape=(92029, 3), dtype=float32, min=-1.774, max=3.483
+[scene0217_00] pcl shape=(126385, 3), dtype=float32, min=-2.796, max=2.612
+[scene0218_00] pcl shape=(233708, 3), dtype=float32, min=-5.782, max=7.152
+[scene0218_01] pcl shape=(238796, 3), dtype=float32, min=-4.904, max=5.113
+[scene0219_00] pcl shape=(46467, 3), dtype=float32, min=-1.859, max=2.340
+[scene0220_00] pcl shape=(311700, 3), dtype=float32, min=-3.318, max=4.528
+[scene0220_01] pcl shape=(319903, 3), dtype=float32, min=-3.089, max=4.558
+[scene0220_02] pcl shape=(287122, 3), dtype=float32, min=-3.118, max=3.442
+[scene0221_00] pcl shape=(185828, 3), dtype=float32, min=-4.181, max=4.380
+[scene0221_01] pcl shape=(170654, 3), dtype=float32, min=-4.343, max=4.328
+[scene0222_00] pcl shape=(234831, 3), dtype=float32, min=-3.368, max=3.068
+[scene0222_01] pcl shape=(235777, 3), dtype=float32, min=-2.955, max=3.387
+[scene0223_00] pcl shape=(144579, 3), dtype=float32, min=-2.234, max=2.902
+[scene0223_01] pcl shape=(166873, 3), dtype=float32, min=-2.562, max=2.579
+[scene0223_02] pcl shape=(142761, 3), dtype=float32, min=-2.690, max=2.536
+[scene0224_00] pcl shape=(75941, 3), dtype=float32, min=-2.142, max=2.736
+[scene0225_00] pcl shape=(196972, 3), dtype=float32, min=-5.913, max=3.687
+[scene0226_00] pcl shape=(85454, 3), dtype=float32, min=-2.542, max=2.565
+[scene0226_01] pcl shape=(87320, 3), dtype=float32, min=-2.843, max=2.649
+[scene0227_00] pcl shape=(78189, 3), dtype=float32, min=-2.188, max=2.100
+[scene0228_00] pcl shape=(154539, 3), dtype=float32, min=-3.197, max=4.181
+[scene0229_00] pcl shape=(129573, 3), dtype=float32, min=-3.414, max=2.609
+[scene0229_01] pcl shape=(124416, 3), dtype=float32, min=-2.604, max=2.449
+[scene0229_02] pcl shape=(125982, 3), dtype=float32, min=-2.540, max=2.479
+[scene0230_00] pcl shape=(66084, 3), dtype=float32, min=-3.224, max=2.017
+[scene0231_00] pcl shape=(419537, 3), dtype=float32, min=-4.779, max=4.520
+[scene0231_01] pcl shape=(438565, 3), dtype=float32, min=-4.552, max=4.750
+[scene0231_02] pcl shape=(353013, 3), dtype=float32, min=-4.713, max=4.483
+[scene0232_00] pcl shape=(70579, 3), dtype=float32, min=-1.356, max=2.390
+[scene0232_01] pcl shape=(64898, 3), dtype=float32, min=-1.402, max=2.397
+[scene0232_02] pcl shape=(64652, 3), dtype=float32, min=-1.383, max=2.273
+[scene0233_00] pcl shape=(250010, 3), dtype=float32, min=-2.523, max=2.673
+[scene0233_01] pcl shape=(262988, 3), dtype=float32, min=-2.674, max=3.007
+[scene0234_00] pcl shape=(77171, 3), dtype=float32, min=-3.580, max=2.903
+[scene0235_00] pcl shape=(185950, 3), dtype=float32, min=-2.227, max=3.422
+[scene0236_00] pcl shape=(119058, 3), dtype=float32, min=-2.038, max=2.332
+[scene0236_01] pcl shape=(119606, 3), dtype=float32, min=-1.916, max=2.254
+[scene0237_00] pcl shape=(27551, 3), dtype=float32, min=-1.801, max=2.026
+[scene0237_01] pcl shape=(22580, 3), dtype=float32, min=-1.376, max=1.370
+[scene0238_00] pcl shape=(149510, 3), dtype=float32, min=-2.738, max=2.692
+[scene0238_01] pcl shape=(133122, 3), dtype=float32, min=-2.643, max=2.714
+[scene0239_00] pcl shape=(123459, 3), dtype=float32, min=-3.463, max=3.131
+[scene0239_01] pcl shape=(104495, 3), dtype=float32, min=-3.105, max=3.268
+[scene0239_02] pcl shape=(112807, 3), dtype=float32, min=-4.322, max=2.502
+[scene0240_00] pcl shape=(113179, 3), dtype=float32, min=-2.280, max=2.556
+[scene0241_00] pcl shape=(123667, 3), dtype=float32, min=-2.175, max=2.374
+[scene0241_01] pcl shape=(118594, 3), dtype=float32, min=-1.613, max=2.368
+[scene0241_02] pcl shape=(122654, 3), dtype=float32, min=-1.601, max=2.394
+[scene0242_00] pcl shape=(81742, 3), dtype=float32, min=-1.822, max=2.087
+[scene0242_01] pcl shape=(65789, 3), dtype=float32, min=-2.244, max=1.678
+[scene0242_02] pcl shape=(75587, 3), dtype=float32, min=-2.272, max=1.859
+[scene0243_00] pcl shape=(103433, 3), dtype=float32, min=-1.736, max=2.537
+[scene0244_00] pcl shape=(117148, 3), dtype=float32, min=-2.592, max=2.232
+[scene0244_01] pcl shape=(124986, 3), dtype=float32, min=-2.476, max=2.482
+[scene0245_00] pcl shape=(187013, 3), dtype=float32, min=-3.847, max=2.861
+[scene0246_00] pcl shape=(201062, 3), dtype=float32, min=-2.493, max=3.317
+[scene0247_00] pcl shape=(359497, 3), dtype=float32, min=-4.802, max=4.545
+[scene0247_01] pcl shape=(372979, 3), dtype=float32, min=-4.723, max=4.654
+[scene0248_00] pcl shape=(107745, 3), dtype=float32, min=-2.595, max=2.893
+[scene0248_01] pcl shape=(102138, 3), dtype=float32, min=-2.719, max=2.542
+[scene0248_02] pcl shape=(112327, 3), dtype=float32, min=-3.414, max=3.278
+[scene0249_00] pcl shape=(331031, 3), dtype=float32, min=-4.390, max=5.976
+[scene0250_00] pcl shape=(97351, 3), dtype=float32, min=-1.720, max=3.836
+[scene0250_01] pcl shape=(98985, 3), dtype=float32, min=-1.788, max=2.336
+[scene0250_02] pcl shape=(101515, 3), dtype=float32, min=-1.646, max=3.880
+Your remaining balance (at the time of job end)
+User           Usage |        Account     Usage | Account Limit Available (CPU hrs)
+---------- --------- + -------------- --------- + ------------- ---------
+cpoullis           0 |            VCG     2,178 |             0       N/A
+ekalogerakis     1,641 |            VCG     2,178 |             0       N/A
+maverkiou          0 |            VCG     2,178 |             0       N/A
+mloizou            3 |            VCG     2,178 |             0       N/A
+pdemetriou *       478 |            VCG     2,178 |             0       N/A
+yadimoolam        56 |            VCG     2,178 |             0       N/A
+ygeorgiou          0 |            VCG     2,178 |             0       N/A
