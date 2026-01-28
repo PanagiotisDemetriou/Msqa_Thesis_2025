@@ -21,7 +21,7 @@ class InteractiveInferenceTool:
    """
    def __init__(self, scene_id, situation, question):
       # path of pretrained model and config for inference
-      experiment_path = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIP_PNPP_ViC_LORA_TUNED'
+      experiment_path = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIPT_FTPNPP_VIC_LORA_3DS'
 
       self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
       self.cfg = self.load_config(experiment_path)
