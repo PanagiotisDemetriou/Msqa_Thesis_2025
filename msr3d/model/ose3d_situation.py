@@ -283,8 +283,15 @@ class OSE3DSituation(BaseModel):
     def device(self):
         return list(self.parameters())[0].device
 
+    # def forward_gtpcd(self, data_dict):
+    #     obj_pcd_feat = self.obj_linear_projection(self.obj_encoder(data_dict['obj_fts'])[0])
+    #     return obj_pcd_feat
     def forward_gtpcd(self, data_dict):
-        obj_pcd_feat = self.obj_linear_projection(self.obj_encoder(data_dict['obj_fts'])[0])
+        obj_pcd_feat, _ = self.obj_encoder(
+            data_dict['obj_fts'],
+            obj_masks=data_dict.get('obj_masks', None)
+        )
+        obj_pcd_feat = self.obj_linear_projection(obj_pcd_feat)
         return obj_pcd_feat
 
     def forward(self, data_dict):
