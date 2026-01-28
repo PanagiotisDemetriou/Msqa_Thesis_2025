@@ -4,7 +4,7 @@ note: BLIPT_PTv3_VIC_LORA_2 # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 2
-mode: inference
+mode: train
 # Choose keywords to feature your saving directory
 naming_keywords: [note]
 base_dir: '' # the output directory, must be set 
@@ -202,7 +202,7 @@ model:
           embedding_size: 64
           freeze: True
           grid_size: 0.02
-          feat_reduce: "mean"
+          feat_reduce: "max"
           sem_num_classes: 607
           ptv3_cfg_path: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py"
           weight_path: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/PTv3/model_best.pth"

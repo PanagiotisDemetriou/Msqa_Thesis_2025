@@ -3,8 +3,9 @@ import torch, json
 from pathlib import Path
 from collections import defaultdict
 
-IN_PATH = "MSR3D_BLIPT_PTv3_VIC_LORA_2/eval_results/msqa_scannet/results.pt"   # change if different
-OUT_PATH = "msqa_ptv3_scannet.json"
+#IN_PATH = "BLIPT_PNF_VIC_LORA/eval_results/msqa_scannet/results.pt"   # change if different
+IN_PATH = "/home/panagiotis/msqa/Msqa_Thesis_2025/msr3d/MSR3D_BLIPT_PNF_VIC_LORA/eval_results/msqa_scannet/results.pt"
+OUT_PATH = "msqa_scannet.json"
 
 data = torch.load(IN_PATH, map_location="cpu")
 print("Loaded:", type(data), "Num items:", len(data))

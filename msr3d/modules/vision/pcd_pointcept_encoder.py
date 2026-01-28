@@ -245,6 +245,10 @@ class PTv3PcdObjEncoder(nn.Module):
         B, O, P, C = obj_pcds.shape
         device = obj_pcds.device
 
+        ###### new addition ######
+        valid = obj_masks.bool()  # (B,O)
+        obj_pcds = obj_pcds[valid]
+
         point_data = transform_obj_pcds_to_pointcept(
             obj_pcds=obj_pcds,
             grid_size=self.grid_size,

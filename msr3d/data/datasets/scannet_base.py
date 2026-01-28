@@ -60,9 +60,9 @@ class ScanNetBase(Dataset):
             pcd_data = torch.load(os.path.join(self.base_dir, "scan_data",
                                             "pcd_with_global_alignment", f'{scan_id}.pth'), weights_only=False)
             ##### ------ ##### uncoment
-            # pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
-            #                                 "pcd_normals", f'{scan_id}.pth'), weights_only=False)
-            #pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
+            pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
+                                            "pcd_normals", f'{scan_id}.pth'), weights_only=False)
+            pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
@@ -72,23 +72,22 @@ class ScanNetBase(Dataset):
                 obj_pcds = []
                 for i in range(instance_labels.max() + 1):
                     ##### to be commented #####
-                    mask = instance_labels == i     # time consuming
-                    obj_pcds.append(pcds[mask])
+                    # mask = instance_labels == i     # time consuming
+                    # obj_pcds.append(pcds[mask])
                     ##### ------ ##### uncoment
-                    # for i in range(instance_labels.max() + 1):
-                    #     mask = (instance_labels == i)
-                    #     obj_xyzrgb = pcds[mask]                 # (Ni, 6)
+                    mask = (instance_labels == i)
+                    obj_xyzrgb = pcds[mask]                 # (Ni, 6)
 
-                    #     obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
+                    obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
 
-                    #     # Safety check (this is the key)
-                    #     if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
-                    #         raise ValueError(
-                    #             f"Normals/points mismatch for inst {i}: "
-                    #             f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
-                    #         )
+                    # Safety check (this is the key)
+                    if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+                        raise ValueError(
+                            f"Normals/points mismatch for inst {i}: "
+                            f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+                        )
 
-                    #     obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
+                    obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
                     
                 one_scan['obj_pcds'] = obj_pcds
 
@@ -481,10 +480,11 @@ class ScanNetBase(Dataset):
             obj_pcd = obj_pcd[pcd_idxs]
             # normalize
             obj_pcd[:, :3] = obj_pcd[:, :3] - obj_pcd[:, :3].mean(0)
-            max_dist = np.max(np.sqrt(np.sum(obj_pcd[:, :3]**2, 1)))
-            if max_dist < 1e-6: # take care of tiny point-clouds, i.e., padding
-                max_dist = 1
-            obj_pcd[:, :3] = obj_pcd[:, :3] / max_dist
+            ####### commented ######
+            # max_dist = np.max(np.sqrt(np.sum(obj_pcd[:, :3]**2, 1)))
+            # if max_dist < 1e-6: # take care of tiny point-clouds, i.e., padding
+            #     max_dist = 1
+            # obj_pcd[:, :3] = obj_pcd[:, :3] / max_dist
             obj_fts.append(obj_pcd)
 
         # convert to torch
