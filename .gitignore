@@ -172,3 +172,4 @@ hub/
 *.wandb
 msr3d/data/data.tar.gz
 msr3d/data/data/
+msr3d/MSR3D_BLIPT_PTv3_VIC_LORA_2/pytorch_model.bin
