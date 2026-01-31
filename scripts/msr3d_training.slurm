@@ -7,8 +7,8 @@
 #SBATCH --gres=gpu:3        # Use 3 of 4 A6000 GPUs
 #SBATCH --mem=256000        # 256GB RAM
 #SBATCH --time=3-12:00:00   # 5 days
-#SBATCH -o msr3d_ptv3_training.out
-#SBATCH -e msr3d_ptv3_training.err
+#SBATCH -o msr3d_ptv3_eval.out
+#SBATCH -e msr3d_ptv3_eval.err
 
 module purge
 

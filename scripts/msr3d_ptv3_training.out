@@ -9428,3 +9428,2427 @@ DEBUG: bs = 2
 {'target_metric': 0.265, 'sentence_sim': 0.7830978524684906, 'cider': 2.5149835942928185, 'bleu': 0.3152463897905786, 'meteor': 0.29410969204225185, 'rouge': 0.5683668439771887}{'target_metric': 0.265, 'sentence_sim': 0.7830978524684906, 'cider': 2.5149835942928185, 'bleu': 0.3152463897905786, 'meteor': 0.29410969204225185, 'rouge': 0.5683668439771887}
 
 [Epoch 6] finished eval, is_best: False
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embedsDEBUG: About to call build_embeds
+
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embedsDEBUG: About to call build_embeds
+
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+{'target_metric': 0.26, 'sentence_sim': 0.7817883455753326, 'cider': 2.4099399843017615, 'bleu': 0.3055370368513609, 'meteor': 0.29488548703587364, 'rouge': 0.5779785919460714}
+{'target_metric': 0.26, 'sentence_sim': 0.7817883455753326, 'cider': 2.4099399843017615, 'bleu': 0.3055370368513609, 'meteor': 0.29488548703587364, 'rouge': 0.5779785919460714}
+[Epoch 7] finished eval, is_best: False
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: build_embeds succeededDEBUG: bs = 2
+DEBUG: bs = 2
+
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: build_embeds succeededDEBUG: bs = 2
+DEBUG: bs = 2
+
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2DEBUG: build_embeds succeeded
+
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embedsDEBUG: About to call build_embeds
+
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embedsDEBUG: About to call build_embeds
+
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+{'target_metric': 0.265, 'sentence_sim': 0.7857092851400376, 'cider': 2.491619027951328, 'bleu': 0.30484009475824825, 'meteor': 0.2971637445585935, 'rouge': 0.5844905483329841}
+{'target_metric': 0.265, 'sentence_sim': 0.7857092851400376, 'cider': 2.491619027951328, 'bleu': 0.30484009475824825, 'meteor': 0.2971637445585935, 'rouge': 0.5844905483329841}
+[Epoch 8] finished eval, is_best: False
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embedsDEBUG: About to call build_embeds
+
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embedsDEBUG: About to call build_embeds
+
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+{'target_metric': 0.2725, 'sentence_sim': 0.7925277507305145, 'cider': 2.5022681669772107, 'bleu': 0.30719269720528986, 'meteor': 0.29883480927323397, 'rouge': 0.590305142936665}
+{'target_metric': 0.2725, 'sentence_sim': 0.7925277507305145, 'cider': 2.5022681669772107, 'bleu': 0.30719269720528986, 'meteor': 0.29883480927323397, 'rouge': 0.590305142936665}
+[Epoch 9] finished eval, is_best: False
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: build_embeds succeededDEBUG: bs = 2
+DEBUG: bs = 2
+
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2DEBUG: build_embeds succeeded
+
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embedsDEBUG: About to call build_embeds
+
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: About to call build_embeds
+DEBUG: About to call build_embeds
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+DEBUG: build_embeds succeeded
+DEBUG: bs = 2
+{'target_metric': 0.2975, 'sentence_sim': 0.7919979900121689, 'cider': 2.5788843164166817, 'bleu': 0.2974364219275569, 'meteor': 0.2974842242929006, 'rouge': 0.5890649918043277}{'target_metric': 0.2975, 'sentence_sim': 0.7919979900121689, 'cider': 2.5788843164166817, 'bleu': 0.2974364219275569, 'meteor': 0.2974842242929006, 'rouge': 0.5890649918043277}
+
+[Epoch 10] finished eval, is_best: True
+Load best ckpt from MSR3D_BLIPT_PTv3_VIC_LORA_2/best.pth for testing
+launched
+Your remaining balance (at the time of job end)
+User           Usage |        Account     Usage | Account Limit Available (CPU hrs)
+---------- --------- + -------------- --------- + ------------- ---------
+cpoullis           0 |            VCG     2,325 |             0       N/A
+ekalogerakis     1,315 |            VCG     2,325 |             0       N/A
+maverkiou          0 |            VCG     2,325 |             0       N/A
+mloizou            1 |            VCG     2,325 |             0       N/A
+pdemetriou *       582 |            VCG     2,325 |             0       N/A
+yadimoolam       427 |            VCG     2,325 |             0       N/A
+ygeorgiou          0 |            VCG     2,325 |             0       N/A
