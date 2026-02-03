@@ -369,19 +369,19 @@ class MSR3DBase(Dataset):
                 obj_locs[k, 3:] = pts.max(0).values - pts.min(0).values
                 obj_masks[k] = True
 
-            out = {
-                "scene_pcd": scene_pcd,
-                "instance_ids": instance_ids,
-                "obj_locs": obj_locs,
-                "obj_masks": obj_masks,
-            }
-            # add situation if you use it downstream
-            if situation is not None:
-                anchor_loc, anchor_orientation = situation
-                out["anchor_locs"] = torch.as_tensor(anchor_loc).float()
-                out["anchor_orientation"] = torch.as_tensor(anchor_orientation).float()
+                out = {
+                    "scene_pcd": scene_pcd,
+                    "instance_ids": instance_ids,
+                    "obj_locs": obj_locs,
+                    "obj_masks": obj_masks,
+                }
 
-            return out
+                if situation is not None:
+                    # keep same contract as old pipeline
+                    out["situation"] = situation
+
+                return out
+
         if "obj_pcds" in scan_data:
             obj_pcds = scan_data['obj_pcds'].copy()
             # Dict: { int: np.ndarray (N, 6) }
@@ -547,9 +547,17 @@ class MSQAScanNet(MSR3DBase):
 
         ### scene input ####
         output_dict = self._get_scene_encoder_input(scan_data, one_sample['insts'], situation = (anchor_loc, anchor_orientation))
-        obj_fts = output_dict['obj_fts']
-        obj_locs = output_dict['obj_locs']
+
+        # PTv3 scene mode
+        scene_pcd     = output_dict["scene_pcd"]        # (N,9) torch.float
+        instance_ids  = output_dict["instance_ids"]     # (N,)  torch.long
+        obj_locs      = output_dict["obj_locs"]         # (K,6) torch.float
+        obj_masks     = output_dict["obj_masks"]        # (K,)  torch.bool
         anchor_loc, anchor_orientation = output_dict["situation"]
+        obj_fts = scene_pcd
+        # obj_fts = output_dict['obj_fts']
+        # obj_locs = output_dict['obj_locs']
+        # anchor_loc, anchor_orientation = output_dict["situation"]
 
         ### process place holder ####
         img_list = []
@@ -605,6 +613,9 @@ class MSQAScanNet(MSR3DBase):
             'anchor_locs' : torch.tensor(anchor_loc).float(),
             'index': index,
             'type': qa_type,
+            'scene_pcd': scene_pcd,
+            'instance_ids': instance_ids,
+            'obj_masks': obj_masks,
             # 'obj_normals': normals
         })
 
