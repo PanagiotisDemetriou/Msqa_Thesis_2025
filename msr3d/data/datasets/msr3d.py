@@ -382,38 +382,38 @@ class MSR3DBase(Dataset):
                 out["anchor_orientation"] = torch.as_tensor(anchor_orientation).float()
 
             return out
-
-        obj_pcds = scan_data['obj_pcds'].copy()
-        # Dict: { int: np.ndarray (N, 6) }
-        if len(obj_pcds) <= self.max_obj_len:
-            # Dict to List
-            selected_obj_pcds = list(obj_pcds.values())
-        else:
-            # crop objects to max_obj_len
-            selected_obj_pcds = []
-
-            # select relevant objs first
-            for i in scan_insts:
-                if i not in obj_pcds:
-                    continue
-                selected_obj_pcds.append(obj_pcds[i])
-
-            num_selected_objs = len(selected_obj_pcds)
-            if num_selected_objs >= self.max_obj_len:
-                random.shuffle(selected_obj_pcds)
-                selected_obj_pcds = selected_obj_pcds[:self.max_obj_len]
+        if "obj_pcds" in scan_data:
+            obj_pcds = scan_data['obj_pcds'].copy()
+            # Dict: { int: np.ndarray (N, 6) }
+            if len(obj_pcds) <= self.max_obj_len:
+                # Dict to List
+                selected_obj_pcds = list(obj_pcds.values())
             else:
-                # select from remaining objs
-                remained_obj_idx = [i for i in obj_pcds.keys() if i not in scan_insts]
-                random.shuffle(remained_obj_idx)
-                for i in remained_obj_idx[: self.max_obj_len - num_selected_objs]:
+                # crop objects to max_obj_len
+                selected_obj_pcds = []
+
+                # select relevant objs first
+                for i in scan_insts:
+                    if i not in obj_pcds:
+                        continue
                     selected_obj_pcds.append(obj_pcds[i])
 
-            assert len(selected_obj_pcds) == self.max_obj_len
+                num_selected_objs = len(selected_obj_pcds)
+                if num_selected_objs >= self.max_obj_len:
+                    random.shuffle(selected_obj_pcds)
+                    selected_obj_pcds = selected_obj_pcds[:self.max_obj_len]
+                else:
+                    # select from remaining objs
+                    remained_obj_idx = [i for i in obj_pcds.keys() if i not in scan_insts]
+                    random.shuffle(remained_obj_idx)
+                    for i in remained_obj_idx[: self.max_obj_len - num_selected_objs]:
+                        selected_obj_pcds.append(obj_pcds[i])
 
-        output_dict = self.preprocess_pcd(selected_obj_pcds, return_anchor = False, rot_aug = self.use_rotate, situation = situation)
+                assert len(selected_obj_pcds) == self.max_obj_len
 
-        return output_dict
+            output_dict = self.preprocess_pcd(selected_obj_pcds, return_anchor = False, rot_aug = self.use_rotate, situation = situation)
+
+            return output_dict
 
     @staticmethod
     def transfer_leo_to_msr3d(data_dict):
