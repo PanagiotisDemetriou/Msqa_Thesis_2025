@@ -202,14 +202,17 @@
 
 import torch
 from torch import nn
+import torch.nn.functional as F
 import torch_scatter
 from collections import OrderedDict
+
+from modules.build import VISION_REGISTRY
+from modules.utils import get_mlp_head
+
 from pointcept.utils.config import Config as PCConfig
 from pointcept.models import build_model
 from pointcept.models.utils import batch2offset
 
-from modules.build import VISION_REGISTRY
-from modules.utils import get_mlp_head
 
 def move_pointcept_data_to_device(data_dict, device):
     if isinstance(data_dict, torch.Tensor):
@@ -220,20 +223,21 @@ def move_pointcept_data_to_device(data_dict, device):
         return type(data_dict)(move_pointcept_data_to_device(v, device) for v in data_dict)
     return data_dict
 
+
 def load_pointcept_checkpoint(model, weight_path, strict=False):
     checkpoint = torch.load(weight_path, map_location="cpu", weights_only=False)
     sd = checkpoint["state_dict"] if isinstance(checkpoint, dict) and "state_dict" in checkpoint else checkpoint
 
     model_keys = model.state_dict().keys()
     model_has_module = any(k.startswith("module.") for k in model_keys)
-    ckpt_has_module = any(k.startswith("module.") for k in sd.keys())
+    ckpt_has_module = any(k.startswith("module.") for k, _ in sd.items()) if hasattr(sd, "items") else False
 
     weight = OrderedDict()
     for k, v in sd.items():
         kk = k
         if ckpt_has_module and not model_has_module and kk.startswith("module."):
             kk = kk[7:]
-        elif (not ckpt_has_module) and model_has_module:
+        elif (not ckpt_has_module) and model_has_module and not kk.startswith("module."):
             kk = "module." + kk
         weight[kk] = v
 
@@ -241,28 +245,97 @@ def load_pointcept_checkpoint(model, weight_path, strict=False):
     print(f"[PTv3 Checkpoint] Missing: {len(missing)}  Unexpected: {len(unexpected)}")
     return model
 
-def _scatter_reduce(point_feats, index, dim_size, reduce="mean"):
+
+def _normalize_rgb(rgb, mode: str):
+    """
+    rgb: (N,3) float/uint8/whatever
+    mode:
+      - "auto": heuristic
+      - "0_255": divide by 255
+      - "0_1": clamp to [0,1]
+      - "neg1_1": map (-1..1)->(0..1)
+    """
+    if mode == "0_255":
+        rgb = rgb.float() / 255.0
+        return rgb.clamp(0.0, 1.0)
+    if mode == "0_1":
+        return rgb.float().clamp(0.0, 1.0)
+    if mode == "neg1_1":
+        rgb = (rgb.float() + 1.0) * 0.5
+        return rgb.clamp(0.0, 1.0)
+
+    # auto (your previous logic, but in one place)
+    rgb = rgb.float()
+    rgb_min = float(rgb.min())
+    rgb_max = float(rgb.max())
+    if rgb_min < 0.0:
+        rgb = (rgb + 1.0) * 0.5
+    elif rgb_max > 1.5:
+        rgb = rgb / 255.0
+    return rgb.clamp(0.0, 1.0)
+
+
+def transform_obj_pcds_to_pointcept_all(obj_pcds, grid_size=0.02, rgb_mode="auto"):
+    """
+    Stable (old-style) pipeline: ALWAYS treats each (B,O) as its own sample,
+    including padded objects. You should mask outputs/losses downstream.
+
+    obj_pcds: (B,O,P,C>=9) [xyz,rgb,normals,...]
+    returns dict for pointcept backbone.
+    """
+    if obj_pcds.dim() != 4:
+        raise ValueError(f"Expected obj_pcds (B,O,P,C). Got {tuple(obj_pcds.shape)}")
+    B, O, P, C = obj_pcds.shape
+    if C < 9:
+        raise ValueError(f"Expected >=9 channels [xyz,rgb,normals]. Got {C}")
+
+    total = B * O * P
+    coord = obj_pcds[..., :3].reshape(total, 3)
+
+    rgb = obj_pcds[..., 3:6].reshape(total, 3)
+    rgb = _normalize_rgb(rgb, rgb_mode)
+
+    normals = obj_pcds[..., 6:9].reshape(total, 3).float()
+    normals = normals / normals.norm(dim=1, keepdim=True).clamp_min(1e-6)
+
+    feat = torch.cat([rgb, normals], dim=1)  # (N,6)
+
+    # each object is its own "sample"
+    obj_id = torch.arange(B * O, device=obj_pcds.device).repeat_interleave(P).long()
+    batch = obj_id
+    offset = batch2offset(batch)
+
+    return {
+        "coord": coord,
+        "feat": feat,
+        "batch": batch,
+        "offset": offset,
+        "grid_size": float(grid_size),
+        "obj_id": obj_id,
+        "condition": ["ScanNet"],
+    }
+
+
+def scatter_pool(point_feats, obj_id, num_objs, reduce: str):
     return torch_scatter.scatter(
         src=point_feats,
-        index=index.long(),
+        index=obj_id.long(),
         dim=0,
-        dim_size=int(dim_size),
+        dim_size=int(num_objs),
         reduce=reduce,
     )
+
 
 @VISION_REGISTRY.register()
 class PTv3PcdObjEncoder(nn.Module):
     """
-    Scene-level PTv3 encoder (Pointcept) that pools per-point features to per-object embeddings.
-
-    Inputs:
-      scene_pcd: list[Tensor(Ni,9)] or Tensor(B,Ni,9) padded (discouraged) or Tensor(N,9) single
-      instance_ids: list[Tensor(Ni,)] or Tensor matching scene_pcd points
-        - per point instance index in [0..Ki-1], with -1 allowed (ignored)
-    Returns:
-      obj_embeds: (B, Omax, F)
-      obj_masks:  (B, Omax) True=valid
-      obj_sem_cls: optional (B,Omax,num_classes)
+    Drop-in encoder with:
+      - stable batching (old behavior) + safe masking on outputs
+      - optional mean/max/mean+max pooling
+      - projection to embedding_size (always consistent)
+      - LayerNorm + dropout
+      - optional semantic head
+      - deterministic RGB normalization (rgb_mode)
     """
     def __init__(
         self,
@@ -271,34 +344,39 @@ class PTv3PcdObjEncoder(nn.Module):
         ptv3_cfg_path: str,
         weight_path: str = None,
         grid_size: float = 0.02,
-        feat_reduce: str = "mean",
+        feat_reduce: str = "meanmax",          # "mean" | "max" | "meanmax"
+        out_dim: int = None,               # kept for compatibility (unused)
         sem_num_classes: int = None,
         dropout: float = 0.1,
         freeze: bool = False,
-        rgb_in_cols_3_6: bool = True,
-        normals_in_cols_6_9: bool = True,
+        rgb_mode: str = "auto",            # "auto" | "0_255" | "0_1" | "neg1_1"
+        l2_normalize: bool = True,        # useful for retrieval/contrastive
     ):
         super().__init__()
         self.cfg = cfg
         self.grid_size = float(grid_size)
         self.feat_reduce = feat_reduce
-        self.freeze = freeze
+        self.freeze = bool(freeze)
         self.embedding_size = int(embedding_size)
-        self.rgb_in_cols_3_6 = rgb_in_cols_3_6
-        self.normals_in_cols_6_9 = normals_in_cols_6_9
+        self.rgb_mode = rgb_mode
+        self.l2_normalize = bool(l2_normalize)
 
+        # Build Pointcept model from config file
         self.ptv3_cfg = PCConfig.fromfile(ptv3_cfg_path)
         model = build_model(self.ptv3_cfg.model)
         if weight_path is not None:
             model = load_pointcept_checkpoint(model, weight_path, strict=False)
         self.model = model
+
         self.dropout = nn.Dropout(dropout)
 
-        self.sem_num_classes = sem_num_classes
-        if sem_num_classes is not None:
-            self.sem_head = get_mlp_head(self.embedding_size, 384, int(sem_num_classes), dropout=0.3)
-        else:
-            self.sem_head = None
+        # Lazy init because we need to see backbone Fdim once.
+        self.proj = None
+        self.norm = None
+
+        # Optional semantic head
+        self.sem_num_classes = int(sem_num_classes) if sem_num_classes is not None else None
+        self.sem_head = None  # lazy (needs embedding_size known; we have it)
 
         if self.freeze:
             for p in self.parameters():
@@ -307,96 +385,42 @@ class PTv3PcdObjEncoder(nn.Module):
     def _get_core(self):
         return self.model.module if hasattr(self.model, "module") else self.model
 
-    def _to_list(self, x):
-        # Accept list[Tensor] or Tensor for single/batched
-        if isinstance(x, list):
-            return x
-        if torch.is_tensor(x):
-            if x.dim() == 2:
-                return [x]
-            if x.dim() == 3:
-                # (B, N, C) => list of B tensors; assumes already unpadded (rare)
-                return [x[b] for b in range(x.shape[0])]
-        raise TypeError("Expected list[Tensor] or Tensor with dim 2/3")
+    def _maybe_init_heads(self, in_dim: int, device):
+        # pooling may change in_dim (meanmax doubles it)
+        if self.proj is None:
+            self.proj = nn.Linear(in_dim, self.embedding_size).to(device)
+        if self.norm is None:
+            self.norm = nn.LayerNorm(self.embedding_size).to(device)
+        if self.sem_num_classes is not None and self.sem_head is None:
+            # input is embedding_size (post-proj)
+            self.sem_head = get_mlp_head(self.embedding_size, 384, self.sem_num_classes, dropout=0.3).to(device)
 
-    def _transform_scene_to_pointcept(self, scene_list, inst_list):
+    def forward(self, obj_pcds, obj_locs=None, obj_masks=None, obj_sem_masks=None, **kwargs):
         """
-        Build Pointcept dict from a batch of scenes.
+        obj_pcds: (B,O,P,>=9) [xyz,rgb,normals,...]
+        obj_masks: (B,O) True=valid, False=pad
+
+        Returns:
+          obj_embeds: (B,O,embedding_size)
+          obj_sem_cls: (B,O,num_classes) or None
         """
-        assert len(scene_list) == len(inst_list)
-        B = len(scene_list)
+        if obj_pcds.dim() != 4:
+            raise ValueError(f"Expected obj_pcds (B,O,P,C). Got {tuple(obj_pcds.shape)}")
 
-        coords = []
-        feats = []
-        batch = []
-        inst_all = []
-        num_points_per_scene = []
+        B, O, P, C = obj_pcds.shape
+        device = obj_pcds.device
 
-        for b in range(B):
-            pcd = scene_list[b]
-            inst = inst_list[b]
+        if obj_masks is None:
+            obj_masks = torch.ones((B, O), device=device, dtype=torch.bool)
+        else:
+            obj_masks = obj_masks.to(device=device, dtype=torch.bool)
 
-            if pcd.ndim != 2 or pcd.shape[1] < 3:
-                raise ValueError(f"scene_pcd[{b}] must be (N,C) with C>=3, got {tuple(pcd.shape)}")
-            if inst.ndim != 1 or inst.shape[0] != pcd.shape[0]:
-                raise ValueError(f"instance_ids[{b}] must be (N,), got {tuple(inst.shape)} vs N={pcd.shape[0]}")
-
-            xyz = pcd[:, :3]
-            feat_parts = []
-
-            if self.rgb_in_cols_3_6 and pcd.shape[1] >= 6:
-                rgb = pcd[:, 3:6]
-                # normalize to [0,1] if needed (handles [-1,1] or [0,255])
-                rgb_min = float(rgb.min())
-                rgb_max = float(rgb.max())
-                if rgb_min < 0.0:          # [-1,1]
-                    rgb = (rgb + 1.0) * 0.5
-                elif rgb_max > 1.5:        # [0,255]
-                    rgb = rgb / 255.0
-                rgb = rgb.clamp(0.0, 1.0)
-                feat_parts.append(rgb)
-
-            if self.normals_in_cols_6_9 and pcd.shape[1] >= 9:
-                nrm = pcd[:, 6:9]
-                nrm = nrm / nrm.norm(dim=1, keepdim=True).clamp_min(1e-6)
-                feat_parts.append(nrm)
-
-            feat = torch.cat(feat_parts, dim=1) if len(feat_parts) else torch.zeros((xyz.shape[0], 1), device=pcd.device)
-
-            coords.append(xyz)
-            feats.append(feat)
-            batch.append(torch.full((xyz.shape[0],), b, device=pcd.device, dtype=torch.long))
-            inst_all.append(inst.long())
-            num_points_per_scene.append(int(xyz.shape[0]))
-
-        coord = torch.cat(coords, dim=0)
-        feat = torch.cat(feats, dim=0)
-        batch = torch.cat(batch, dim=0)
-        inst_all = torch.cat(inst_all, dim=0)
-
-        offset = batch2offset(batch)
-
-        point_data = {
-            "coord": coord,
-            "feat": feat,
-            "batch": batch,
-            "offset": offset,
-            "grid_size": float(self.grid_size),
-            "condition": ["ScanNet"],
-        }
-        return point_data, inst_all, num_points_per_scene
-
-    def forward(self, scene_pcd, instance_ids, **kwargs):
-        device = scene_pcd[0].device if isinstance(scene_pcd, list) else scene_pcd.device
-
-        scene_list = self._to_list(scene_pcd)
-        inst_list = self._to_list(instance_ids)
-
-        # Ensure tensors on same device
-        scene_list = [x.to(device) for x in scene_list]
-        inst_list = [x.to(device) for x in inst_list]
-
-        point_data, inst_all, npts_per_scene = self._transform_scene_to_pointcept(scene_list, inst_list)
+        # Stable old-style pointcept batch (includes padded objects)
+        point_data = transform_obj_pcds_to_pointcept_all(
+            obj_pcds=obj_pcds,
+            grid_size=self.grid_size,
+            rgb_mode=self.rgb_mode,
+        )
         point_data = move_pointcept_data_to_device(point_data, device)
 
         core = self._get_core().to(device)
@@ -407,60 +431,39 @@ class PTv3PcdObjEncoder(nn.Module):
         else:
             point_out = core.backbone(point_data)
 
-        point_feats = point_out.feat  # (N_total, F)
+        # Pool per-point feats -> per-object feats
+        num_objs = B * O
+        if self.feat_reduce == "mean":
+            obj_feats = scatter_pool(point_out.feat, point_data["obj_id"], num_objs, "mean")
+        elif self.feat_reduce == "max":
+            obj_feats = scatter_pool(point_out.feat, point_data["obj_id"], num_objs, "max")
+        elif self.feat_reduce == "meanmax":
+            m = scatter_pool(point_out.feat, point_data["obj_id"], num_objs, "mean")
+            x = scatter_pool(point_out.feat, point_data["obj_id"], num_objs, "max")
+            obj_feats = torch.cat([m, x], dim=-1)
+        else:
+            raise ValueError('feat_reduce must be one of {"mean","max","meanmax"}')
 
-        # ---- pool to objects ----
-        # We need a global object id per point across the batch.
-        # For each scene b: instance ids in [0..Kb-1]. We offset them by cumulative K.
-        # Ignore inst == -1 points.
-        batch = point_data["batch"]  # (N_total,)
-        valid = inst_all >= 0
-        if not valid.any():
-            # no valid instances
-            B = len(scene_list)
-            obj_embeds = point_feats.new_zeros((B, 0, point_feats.shape[1]))
-            obj_masks = torch.zeros((B, 0), device=device, dtype=torch.bool)
-            obj_sem_cls = self.sem_head(obj_embeds) if self.sem_head is not None else None
-            return obj_embeds, obj_sem_cls, obj_masks
+        # Init projection/norm once we know in_dim
+        self._maybe_init_heads(in_dim=obj_feats.shape[-1], device=device)
 
-        inst_v = inst_all[valid]
-        batch_v = batch[valid]
-        feats_v = point_feats[valid]
+        # Project -> embedding_size, norm, dropout
+        obj_feats = self.proj(obj_feats)
+        obj_feats = self.norm(obj_feats)
+        obj_feats = self.dropout(obj_feats)
 
-        # compute K per scene (max inst + 1), then offsets
-        B = len(scene_list)
-        K_per_scene = []
-        for b in range(B):
-            inst_b = inst_list[b]
-            vb = inst_b[inst_b >= 0]
-            Kb = int(vb.max().item()) + 1 if vb.numel() > 0 else 0
-            K_per_scene.append(Kb)
+        obj_embeds = obj_feats.view(B, O, self.embedding_size)
 
-        obj_base = torch.zeros((B,), device=device, dtype=torch.long)
-        running = 0
-        for b in range(B):
-            obj_base[b] = running
-            running += K_per_scene[b]
-        total_objs = int(running)
+        # Mask padded objects OUT of the representation (critical for stability)
+        obj_embeds = obj_embeds * obj_masks.unsqueeze(-1).to(obj_embeds.dtype)
 
-        global_obj_id = inst_v + obj_base[batch_v]  # (N_valid,)
+        if self.l2_normalize:
+            obj_embeds = F.normalize(obj_embeds, dim=-1)
 
-        obj_feats = _scatter_reduce(feats_v, global_obj_id, dim_size=total_objs, reduce=self.feat_reduce)
-        obj_feats = self.dropout(obj_feats)  # (total_objs, F)
+        obj_sem_cls = None
+        if self.sem_head is not None:
+            obj_sem_cls = self.sem_head(obj_embeds)
+            # optional: also mask logits if your loss doesn’t already mask
+            # obj_sem_cls = obj_sem_cls * obj_masks.unsqueeze(-1).to(obj_sem_cls.dtype)
 
-        # ---- pad back to (B, Omax, F) + mask ----
-        Omax = max(K_per_scene) if len(K_per_scene) else 0
-        Fdim = obj_feats.shape[1]
-        obj_embeds = obj_feats.new_zeros((B, Omax, Fdim))
-        obj_masks = torch.zeros((B, Omax), device=device, dtype=torch.bool)
-
-        start = 0
-        for b in range(B):
-            Kb = K_per_scene[b]
-            if Kb > 0:
-                obj_embeds[b, :Kb] = obj_feats[start:start+Kb]
-                obj_masks[b, :Kb] = True
-            start += Kb
-
-        obj_sem_cls = self.sem_head(obj_embeds) if self.sem_head is not None else None
-        return obj_embeds, obj_sem_cls, obj_masks
+        return obj_embeds, obj_sem_cls

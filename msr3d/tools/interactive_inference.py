@@ -22,7 +22,7 @@ class InteractiveInferenceTool:
    def __init__(self, scene_id, situation, question):
       # path of pretrained model and config for inference
       #experiment_path = '/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/MSR3D_BLIPT_FTPNPP_VIC_LORA_3DS'
-      experiment_path = 'MSR3D_BLIPT_PTv3_VIC_LORA'
+      experiment_path = 'MSR3D_BLIPT_PTv3_VIC_LORA_2'
       self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
       self.cfg = self.load_config(experiment_path)
       self.model = self.load_model(experiment_path)  
@@ -231,7 +231,7 @@ class InteractiveInferenceTool:
 
    def load_config(self, experiment_path):
       #return OmegaConf.load(os.path.join(experiment_path, 'config.yaml'))
-      cfg_path = "MSR3D_BLIPT_PTv3_VIC_LORA/config.yaml"
+      cfg_path = "MSR3D_BLIPT_PTv3_VIC_LORA_2/config.yaml"
       cfg = OmegaConf.load(cfg_path)
       return cfg
 
