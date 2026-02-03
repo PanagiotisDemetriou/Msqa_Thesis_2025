@@ -47,8 +47,8 @@
   \ 512\n        mcan_flat_glimpses: 1\n        mcan_flat_out_size: 1024\n      vision:\n\
   \        name: PTv3PcdObjEncoder\n        args:\n          embedding_size: 64\n\
   \          freeze: true\n          grid_size: 0.02\n          feat_reduce: max\n\
-  \          sem_num_classes: 607\n          ptv3_cfg_path: /home/panagiotis/msqa/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py\n\
-  \          weight_path: /home/panagiotis/msqa/Msqa_Thesis_2025/msr3d/MSR3D_BLIPT_PTv3_VIC_LORA_2/pytorch_model.bin\n\
+  \          sem_num_classes: 607\n          ptv3_cfg_path: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py\n\
+  \          weight_path: /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/PTv3/model_best.pth\n\
   \      spatial_encoder:\n        dim_loc: 6\n        num_attention_heads: 8\n  \
   \      dim_feedforward: 2048\n        dropout: 0.1\n        activation: gelu\n \
   \       spatial_multihead: true\n        spatial_dim: 5\n        spatial_dist_norm:\
