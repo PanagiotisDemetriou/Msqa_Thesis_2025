@@ -39,47 +39,97 @@ class ScanNetPretrain(ScanNetBase):
                                            load_inst_info = True)
         print(f"Finish loading ScanNet {split}-set data")
 
+    # def __getitem__(self, index):
+    #     item = self.lang_data[index]
+    #     dataset = item[0]
+    #     scan_id = item[1]
+    #     sentence = item[2]
+
+    #     # scene_pcds = self.scan_data[scan_id]['scene_pcds']
+
+    #     # load pcds and labels
+    #     if self.pc_type == 'gt':
+    #         obj_pcds = self.scan_data[scan_id]['obj_pcds'] # N, 6
+    #         obj_labels = self.scan_data[scan_id]['inst_labels'] # N
+    #     elif self.pc_type == 'pred':
+    #         obj_pcds = self.scan_data[scan_id]['obj_pcds_pred']
+    #         obj_labels = self.scan_data[scan_id]['inst_labels_pred']
+
+    #     # filter out background
+    #     selected_obj_idxs = [i for i, obj_label in enumerate(obj_labels) 
+    #                             if (self.int2cat[obj_label] not in ['wall', 'floor', 'ceiling'])]
+    #     obj_pcds = [obj_pcds[id] for id in selected_obj_idxs]
+    #     obj_labels = [obj_labels[id] for id in selected_obj_idxs]
+
+    #     # crop objects
+    #     if self.max_obj_len < len(obj_pcds):
+    #         remained_obj_idx = [i for i in range(len(obj_pcds))]
+    #         random.shuffle(remained_obj_idx)
+    #         selected_obj_idxs = remained_obj_idx[:self.max_obj_len]
+    #         # reorganize ids
+    #         obj_pcds = [obj_pcds[i] for i in selected_obj_idxs]
+    #         obj_labels = [obj_labels[i] for i in selected_obj_idxs]
+    #         assert len(obj_pcds) == self.max_obj_len
+
+    #     obj_fts, obj_locs, obj_boxes, obj_labels = self._obj_processing_post(obj_pcds, obj_labels)
+
+    #     data_dict = {'source': dataset,
+    #                  'scan_id': scan_id,
+    #                  'sentence': sentence,
+    #                  # 'scene_pcds': scene_pcds,
+    #                  'obj_fts': obj_fts,
+    #                  'obj_locs': obj_locs,
+    #                  'obj_labels': obj_labels} 
+    #     return data_dict
     def __getitem__(self, index):
-        item = self.lang_data[index]
-        dataset = item[0]
-        scan_id = item[1]
-        sentence = item[2]
+        dataset, scan_id, sentence = self.lang_data[index]
 
-        # scene_pcds = self.scan_data[scan_id]['scene_pcds']
+        scene_pcd = self.scan_data[scan_id]["scene_pcd"]          # (N,9) numpy
+        instance_ids = self.scan_data[scan_id]["instance_ids"]    # (N,) numpy
 
-        # load pcds and labels
-        if self.pc_type == 'gt':
-            obj_pcds = self.scan_data[scan_id]['obj_pcds'] # N, 6
-            obj_labels = self.scan_data[scan_id]['inst_labels'] # N
-        elif self.pc_type == 'pred':
-            obj_pcds = self.scan_data[scan_id]['obj_pcds_pred']
-            obj_labels = self.scan_data[scan_id]['inst_labels_pred']
+        # optional: filter background instances using semantic inst_labels (per-instance)
+        # This requires load_inst_info=True and inst_labels is per-instance semantic label id.
+        if "inst_labels" in self.scan_data[scan_id]:
+            inst_sem = self.scan_data[scan_id]["inst_labels"]     # (K,) semantic ids
+            bad = set(["wall", "floor", "ceiling"])
+            keep_inst = []
+            for k, lab in enumerate(inst_sem):
+                if self.int2cat[lab] not in bad:
+                    keep_inst.append(k)
+            keep_inst = set(keep_inst)
 
-        # filter out background
-        selected_obj_idxs = [i for i, obj_label in enumerate(obj_labels) 
-                                if (self.int2cat[obj_label] not in ['wall', 'floor', 'ceiling'])]
-        obj_pcds = [obj_pcds[id] for id in selected_obj_idxs]
-        obj_labels = [obj_labels[id] for id in selected_obj_idxs]
+            keep_mask = np.isin(instance_ids, list(keep_inst))
+            scene_pcd = scene_pcd[keep_mask]
+            instance_ids = instance_ids[keep_mask]
 
-        # crop objects
-        if self.max_obj_len < len(obj_pcds):
-            remained_obj_idx = [i for i in range(len(obj_pcds))]
-            random.shuffle(remained_obj_idx)
-            selected_obj_idxs = remained_obj_idx[:self.max_obj_len]
-            # reorganize ids
-            obj_pcds = [obj_pcds[i] for i in selected_obj_idxs]
-            obj_labels = [obj_labels[i] for i in selected_obj_idxs]
-            assert len(obj_pcds) == self.max_obj_len
+            # reindex instance ids to 0..K'-1 (VERY IMPORTANT for pooling/padding)
+            old = np.unique(instance_ids)
+            remap = {int(v): i for i, v in enumerate(old.tolist())}
+            instance_ids = np.array([remap[int(v)] for v in instance_ids], dtype=np.int64)
 
-        obj_fts, obj_locs, obj_boxes, obj_labels = self._obj_processing_post(obj_pcds, obj_labels)
+        # compute obj_locs + obj_masks from instance_ids (no splitting)
+        xyz = scene_pcd[:, :3]
+        K = int(instance_ids.max()) + 1 if instance_ids.size > 0 else 0
+        obj_locs = np.zeros((K, 6), dtype=np.float32)
+        obj_masks = np.zeros((K,), dtype=np.bool_)
+        for k in range(K):
+            m = (instance_ids == k)
+            if not m.any():
+                continue
+            pts = xyz[m]
+            obj_locs[k, :3] = pts.mean(0)
+            obj_locs[k, 3:] = pts.max(0) - pts.min(0)
+            obj_masks[k] = True
 
-        data_dict = {'source': dataset,
-                     'scan_id': scan_id,
-                     'sentence': sentence,
-                     # 'scene_pcds': scene_pcds,
-                     'obj_fts': obj_fts,
-                     'obj_locs': obj_locs,
-                     'obj_labels': obj_labels} 
+        data_dict = {
+            "source": dataset,
+            "scan_id": scan_id,
+            "sentence": sentence,
+            "scene_pcd": torch.from_numpy(scene_pcd).float(),              # (N,9)
+            "instance_ids": torch.from_numpy(instance_ids).long(),         # (N,)
+            "obj_locs": torch.from_numpy(obj_locs).float(),                # (K,6)
+            "obj_masks": torch.from_numpy(obj_masks).bool(),               # (K,)
+        }
         return data_dict
 
 @DATASET_REGISTRY.register()

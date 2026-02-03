@@ -287,10 +287,12 @@ class OSE3DSituation(BaseModel):
     #     obj_pcd_feat = self.obj_linear_projection(self.obj_encoder(data_dict['obj_fts'])[0])
     #     return obj_pcd_feat
     def forward_gtpcd(self, data_dict):
-        obj_pcd_feat, _ = self.obj_encoder(
-            data_dict['obj_fts'],
-            obj_masks=data_dict.get('obj_masks', None)
+        obj_pcd_feat, obj_sem_cls, obj_masks = self.obj_encoder(
+            data_dict["scene_pcd"],
+            instance_ids=data_dict["instance_ids"],
         )
+        # IMPORTANT: propagate the mask from encoder if you want it
+        data_dict["obj_masks"] = obj_masks  # True=valid in your encoder
         obj_pcd_feat = self.obj_linear_projection(obj_pcd_feat)
         return obj_pcd_feat
 
@@ -320,6 +322,7 @@ class OSE3DSituation(BaseModel):
                 data_dict['single_obj_token'] = self.forward_gtpcd(data_dict)
                 data_dict['obj_fts'] = obj_fts
                 return data_dict
+
             object_feat = self.forward_gtpcd(data_dict)
             object_mask = ~data_dict['obj_masks']
 

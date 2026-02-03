@@ -45,7 +45,8 @@ class ScanNetBase(Dataset):
 
     def __getitem__(self, index):
         raise NotImplementedError
-    ####### Function for normals PCA ########
+    
+    ####### Function for PTv3 loading ########
     def _load_one_scan(self, scan_id, pc_type = 'gt', load_inst_info = False, 
                       load_multiview_info = False, is_load_mv_feat = True, load_pc_info = True, load_segment_info=False):
         one_scan = {}
@@ -66,40 +67,54 @@ class ScanNetBase(Dataset):
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
-            
+
+            scene_normals = np.zeros((pcds.shape[0], 3), dtype=np.float32)
+            for inst_id in range(int(instance_labels.max()) + 1):
+                m = (instance_labels == inst_id)
+                nrm = np.asarray(pcd_normals[inst_id], dtype=np.float32)
+                if nrm.shape[0] != int(m.sum()):
+                    raise ValueError(f"{scan_id}: normals/points mismatch inst {inst_id}: {nrm.shape[0]} vs {int(m.sum())}")
+                scene_normals[m] = nrm
+
+            pc9 = np.concatenate([pcds, scene_normals], axis=1).astype(np.float32)  # (N,9)
+
+            one_scan["scene_pcd"] = pc9
+
+            one_scan['instance_ids'] = instance_labels.astype(np.int32)
             # convert to gt object
-            if load_inst_info:
-                obj_pcds = []
-                for i in range(instance_labels.max() + 1):
-                    ##### to be commented #####
-                    # mask = instance_labels == i     # time consuming
-                    # obj_pcds.append(pcds[mask])
-                    ##### ------ ##### uncoment
-                    mask = (instance_labels == i)
-                    obj_xyzrgb = pcds[mask]                 # (Ni, 6)
+            # Remove objects, keep points for PTv3
+            # if load_inst_info:
+            #     obj_pcds = []
+            #     for i in range(instance_labels.max() + 1):
+            #         ##### to be commented #####
+            #         # mask = instance_labels == i     # time consuming
+            #         # obj_pcds.append(pcds[mask])
+            #         ##### ------ ##### uncoment
+            #         mask = (instance_labels == i)
+            #         obj_xyzrgb = pcds[mask]                 # (Ni, 6)
 
-                    obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
+            #         obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
 
-                    # Safety check (this is the key)
-                    if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
-                        raise ValueError(
-                            f"Normals/points mismatch for inst {i}: "
-                            f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
-                        )
+            #         # Safety check (this is the key)
+            #         if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+            #             raise ValueError(
+            #                 f"Normals/points mismatch for inst {i}: "
+            #                 f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+            #             )
 
-                    obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
+            #         obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
                     
-                one_scan['obj_pcds'] = obj_pcds
+            #     one_scan['obj_pcds'] = obj_pcds
 
-                # calculate box for matching
-                obj_center = []
-                obj_box_size = []
-                for obj_pcd in obj_pcds:
-                    _c, _b = convert_pc_to_box(obj_pcd)
-                    obj_center.append(_c)
-                    obj_box_size.append(_b)
-                one_scan['obj_center'] = obj_center
-                one_scan['obj_box_size'] = obj_box_size
+            #     # calculate box for matching
+            #     obj_center = []
+            #     obj_box_size = []
+            #     for obj_pcd in obj_pcds:
+            #         _c, _b = convert_pc_to_box(obj_pcd)
+            #         obj_center.append(_c)
+            #         obj_box_size.append(_b)
+            #     one_scan['obj_center'] = obj_center
+            #     one_scan['obj_box_size'] = obj_box_size
             if pc_type == 'pred':
                 obj_mask_path = os.path.join(self.base_dir, "mask", str(scan_id) + ".mask" + ".npz")
                 obj_label_path = os.path.join(self.base_dir, "mask",
@@ -158,6 +173,120 @@ class ScanNetBase(Dataset):
         ######### testing ########
         
         return (scan_id, one_scan)
+    ####### Function for normals PCA ########
+    # def _load_one_scan(self, scan_id, pc_type = 'gt', load_inst_info = False, 
+    #                   load_multiview_info = False, is_load_mv_feat = True, load_pc_info = True, load_segment_info=False):
+    #     one_scan = {}
+    #     if load_inst_info:
+    #         inst_labels, inst_locs, inst_colors = self._load_inst_info(scan_id)
+    #         one_scan['inst_labels'] = inst_labels # (n_obj, )
+    #         one_scan['inst_locs'] = inst_locs # (n_obj, 6) center xyz, whl
+    #         one_scan['inst_colors'] = inst_colors # (n_obj, 3x4) cluster * (weight, mean rgb)
+
+    #     if load_pc_info:
+    #         # load pcd data
+    #         pcd_data = torch.load(os.path.join(self.base_dir, "scan_data",
+    #                                         "pcd_with_global_alignment", f'{scan_id}.pth'), weights_only=False)
+    #         ##### ------ ##### uncoment
+    #         pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
+    #                                         "pcd_normals", f'{scan_id}.pth'), weights_only=False)
+    #         pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
+    #         points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
+    #         colors = colors / 127.5 - 1
+    #         pcds = np.concatenate([points, colors], 1)
+            
+    #         # convert to gt object
+    #         # Remove objects, keep points for PTv3
+    #         if load_inst_info:
+    #             obj_pcds = []
+    #             for i in range(instance_labels.max() + 1):
+    #                 ##### to be commented #####
+    #                 # mask = instance_labels == i     # time consuming
+    #                 # obj_pcds.append(pcds[mask])
+    #                 ##### ------ ##### uncoment
+    #                 mask = (instance_labels == i)
+    #                 obj_xyzrgb = pcds[mask]                 # (Ni, 6)
+
+    #                 obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
+
+    #                 # Safety check (this is the key)
+    #                 if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+    #                     raise ValueError(
+    #                         f"Normals/points mismatch for inst {i}: "
+    #                         f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+    #                     )
+
+    #                 obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
+                    
+    #             one_scan['obj_pcds'] = obj_pcds
+
+    #             # calculate box for matching
+    #             obj_center = []
+    #             obj_box_size = []
+    #             for obj_pcd in obj_pcds:
+    #                 _c, _b = convert_pc_to_box(obj_pcd)
+    #                 obj_center.append(_c)
+    #                 obj_box_size.append(_b)
+    #             one_scan['obj_center'] = obj_center
+    #             one_scan['obj_box_size'] = obj_box_size
+    #         if pc_type == 'pred':
+    #             obj_mask_path = os.path.join(self.base_dir, "mask", str(scan_id) + ".mask" + ".npz")
+    #             obj_label_path = os.path.join(self.base_dir, "mask",
+    #                                         str(scan_id) + ".label" + ".npy")
+    #             obj_pcds = []
+    #             obj_mask = np.array(sparse.load_npz(obj_mask_path).todense())[:50, :]
+    #             obj_labels = np.load(obj_label_path)[:50]
+    #             obj_l = []
+    #             for i in range(obj_mask.shape[0]):
+    #                 mask = obj_mask[i]
+    #                 if pcds[mask == 1, :].shape[0] > 0:
+    #                     obj_pcds.append(pcds[mask == 1, :])
+    #                     obj_l.append(obj_labels[i])
+    #             one_scan['obj_pcds_pred'] = obj_pcds
+    #             one_scan['inst_labels_pred'] = obj_l
+    #             # calculate box for pred
+    #             obj_center_pred = []
+    #             obj_box_size_pred = []
+    #             for obj_pcd in obj_pcds:
+    #                 _c, _b = convert_pc_to_box(obj_pcd)
+    #                 obj_center_pred.append(_c)
+    #                 obj_box_size_pred.append(_b)
+    #             one_scan['obj_center_pred'] = obj_center_pred
+    #             one_scan['obj_box_size_pred'] = obj_box_size_pred
+
+    #             #######
+    #             #print("Pred Obj Pcds:", obj_pcds)
+    #             #######
+    #             ##################
+    #             # obj_pcds = []
+    #             # obj_mask = np.load(obj_mask_path)
+    #             # obj_labels = np.load(obj_label_path)
+    #             # obj_labels = [self.label_converter.nyu40id_to_id[int(l)] for l in obj_labels]
+    #             # for i in range(obj_mask.shape[0]):
+    #             #     mask = obj_mask[i]
+    #             #     obj_pcds.append(pcds[mask == 1, :])
+    #             # one_scan['obj_pcds_pred'] = obj_pcds
+    #             # one_scan['inst_labels_pred'] = obj_labels
+    #             # # calculate box for pred
+    #             # obj_center_pred = []
+    #             # obj_box_size_pred = []
+    #             # for obj_pcd in obj_pcds:
+    #             #     _c, _b = convert_pc_to_box(obj_pcd)
+    #             #     obj_center_pred.append(_c)
+    #             #     obj_box_size_pred.append(_b)
+    #             # one_scan['obj_center_pred'] = obj_center_pred
+    #             # one_scan['obj_box_size_pred'] = obj_box_size_pred
+    #             ##################
+
+    #     if load_multiview_info:
+    #         one_scan['multiview_info'] = self._load_multiview_info(scan_id, is_load_mv_feat = is_load_mv_feat)
+        
+    #     # load segment for mask3d
+    #     if load_segment_info:
+    #         one_scan["scene_pcds"] = np.load(os.path.join(self.base_dir, "scan_data", "pcd_mask3d", f'{scan_id[-7:]}.npy'))
+    #     ######### testing ########
+        
+    #     return (scan_id, one_scan)
     ####### Function for normals SHS ########
     # def _load_scene_normals_txt(self, scan_id: str) -> np.ndarray:
     #     normals_path = os.path.join(
@@ -533,7 +662,127 @@ class ScanNetBase(Dataset):
         if self.use_cache:
             self.cache[scan_id] = out_dict
 
-        return out_dict 
+        return out_dict #
+    
+    ####################################
+import numpy as np
+import torch
+from scipy.spatial.transform import Rotation as R
+
+def _scene_processing_post(
+    self,
+    scene_pcd: np.ndarray,            # (N, C) e.g. (N,9) [xyz,rgb,normals]
+    instance_ids: np.ndarray,         # (N,) int, -1 allowed (ignored)
+    rot_aug: bool = True,
+    situation=None,
+    *,
+    subsample_to_num_points: bool = False,
+    normalize_xyz: bool = True,
+    compute_obj_locs: bool = True,    # outputs (K,6) and obj_masks
+):
+    """
+    Preprocess a whole scene WITHOUT splitting into per-object point clouds.
+
+    Returns:
+      out dict:
+        - scene_pcd:    (N', C) float32
+        - instance_ids: (N',) int64
+        - obj_locs:     (K,6) float32   (optional)
+        - obj_masks:    (K,) bool       (optional)
+      and optionally rotated situation.
+    """
+    if not isinstance(scene_pcd, np.ndarray):
+        scene_pcd = np.asarray(scene_pcd)
+    if not isinstance(instance_ids, np.ndarray):
+        instance_ids = np.asarray(instance_ids)
+
+    if scene_pcd.ndim != 2 or scene_pcd.shape[1] < 3:
+        raise ValueError(f"scene_pcd must be (N,C) with C>=3, got {scene_pcd.shape}")
+    if instance_ids.ndim != 1 or instance_ids.shape[0] != scene_pcd.shape[0]:
+        raise ValueError(f"instance_ids must be (N,), got {instance_ids.shape}, N={scene_pcd.shape[0]}")
+    if scene_pcd.shape[0] == 0:
+        raise ValueError("scene_pcd has zero points")
+
+    pcd = scene_pcd.copy()
+    inst = instance_ids.copy().astype(np.int64)
+
+    # Rotation augmentation (same convention as your object preprocessing)
+    rot_matrix = build_rotate_mat(self.split, rot_aug)
+    if rot_matrix is not None:
+        pcd[:, :3] = np.matmul(pcd[:, :3], rot_matrix.transpose())
+
+        # rotate normals if present in cols 6:9
+        if pcd.shape[1] >= 9:
+            pcd[:, 6:9] = np.matmul(pcd[:, 6:9], rot_matrix.transpose())
+            n = np.linalg.norm(pcd[:, 6:9], axis=1, keepdims=True)
+            pcd[:, 6:9] = pcd[:, 6:9] / np.clip(n, 1e-6, None)
+
+    # Optional subsample (often you can skip this for PTv3; PTv3 voxelizes internally)
+    if subsample_to_num_points:
+        if not hasattr(self, "num_points"):
+            raise AttributeError("self.num_points not set, but subsample_to_num_points=True")
+        idx = np.random.choice(len(pcd), size=self.num_points, replace=len(pcd) < self.num_points)
+        pcd = pcd[idx]
+        inst = inst[idx]
+
+    # Optional mean-center xyz (your object preprocessing did this)
+    if normalize_xyz:
+        pcd[:, :3] = pcd[:, :3] - pcd[:, :3].mean(0)
+
+    out = {
+        "scene_pcd": pcd.astype(np.float32),
+        "instance_ids": inst.astype(np.int64),
+    }
+
+    # Optionally compute object locs/masks directly from instance ids (no splitting into lists)
+    if compute_obj_locs:
+        valid = inst >= 0
+        if valid.any():
+            instv = inst[valid]
+            xyzv = pcd[valid, :3]
+
+            K = int(instv.max()) + 1
+            obj_masks = np.zeros((K,), dtype=np.bool_)
+            obj_locs = np.zeros((K, 6), dtype=np.float32)
+
+            for k in range(K):
+                m = (instv == k)
+                if not m.any():
+                    continue
+                pts = xyzv[m]
+                center = pts.mean(0)
+                size = pts.max(0) - pts.min(0)
+                obj_locs[k, :3] = center
+                obj_locs[k, 3:] = size
+                obj_masks[k] = True
+
+            out["obj_locs"] = obj_locs
+            out["obj_masks"] = obj_masks
+        else:
+            out["obj_locs"] = np.zeros((0, 6), dtype=np.float32)
+            out["obj_masks"] = np.zeros((0,), dtype=np.bool_)
+
+    # Rotate situation if provided (same logic as your original)
+    if situation is None:
+        return out
+    elif rot_matrix is None:
+        return out, situation
+    else:
+        pos, ori = situation
+        pos = np.asarray(pos, dtype=np.float32)
+        ori = np.asarray(ori, dtype=np.float32)
+
+        pos_new = pos.reshape(1, 3) @ rot_matrix.transpose()
+        pos_new = pos_new.reshape(-1)
+
+        ori_new = R.from_quat(ori).as_matrix()
+        ori_new = rot_matrix @ ori_new
+        ori_new = R.from_matrix(ori_new).as_quat()
+        ori_new = ori_new.reshape(-1)
+
+        return out, (pos_new, ori_new)
+
+    ####################################
 
     def _get_pooling_obj_feature(self, args, mv_info_all, sampled_frame_names, scan_id):
         obj_dict = {}

@@ -638,4 +638,4 @@ with gr.Blocks(
     clear.click(fn=clear_chat, inputs=[], outputs=[chat])
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(share=True)
