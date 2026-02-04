@@ -341,48 +341,6 @@ class MSR3DBase(Dataset):
 
     # get inputs for scene encoder
     def _get_scene_encoder_input(self, scan_data, scan_insts, situation = None):
-        if "scene_pcd" in scan_data and "instance_ids" in scan_data:
-            scene_pcd = scan_data["scene_pcd"]          # (N,9) numpy or torch
-            instance_ids = scan_data["instance_ids"]    # (N,) numpy or torch
-
-            # ensure torch
-            if not torch.is_tensor(scene_pcd):
-                scene_pcd = torch.from_numpy(scene_pcd).float()
-            if not torch.is_tensor(instance_ids):
-                instance_ids = torch.from_numpy(instance_ids).long()
-
-            # compute obj_locs + obj_masks if your model expects them
-            xyz = scene_pcd[:, :3]
-            valid = instance_ids >= 0
-            inst_v = instance_ids[valid]
-            K = int(inst_v.max().item()) + 1 if inst_v.numel() > 0 else 0
-
-            obj_locs = torch.zeros((K, 6), dtype=torch.float32)
-            obj_masks = torch.zeros((K,), dtype=torch.bool)
-
-            for k in range(K):
-                m = (instance_ids == k)
-                if not m.any():
-                    continue
-                pts = xyz[m]
-                obj_locs[k, :3] = pts.mean(0)
-                obj_locs[k, 3:] = pts.max(0).values - pts.min(0).values
-                obj_masks[k] = True
-
-            out = {
-                "scene_pcd": scene_pcd,
-                "instance_ids": instance_ids,
-                "obj_locs": obj_locs,
-                "obj_masks": obj_masks,
-            }
-            # add situation if you use it downstream
-            if situation is not None:
-                anchor_loc, anchor_orientation = situation
-                out["anchor_locs"] = torch.as_tensor(anchor_loc).float()
-                out["anchor_orientation"] = torch.as_tensor(anchor_orientation).float()
-
-            return out
-
         obj_pcds = scan_data['obj_pcds'].copy()
         # Dict: { int: np.ndarray (N, 6) }
         if len(obj_pcds) <= self.max_obj_len:
