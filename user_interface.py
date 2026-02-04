@@ -53,11 +53,11 @@ RSCAN_JSON_PATHS = {
 # SCANNET_PCD_ROOT = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
 # ARKIT_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align"
 SCANNET_PCD_ROOT = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
-ARKIT_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align"
+ARKIT_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/"
 
 # IMPORTANT: RScan is folder-based, and we will load pcds.pth inside each folder
 # RSCAN_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align"
-RSCAN_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align"
+RSCAN_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/"
 RSCAN_PCD_FILE   = "pcds.pth"  # you explicitly requested this file
 
 ONLY_SHOW_SCANS_WITH_PTH = True
