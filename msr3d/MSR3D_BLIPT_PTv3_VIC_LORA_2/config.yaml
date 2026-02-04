@@ -1,4 +1,4 @@
-"name: MSR3D\nnote: BLIPT_PTv3_VIC_LORA_2\nrng_seed: 42\nnum_gpu: 2\nmode: train\n\
+"name: MSR3D\nnote: BLIPT_PTv3_VIC_LORA_2\nrng_seed: 42\nnum_gpu: 2\nmode: inference\n\
   naming_keywords:\n- note\nbase_dir: ''\nexp_dir: !!python/object/apply:pathlib.PosixPath\n\
   - MSR3D_BLIPT_PTv3_VIC_LORA_2\npretrain_ckpt_path: ''\nhf_hub_cache_dir: /lustreFS/data/vcg/pdemetriou/hub\n\
   resume: false\nsave_frequency: 10000\nckpt_path: ''\ndebug:\n  flag: false\n  debug_test:\
