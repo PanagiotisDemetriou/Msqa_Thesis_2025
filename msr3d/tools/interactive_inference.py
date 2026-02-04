@@ -323,8 +323,16 @@ def main():
    # print("Answer (forward):", answer)
 
    
-   answer2 = tool.ask_question(scene_id, question, situation, images=[])
-   print("Answer:", answer2)
+   while True:
+      user_question = input("\nEnter your question (or 'exit' to quit): ")
+      if user_question.lower() == 'exit':
+         break
+
+      answer = tool.ask_question(scene_id, user_question, situation, images=[])
+      print("Answer:", answer)
+
+   # answer2 = tool.ask_question(scene_id, question, situation, images=[])
+   # print("Answer:", answer2)
 
 
 if __name__ == "__main__":

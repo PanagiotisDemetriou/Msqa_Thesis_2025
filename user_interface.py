@@ -68,6 +68,24 @@ DATASET_SPECS = {
     "rscan":   {"json_paths": RSCAN_JSON_PATHS,   "pcd_root": RSCAN_PCD_ROOT},
 }
 
+
+import threading
+from msr3d.tools.interactive_service import MSR3DInteractiveService
+
+MSR3D_EXPERIMENT_PATH = "MSR3D_BLIPT_PTv3_VIC_LORA_2"
+
+# One shared model instance
+MSR3D_SERVICE = None
+MSR3D_LOCK = threading.Lock()
+
+def get_msr3d_service():
+    global MSR3D_SERVICE
+    if MSR3D_SERVICE is None:
+        MSR3D_SERVICE = MSR3DInteractiveService(
+            experiment_path=MSR3D_EXPERIMENT_PATH,
+            split="test",
+        )
+    return MSR3D_SERVICE
 # ======================== Utils ========================
 
 def load_json(path: str):
@@ -482,7 +500,28 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx):
     user_msg = (user_msg or "").strip()
     if not user_msg:
         return ""
-    return f"(stub) dataset={dataset_name}, idx={global_idx}\n\nQuestion:\n{user_msg}"
+
+    if global_idx is None:
+        return "No QA entry selected."
+
+    # (Right now) your inference code uses MSQAScanNet, so it only matches ScanNet scans.
+    if dataset_name != "scannet":
+        return "Model chat is currently wired for ScanNet only (MSQAScanNet). Switch to scannet to ask questions."
+
+    idx = int(global_idx)
+    qa = DATA_BY_DATASET[dataset_name][idx]
+    scene_id = qa["scan_id"]
+    situation = qa.get("situation", "")
+
+    try:
+        svc = get_msr3d_service()
+        # Lock to avoid concurrent generate() calls stepping on each other if Gradio queues multiple requests
+        with MSR3D_LOCK:
+            ans = svc.answer(scene_id=scene_id, question=user_msg, situation=situation)
+        return ans
+    except Exception as e:
+        # show useful error without killing gradio
+        return f"[error] {type(e).__name__}: {e}"
 
 def chat_step(user_msg, history, dataset_name, global_idx):
     history = history or []
@@ -645,4 +684,4 @@ with gr.Blocks(
     clear.click(fn=clear_chat, inputs=[], outputs=[chat])
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(share=True)
