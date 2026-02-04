@@ -233,16 +233,12 @@ class ScanDataLoader(object):
         return scan_data
 
     def _get_scannet_data(self, scan_id, pc_type = 'gt', data_type = ['obj_pcds', 'mv_info']):
-        if isinstance(data_type, str):
-            data_type = [data_type]
-
         _, scan_data = self.scannet_loader._load_one_scan(scan_id, 
                         pc_type = pc_type, load_inst_info = True, 
                         load_multiview_info = ('mv_info' in data_type), is_load_mv_feat = False, 
                         load_pc_info = ('obj_pcds' in data_type), 
                         load_segment_info = False)
-
-
+        
         ### transfer data to inst for mv_info ###
         if 'mv_info' in data_type:
             mv_info_all = scan_data.pop('multiview_info')
@@ -274,7 +270,7 @@ class ScanDataLoader(object):
                 
             scan_data['mv_info'] = obj_dict
 
-        if 'obj_pcds' in data_type and 'obj_pcds' in scan_data:
+        if 'obj_pcds' in data_type:
             scan_data['obj_pcds'] = {idx: scan_data['obj_pcds'][idx] for idx in range(len(scan_data['obj_pcds']))}
 
         return scan_data

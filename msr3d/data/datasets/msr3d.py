@@ -538,13 +538,7 @@ class MSQAScanNet(MSR3DBase):
         _, place_holder_list = self.parse_place_holder(prompt)  
 
         ### load data with global cache ###
-        #scan_data = self.prepare_data_loading_with_cache(dataset_name = 'ScanNet', scan_id = scan_id, data_type_list = ['obj_pcds'])
-        scan_data = self.prepare_data_loading_with_cache(
-            dataset_name='ScanNet',
-            scan_id=scan_id,
-            data_type_list=['scene_pcd', 'instance_ids', 'inst_locs', 'inst_labels']  # as needed
-        )
-
+        scan_data = self.prepare_data_loading_with_cache(dataset_name = 'ScanNet', scan_id = scan_id, data_type_list = ['obj_pcds'])
         ### scene input ####
         output_dict = self._get_scene_encoder_input(scan_data, one_sample['insts'], situation = (anchor_loc, anchor_orientation))
         obj_fts = output_dict['obj_fts']
