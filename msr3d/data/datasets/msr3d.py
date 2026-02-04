@@ -341,79 +341,37 @@ class MSR3DBase(Dataset):
 
     # get inputs for scene encoder
     def _get_scene_encoder_input(self, scan_data, scan_insts, situation = None):
-        if "scene_pcd" in scan_data and "instance_ids" in scan_data:
-            scene_pcd = scan_data["scene_pcd"]          # (N,9) numpy or torch
-            instance_ids = scan_data["instance_ids"]    # (N,) numpy or torch
+        obj_pcds = scan_data['obj_pcds'].copy()
+        # Dict: { int: np.ndarray (N, 6) }
+        if len(obj_pcds) <= self.max_obj_len:
+            # Dict to List
+            selected_obj_pcds = list(obj_pcds.values())
+        else:
+            # crop objects to max_obj_len
+            selected_obj_pcds = []
 
-            # ensure torch
-            if not torch.is_tensor(scene_pcd):
-                scene_pcd = torch.from_numpy(scene_pcd).float()
-            if not torch.is_tensor(instance_ids):
-                instance_ids = torch.from_numpy(instance_ids).long()
-
-            # compute obj_locs + obj_masks if your model expects them
-            xyz = scene_pcd[:, :3]
-            valid = instance_ids >= 0
-            inst_v = instance_ids[valid]
-            K = int(inst_v.max().item()) + 1 if inst_v.numel() > 0 else 0
-
-            obj_locs = torch.zeros((K, 6), dtype=torch.float32)
-            obj_masks = torch.zeros((K,), dtype=torch.bool)
-
-            for k in range(K):
-                m = (instance_ids == k)
-                if not m.any():
+            # select relevant objs first
+            for i in scan_insts:
+                if i not in obj_pcds:
                     continue
-                pts = xyz[m]
-                obj_locs[k, :3] = pts.mean(0)
-                obj_locs[k, 3:] = pts.max(0).values - pts.min(0).values
-                obj_masks[k] = True
+                selected_obj_pcds.append(obj_pcds[i])
 
-                out = {
-                    "scene_pcd": scene_pcd,
-                    "instance_ids": instance_ids,
-                    "obj_locs": obj_locs,
-                    "obj_masks": obj_masks,
-                }
-
-                if situation is not None:
-                    # keep same contract as old pipeline
-                    out["situation"] = situation
-
-                return out
-
-        if "obj_pcds" in scan_data:
-            obj_pcds = scan_data['obj_pcds'].copy()
-            # Dict: { int: np.ndarray (N, 6) }
-            if len(obj_pcds) <= self.max_obj_len:
-                # Dict to List
-                selected_obj_pcds = list(obj_pcds.values())
+            num_selected_objs = len(selected_obj_pcds)
+            if num_selected_objs >= self.max_obj_len:
+                random.shuffle(selected_obj_pcds)
+                selected_obj_pcds = selected_obj_pcds[:self.max_obj_len]
             else:
-                # crop objects to max_obj_len
-                selected_obj_pcds = []
-
-                # select relevant objs first
-                for i in scan_insts:
-                    if i not in obj_pcds:
-                        continue
+                # select from remaining objs
+                remained_obj_idx = [i for i in obj_pcds.keys() if i not in scan_insts]
+                random.shuffle(remained_obj_idx)
+                for i in remained_obj_idx[: self.max_obj_len - num_selected_objs]:
                     selected_obj_pcds.append(obj_pcds[i])
 
-                num_selected_objs = len(selected_obj_pcds)
-                if num_selected_objs >= self.max_obj_len:
-                    random.shuffle(selected_obj_pcds)
-                    selected_obj_pcds = selected_obj_pcds[:self.max_obj_len]
-                else:
-                    # select from remaining objs
-                    remained_obj_idx = [i for i in obj_pcds.keys() if i not in scan_insts]
-                    random.shuffle(remained_obj_idx)
-                    for i in remained_obj_idx[: self.max_obj_len - num_selected_objs]:
-                        selected_obj_pcds.append(obj_pcds[i])
+            assert len(selected_obj_pcds) == self.max_obj_len
 
-                assert len(selected_obj_pcds) == self.max_obj_len
+        output_dict = self.preprocess_pcd(selected_obj_pcds, return_anchor = False, rot_aug = self.use_rotate, situation = situation)
 
-            output_dict = self.preprocess_pcd(selected_obj_pcds, return_anchor = False, rot_aug = self.use_rotate, situation = situation)
-
-            return output_dict
+        return output_dict
 
     @staticmethod
     def transfer_leo_to_msr3d(data_dict):
@@ -538,26 +496,12 @@ class MSQAScanNet(MSR3DBase):
         _, place_holder_list = self.parse_place_holder(prompt)  
 
         ### load data with global cache ###
-        #scan_data = self.prepare_data_loading_with_cache(dataset_name = 'ScanNet', scan_id = scan_id, data_type_list = ['obj_pcds'])
-        scan_data = self.prepare_data_loading_with_cache(
-            dataset_name='ScanNet',
-            scan_id=scan_id,
-            data_type_list=['scene_pcd', 'instance_ids', 'inst_locs', 'inst_labels']  # as needed
-        )
-
+        scan_data = self.prepare_data_loading_with_cache(dataset_name = 'ScanNet', scan_id = scan_id, data_type_list = ['obj_pcds'])
         ### scene input ####
         output_dict = self._get_scene_encoder_input(scan_data, one_sample['insts'], situation = (anchor_loc, anchor_orientation))
-
-        # PTv3 scene mode
-        scene_pcd     = output_dict["scene_pcd"]        # (N,9) torch.float
-        instance_ids  = output_dict["instance_ids"]     # (N,)  torch.long
-        obj_locs      = output_dict["obj_locs"]         # (K,6) torch.float
-        obj_masks     = output_dict["obj_masks"]        # (K,)  torch.bool
+        obj_fts = output_dict['obj_fts']
+        obj_locs = output_dict['obj_locs']
         anchor_loc, anchor_orientation = output_dict["situation"]
-        obj_fts = scene_pcd
-        # obj_fts = output_dict['obj_fts']
-        # obj_locs = output_dict['obj_locs']
-        # anchor_loc, anchor_orientation = output_dict["situation"]
 
         ### process place holder ####
         img_list = []
@@ -613,9 +557,6 @@ class MSQAScanNet(MSR3DBase):
             'anchor_locs' : torch.tensor(anchor_loc).float(),
             'index': index,
             'type': qa_type,
-            'scene_pcd': scene_pcd,
-            'instance_ids': instance_ids,
-            'obj_masks': obj_masks,
             # 'obj_normals': normals
         })
 
