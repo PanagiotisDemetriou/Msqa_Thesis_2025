@@ -528,8 +528,16 @@ def chat_step(user_msg, history, dataset_name, global_idx):
     user_msg = (user_msg or "").strip()
     if not user_msg:
         return "", history
+
+    # add user message
+    history.append({"role": "user", "content": user_msg})
+
+    # generate answer
     model_answer = answer_with_model(user_msg, dataset_name, global_idx)
-    history.append((user_msg, model_answer))
+
+    # add assistant message
+    history.append({"role": "assistant", "content": model_answer})
+
     return "", history
 
 def clear_chat():
@@ -638,7 +646,7 @@ with gr.Blocks(
 
         with gr.Column(scale=3):
             gr.Markdown("### Ask your model about the scene")
-            chat = gr.Chatbot(label="Dialogue", height=400)
+            chat = gr.Chatbot(label="Dialogue", height=400, type="messages")
             user_msg = gr.Textbox(label="Ask a question", placeholder="Ask about the scene...", lines=3)
             with gr.Row():
                 send = gr.Button("Send")
