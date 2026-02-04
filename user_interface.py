@@ -26,9 +26,13 @@ import pandas as pd
 
 # ======================== Config ========================
 
-SCANNET_ROOT_DIR = "/mnt/d/Thesis/data/text_annotations/msqa/scannet"
-ARKIT_ROOT_DIR   = "/mnt/d/Thesis/data/text_annotations/msqa/arkitscenes"
-RSCAN_ROOT_DIR   = "/mnt/d/Thesis/data/text_annotations/msqa/rscan"
+# SCANNET_ROOT_DIR = "/mnt/d/Thesis/data/text_annotations/msqa/scannet"
+# ARKIT_ROOT_DIR   = "/mnt/d/Thesis/data/text_annotations/msqa/arkitscenes"
+# RSCAN_ROOT_DIR   = "/mnt/d/Thesis/data/text_annotations/msqa/rscan"
+SCANNET_ROOT_DIR = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa/scannet"
+ARKIT_ROOT_DIR   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa/arkitscenes"
+RSCAN_ROOT_DIR   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa/rscan"
+
 
 SCANNET_JSON_PATHS = {
     "train": os.path.join(SCANNET_ROOT_DIR, "msqa_scannet_train.json"),
@@ -46,11 +50,14 @@ RSCAN_JSON_PATHS = {
     "test":  os.path.join(RSCAN_ROOT_DIR, "msqa_rscan_test.json"),
 }
 
-SCANNET_PCD_ROOT = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
-ARKIT_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align"
+# SCANNET_PCD_ROOT = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
+# ARKIT_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align"
+SCANNET_PCD_ROOT = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
+ARKIT_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align"
 
 # IMPORTANT: RScan is folder-based, and we will load pcds.pth inside each folder
-RSCAN_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align"
+# RSCAN_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align"
+RSCAN_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align"
 RSCAN_PCD_FILE   = "pcds.pth"  # you explicitly requested this file
 
 ONLY_SHOW_SCANS_WITH_PTH = True
