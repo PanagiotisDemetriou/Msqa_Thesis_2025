@@ -526,7 +526,7 @@ def update_toggle_button_label(is_open: bool):
 
 # ---- Chat stub ----
 
-def answer_with_model(user_msg: str, dataset_name: str, global_idx):
+def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value: str):
     user_msg = (user_msg or "").strip()
     if not user_msg:
         return ""
@@ -543,17 +543,27 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx):
     scene_id = qa["scan_id"]
     situation = qa.get("situation", "")
 
+    scan_id = qa["scan_id"]
+
+    if split_value == "all":
+        effective_split = infer_split_from_scene(dataset_name, scan_id, qa_idx=global_idx)
+    else:
+        effective_split = split_value
+
     try:
         svc = get_msr3d_service()
+        svc.change_split(effective_split)  # ensure the model's dataset matches the default UI selection
+
         # Lock to avoid concurrent generate() calls stepping on each other if Gradio queues multiple requests
         with MSR3D_LOCK:
+            print(f"[model] Generating answer for dataset='{dataset_name}', scan_id='{scan_id}', split='{effective_split}', situation='{situation}' | user_msg='{user_msg}'")
             ans = svc.answer(scene_id=scene_id, question=user_msg, situation=situation)
         return ans
     except Exception as e:
         # show useful error without killing gradio
         return f"[error] {type(e).__name__}: {e}"
 
-def chat_step(user_msg, history, dataset_name, global_idx):
+def chat_step(user_msg, history, dataset_name, global_idx, split_value):
     history = history or []
     user_msg = (user_msg or "").strip()
     if not user_msg:
@@ -563,7 +573,7 @@ def chat_step(user_msg, history, dataset_name, global_idx):
     history.append({"role": "user", "content": user_msg})
 
     # generate answer
-    model_answer = answer_with_model(user_msg, dataset_name, global_idx)
+    model_answer = answer_with_model(user_msg, dataset_name, global_idx, split_value)
 
     # add assistant message
     history.append({"role": "assistant", "content": model_answer})
@@ -608,6 +618,31 @@ def on_scan_or_split_change_and_render(dataset_name: str, scan_id: str, split_fi
                      show_boxes, show_axis, show_arrow, axis_len, max_points, max_boxes)
 
     return gr.update(choices=choices, value=qa_val), fig
+
+def infer_split_from_scene(dataset_name: str, scan_id: str, qa_idx: int | None = None) -> str:
+    """
+    Infer split for a scene (scan_id).
+    - If scan_id exists in exactly one split -> return it
+    - If it exists in multiple splits -> use the selected QA's split if provided
+    - Otherwise deterministic fallback (only for true ambiguity)
+    """
+    inds = SCAN_TO_INDICES_BY_DATASET[dataset_name].get(scan_id, [])
+    splits = sorted({DATA_BY_DATASET[dataset_name][i].get("split", "test") for i in inds})
+
+    if len(splits) == 1:
+        return splits[0]
+
+    if qa_idx is not None:
+        try:
+            return DATA_BY_DATASET[dataset_name][int(qa_idx)].get("split", "test")
+        except Exception:
+            pass
+
+    # Only used if the same scan_id exists in multiple splits and we can't disambiguate
+    for pref in ("test", "val", "train"):
+        if pref in splits:
+            return pref
+    return "test"
 
 # ======================== Gradio App ========================
 
@@ -690,7 +725,6 @@ with gr.Blocks(
         outputs=[scan_id_dd, split_filter, qa_dd, plot],
     )
 
-
     # Dataset changes -> update scenes + QA list
     #dataset_dd.change(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd])
     dataset_dd.change(
@@ -727,8 +761,11 @@ with gr.Blocks(
     )
 
     # Chat
-    send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd], outputs=[user_msg, chat])
-    user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd], outputs=[user_msg, chat])
+    # send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd], outputs=[user_msg, chat])
+    # user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd], outputs=[user_msg, chat])
+    send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
+    user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
+
     clear.click(fn=clear_chat, inputs=[], outputs=[chat])
 
 if __name__ == "__main__":

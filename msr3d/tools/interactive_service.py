@@ -39,6 +39,12 @@ class MSR3DInteractiveService:
         self.model.load_state_dict(state_dict, strict=False)
         self.model.eval()
 
+    def change_split(self, split: str):
+        split = (split or "test").lower()
+        if split not in ("train", "val", "test"):
+            raise ValueError(f"Unsupported split: {split}")
+        self.dataset = MSQAScanNet(self.cfg, split=split)
+
     def _index_for_scene(self, scene_id: str) -> int:
         for i, meta in enumerate(self.dataset.data):
             if meta.get("scan_id") == scene_id:
