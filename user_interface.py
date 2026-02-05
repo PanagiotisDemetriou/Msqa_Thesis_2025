@@ -646,7 +646,7 @@ with gr.Blocks(
 
         with gr.Column(scale=3):
             gr.Markdown("### Ask your model about the scene")
-            chat = gr.Chatbot(label="Dialogue", height=400, type="messages")
+            chat = gr.Chatbot(label="Dialogue", height=400)
             user_msg = gr.Textbox(label="Ask a question", placeholder="Ask about the scene...", lines=3)
             with gr.Row():
                 send = gr.Button("Send")
