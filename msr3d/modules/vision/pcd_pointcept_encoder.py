@@ -231,12 +231,12 @@ class PTv3PcdObjEncoder(nn.Module):
             mode="scene",   # <-- THIS is the key
         )
 
-        if torch.distributed.get_rank() == 0:
-            print(
-                "PTv3 batching:",
-                "unique batch ids =", point_data["batch"].unique().numel(),
-                "expected =", obj_pcds.shape[0]
-            )
+        # if torch.distributed.get_rank() == 0:
+        #     print(
+        #         "PTv3 batching:",
+        #         "unique batch ids =", point_data["batch"].unique().numel(),
+        #         "expected =", obj_pcds.shape[0]
+        #     )
         point_data = move_pointcept_data_to_device(point_data, device)
 
         core = self._get_core().to(device).eval() if self.freeze else self._get_core().to(device)
