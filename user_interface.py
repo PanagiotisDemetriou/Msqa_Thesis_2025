@@ -446,6 +446,36 @@ def build_plotly_figure(scene, color_mode: str, point_size: float,
     return fig
 
 # ======================== Gradio callbacks ========================
+def scans_for_split(dataset_name: str, split_filter: str):
+    data = DATA_BY_DATASET[dataset_name]
+    scan_to_inds = SCAN_TO_INDICES_BY_DATASET[dataset_name]
+
+    if split_filter == "all":
+        scans = list(scan_to_inds.keys())
+    else:
+        scans = []
+        for sid, inds in scan_to_inds.items():
+            if any(data[i].get("split") == split_filter for i in inds):
+                scans.append(sid)
+
+    scans = sorted(scans)  # nice ascending order
+
+    if ONLY_SHOW_SCANS_WITH_PTH:
+        scans = [sid for sid in scans if pth_exists(dataset_name, sid)]
+
+    return scans
+def on_split_change(dataset_name: str, split_filter: str):
+    scans = scans_for_split(dataset_name, split_filter)
+    scan_val = scans[0] if scans else None
+
+    qa_choices = qa_choices_for_scan(dataset_name, scan_val, split_filter) if scan_val else []
+    qa_val = qa_choices[0][1] if qa_choices else None
+
+    return (
+        gr.update(choices=scans, value=scan_val),      # scan_id_dd
+        gr.update(choices=qa_choices, value=qa_val),   # qa_dd
+    )
+
 
 def on_dataset_change(dataset_name: str):
     scans = AVAILABLE_SCANS_BY_DATASET[dataset_name]
@@ -662,11 +692,21 @@ with gr.Blocks(
 
 
     # Dataset changes -> update scenes + QA list
-    dataset_dd.change(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd])
+    #dataset_dd.change(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd])
+    dataset_dd.change(
+            fn=on_split_change,   # reuse the same logic
+            inputs=[dataset_dd, split_filter],
+            outputs=[scan_id_dd, qa_dd],
+        )
 
     # Scan/split changes -> update QA list
     scan_id_dd.change(fn=on_scan_or_split_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
-    split_filter.change(fn=on_scan_or_split_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
+    #split_filter.change(fn=on_scan_or_split_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
+    split_filter.change(
+        fn=on_split_change,
+        inputs=[dataset_dd, split_filter],
+        outputs=[scan_id_dd, qa_dd],
+    )
 
     # Details toggle
     toggle_btn.click(
