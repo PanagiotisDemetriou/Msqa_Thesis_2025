@@ -1062,7 +1062,7 @@ def _normed(v):
 def make_situation_arrow_trace(location, orientation, scale=0.8,
                                zoff=0.15,
                                head_len_ratio=0.35,
-                               head_sizeref=0.22,
+                               head_sizeref=0.5,
                                flatten_xy=True):
     """
     Returns [shaft_line_trace, cone_head_trace]
