@@ -771,23 +771,18 @@
 # if __name__ == "__main__":
 #     demo.launch(share=True)
 #!/usr/bin/env python3
-#!/usr/bin/env python3
 """
 MSQA Multi-Dataset Scene Viewer (Gradio + Plotly) — ScanNet + ARKitScenes + RScan (folder-based)
 
-Drop-in update: "agent" marker + correct forward vector
-- Replaces yaw-based arrow with quaternion-rotated forward vector (more correct).
-- Adds a "you are here" agent marker:
-    - head marker (Scatter3d point)
-    - gaze cone (go.Cone) pointing forward
-    - optional gaze line (kept for clarity)
+Upgrades in this version:
+- Fast updates: points are rendered once per (dataset, scan_id, max_points) and cached.
+- UI changes like color mode / point size / toggles update the existing figure (no disk reload).
+- Heavy reload only happens when dataset/scan/max_points (or QA selection) changes.
+- Fixes split/scene/QA “glitch”: split change chooses a scan that actually has QA in that split.
+- Keeps your right-side chat stub and visualization accordion toggle.
 
-Tuning knobs:
-- FORWARD_AXIS_BY_DATASET: choose which local axis is "forward" for each dataset
-- FLATTEN_GAZE_TO_GROUND: keep gaze on ground plane (z=0 component)
-- INVERT_QUAT_BY_DATASET: if your quats are camera->world vs world->camera, flip per dataset
-
-Everything else kept as in your cached-fast version.
+Notes:
+- Plotly in Gradio still sends a figure JSON each update, but we avoid torch.load/downsample/rebuild point trace.
 """
 
 import os
@@ -825,6 +820,7 @@ RSCAN_JSON_PATHS = {
 SCANNET_PCD_ROOT = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
 ARKIT_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/"
 
+# RScan is folder-based and loads pcds.pth inside each scan folder
 RSCAN_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/"
 RSCAN_PCD_FILE   = "pcds.pth"
 
@@ -835,31 +831,6 @@ DATASET_SPECS = {
     "arkit":   {"json_paths": ARKIT_JSON_PATHS,   "pcd_root": ARKIT_PCD_ROOT},
     "rscan":   {"json_paths": RSCAN_JSON_PATHS,   "pcd_root": RSCAN_PCD_ROOT},
 }
-
-# ======================== Agent / gaze convention knobs ========================
-# If arrow/cone is wrong for a dataset, change these first.
-FORWARD_AXIS_BY_DATASET = {
-    "scannet": (1.0, 0.0, 0.0),
-    "arkit":   (1.0, 0.0, 0.0),
-    "rscan":   (1.0, 0.0, 0.0),
-}
-FLATTEN_GAZE_TO_GROUND = {
-    "scannet": True,
-    "arkit":   True,
-    "rscan":   True,
-}
-INVERT_QUAT_BY_DATASET = {
-    "scannet": False,
-    "arkit":   False,
-    "rscan":   False,
-}
-
-# agent visuals
-AGENT_HEAD_ZOFF = 0.25
-AGENT_CONE_ZOFF = 0.18
-AGENT_CONE_LEN_SCALE = 1.0
-AGENT_CONE_SIZEREF = 0.22
-SHOW_GAZE_LINE = True  # keep a line too (helps debugging)
 
 # ======================== Model (chat stub) ========================
 
@@ -891,14 +862,23 @@ def ensure_np(x):
     return np.asarray(x)
 
 def normalize_rgb01(colors):
+    """
+    Accept colors in:
+      - [-1,1] float
+      - [0,1] float
+      - [0,255] float/uint8
+    Return float RGB in [0,1].
+    """
     c = ensure_np(colors).astype(np.float32).reshape(-1, 3)
     cmin, cmax = float(np.nanmin(c)), float(np.nanmax(c))
 
     if cmin >= -1.01 and cmax <= 1.01:
+        # either [-1,1] or [0,1]
         if cmin < 0.0:
             return np.clip((c + 1.0) * 0.5, 0.0, 1.0)
         return np.clip(c, 0.0, 1.0)
 
+    # assume [0,255]
     return np.clip(c / 255.0, 0.0, 1.0)
 
 def hash_colors_for_labels(labels, seed=0):
@@ -911,57 +891,62 @@ def hash_colors_for_labels(labels, seed=0):
         table[int(u)] = col.astype(np.float32)
     return np.array([table[int(x)] for x in labels], dtype=np.float32)
 
-# ======================== Orientation / gaze (new) ========================
+# -------- Orientation handling --------
 
-def _normalize(v):
-    v = np.asarray(v, np.float32).reshape(-1)
-    n = float(np.linalg.norm(v)) + 1e-12
-    return (v / n).astype(np.float32)
+# def get_view_vector_from_orientation(orientation):
+#     o = ensure_np(orientation).astype(np.float32).reshape(-1)
 
-def forward_from_quat(orientation_xyzw, dataset_name: str):
+#     if o.size == 4:
+#         yaw = R.from_quat(o).as_euler("xyz", degrees=False)[-1]
+#         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
+#         return d / (np.linalg.norm(d) + 1e-12)
+
+#     if o.size == 3:
+#         n = float(np.linalg.norm(o))
+#         if 0.5 <= n <= 1.5:
+#             return (o / (n + 1e-12)).astype(np.float32)
+#         yaw = float(o[-1])
+#         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
+#         return d / (np.linalg.norm(d) + 1e-12)
+
+#     return np.array([1.0, 0.0, 0.0], dtype=np.float32)
+def get_view_vector_from_orientation(orientation):
     """
-    Compute forward direction by rotating a canonical local forward axis with quaternion.
-    This avoids fragile yaw extraction.
-
-    orientation expected in [x, y, z, w] order.
-    """
-    q = ensure_np(orientation_xyzw).astype(np.float32).reshape(4)
-
-    # sometimes quats are world->camera; invert to camera->world depending on dataset
-    if INVERT_QUAT_BY_DATASET.get(dataset_name, False):
-        q = R.from_quat(q).inv().as_quat().astype(np.float32)
-
-    local_fwd = np.array(FORWARD_AXIS_BY_DATASET.get(dataset_name, (1.0, 0.0, 0.0)), dtype=np.float32)
-    fwd = R.from_quat(q).apply(local_fwd).astype(np.float32)
-
-    if FLATTEN_GAZE_TO_GROUND.get(dataset_name, True):
-        fwd[2] = 0.0
-
-    return _normalize(fwd)
-
-def get_view_vector_from_orientation(dataset_name: str, orientation):
-    """
-    Backward compatible wrapper:
-    - if quat (4) -> rotate local forward axis (preferred)
-    - if 3-vector:
-        - if looks like unit vector -> use it
-        - else treat last element as yaw
+    Robust handling:
+    - quaternion may be [x,y,z,w] OR [w,x,y,z]
+    - euler/yaw fallback for 3-vectors
+    Returns a unit direction vector (default in XY plane).
     """
     o = ensure_np(orientation).astype(np.float32).reshape(-1)
 
     if o.size == 4:
-        return forward_from_quat(o, dataset_name)
+        q = o.copy()
+
+        # Try interpret as [x,y,z,w] first (scipy convention)
+        try:
+            yaw = R.from_quat([q[0], q[1], q[2], q[3]]).as_euler("xyz", degrees=False)[-1]
+        except Exception:
+            yaw = 0.0
+
+        # Heuristic: if w is in front (typical [w,x,y,z]), yaw from the other ordering may be more stable
+        # If q[3] is very small and q[0] is large, it might be [w,x,y,z]
+        if abs(q[3]) < 0.2 and abs(q[0]) > 0.2:
+            try:
+                yaw2 = R.from_quat([q[1], q[2], q[3], q[0]]).as_euler("xyz", degrees=False)[-1]
+                yaw = yaw2
+            except Exception:
+                pass
+
+        d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
+        return d / (np.linalg.norm(d) + 1e-12)
 
     if o.size == 3:
         n = float(np.linalg.norm(o))
         if 0.5 <= n <= 1.5:
-            v = o.astype(np.float32)
-            if FLATTEN_GAZE_TO_GROUND.get(dataset_name, True):
-                v[2] = 0.0
-            return _normalize(v)
+            return (o / (n + 1e-12)).astype(np.float32)
         yaw = float(o[-1])
         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
-        return _normalize(d)
+        return d / (np.linalg.norm(d) + 1e-12)
 
     return np.array([1.0, 0.0, 0.0], dtype=np.float32)
 
@@ -1052,54 +1037,79 @@ def make_world_axis_traces(origin, axis_len=1.0):
 
     return [line(O, X, "red"), line(O, Y, "green"), line(O, Z, "blue")]
 
-# ---------- Agent visuals (new) ----------
+# def make_situation_arrow_trace(location, orientation, scale=0.8):
+#     loc = np.asarray(location, dtype=np.float32).reshape(3)
+#     d = get_view_vector_from_orientation(orientation)
 
-def make_agent_head(location, zoff=AGENT_HEAD_ZOFF):
-    loc = np.asarray(location, np.float32).reshape(3)
-    p = loc + np.array([0.0, 0.0, float(zoff)], np.float32)
-    return go.Scatter3d(
-        x=[p[0]], y=[p[1]], z=[p[2]],
-        mode="markers",
-        marker=dict(size=7, color="yellow"),
-        showlegend=False,
-    )
+#     loc2 = loc.copy()
+#     loc2[2] += float(0.15)
+#     tip = loc2 + d * float(scale)
 
-def make_gaze_cone(dataset_name: str, location, orientation, scale=1.0, zoff=AGENT_CONE_ZOFF):
-    loc = np.asarray(location, np.float32).reshape(3)
-    d = get_view_vector_from_orientation(dataset_name, orientation)
+#     return go.Scatter3d(
+#         x=[loc2[0], tip[0]],
+#         y=[loc2[1], tip[1]],
+#         z=[loc2[2], tip[2]],
+#         mode="lines+markers",
+#         line=dict(width=10, color="orange"),
+#         marker=dict(size=4),
+#         showlegend=False,
+#     )
+def _normed(v):
+    v = np.asarray(v, dtype=np.float32).reshape(3)
+    n = float(np.linalg.norm(v)) + 1e-12
+    return v / n
 
-    base = loc + np.array([0.0, 0.0, float(zoff)], np.float32)
-    u, v, w = (d * float(scale)).tolist()
+def make_situation_arrow_trace(location, orientation, scale=0.8,
+                               zoff=0.15,
+                               head_len_ratio=0.35,
+                               head_sizeref=0.22,
+                               flatten_xy=True):
+    """
+    Returns [shaft_line_trace, cone_head_trace]
+    """
+    loc = np.asarray(location, dtype=np.float32).reshape(3)
 
-    return go.Cone(
-        x=[base[0]], y=[base[1]], z=[base[2]],
-        u=[u], v=[v], w=[w],
-        anchor="tail",
-        sizemode="absolute",
-        sizeref=float(AGENT_CONE_SIZEREF),
-        showscale=False,
-        opacity=0.9,
-    )
+    d = _normed(get_view_vector_from_orientation(orientation))
 
-def make_gaze_line(dataset_name: str, location, orientation, scale=0.8):
-    loc = np.asarray(location, np.float32).reshape(3)
-    d = get_view_vector_from_orientation(dataset_name, orientation)
+    if flatten_xy:
+        d = _normed(np.array([d[0], d[1], 0.0], dtype=np.float32))
 
-    loc2 = loc + np.array([0.0, 0.0, 0.15], np.float32)
-    tip = loc2 + d * float(scale)
+    base = loc.copy()
+    base[2] += float(zoff)
 
-    return go.Scatter3d(
-        x=[loc2[0], tip[0]],
-        y=[loc2[1], tip[1]],
-        z=[loc2[2], tip[2]],
+    tip = base + d * float(scale)
+
+    shaft = go.Scatter3d(
+        x=[base[0], tip[0]],
+        y=[base[1], tip[1]],
+        z=[base[2], tip[2]],
         mode="lines",
-        line=dict(width=6, color="orange"),
+        line=dict(width=10, color="rgb(255,165,0)"),
         showlegend=False,
     )
+
+    head_len = float(scale) * float(head_len_ratio)
+
+    head = go.Cone(
+        x=[tip[0]], y=[tip[1]], z=[tip[2]],
+        u=[d[0] * head_len], v=[d[1] * head_len], w=[d[2] * head_len],
+        anchor="tip",
+        sizemode="absolute",
+        sizeref=float(head_sizeref),
+        showscale=False,
+        colorscale=[[0, "rgb(255,165,0)"], [1, "rgb(255,165,0)"]],
+        opacity=0.95,
+    )
+
+    return [shaft, head]
 
 # ======================== Dataset path resolution ========================
 
 def resolve_pth_path(dataset_name: str, scan_id: str) -> str:
+    """
+    - RScan: <RSCAN_PCD_ROOT>/<scan_id>/pcds.pth
+    - Others: <PCD_ROOT>/<scan_id>.pth
+    """
     if dataset_name == "rscan":
         return os.path.join(RSCAN_PCD_ROOT, scan_id, RSCAN_PCD_FILE)
     root = DATASET_SPECS[dataset_name]["pcd_root"]
@@ -1212,7 +1222,7 @@ def load_scene_full(dataset_name: str, idx: int):
 
 # ======================== Cache: downsampled per (dataset, scan_id, max_points) ========================
 
-SCENE_CACHE = {}
+SCENE_CACHE = {}  # key -> cached dict
 
 def get_cached_scene(dataset_name: str, idx: int, max_points: int):
     qa = DATA_BY_DATASET[dataset_name][idx]
@@ -1284,11 +1294,13 @@ def make_base_figure(cached, point_size: float):
     )
     return fig
 
-def apply_style_and_overlays(fig, dataset_name: str, cached, color_mode: str, point_size: float,
+def apply_style_and_overlays(fig, cached, color_mode: str, point_size: float,
                              show_boxes: bool, show_axis: bool, show_arrow: bool,
                              axis_len: float, max_boxes: int):
+    # update marker size
     fig.data[0].marker.size = float(point_size)
 
+    # update marker color
     if color_mode == "RGB":
         cols = cached["rgb01"]
     elif color_mode == "Instance":
@@ -1302,6 +1314,7 @@ def apply_style_and_overlays(fig, dataset_name: str, cached, color_mode: str, po
     # clear overlays (keep points trace)
     fig.data = fig.data[:1]
 
+    # add overlays
     if show_boxes and cached["inst"] is not None:
         for t in build_instance_bboxes_as_traces(cached["xyz"], cached["inst"], max_boxes=int(max_boxes)):
             fig.add_trace(t)
@@ -1310,21 +1323,21 @@ def apply_style_and_overlays(fig, dataset_name: str, cached, color_mode: str, po
         for t in make_world_axis_traces(cached["center"], axis_len=float(axis_len)):
             fig.add_trace(t)
 
-    # NEW: agent marker (head + cone + optional line)
+    # if show_arrow and cached["location"] is not None and cached["orientation"] is not None:
+    #     try:
+    #         fig.add_trace(make_situation_arrow_trace(cached["location"], cached["orientation"], scale=float(axis_len)))
+    #     except Exception as e:
+    #         print(f"[warn] could not render situation arrow: {e}")
     if show_arrow and cached["location"] is not None and cached["orientation"] is not None:
         try:
-            fig.add_trace(make_agent_head(cached["location"], zoff=AGENT_HEAD_ZOFF))
-            fig.add_trace(make_gaze_cone(
-                dataset_name=dataset_name,
-                location=cached["location"],
-                orientation=cached["orientation"],
-                scale=float(axis_len) * float(AGENT_CONE_LEN_SCALE),
-                zoff=AGENT_CONE_ZOFF,
-            ))
-            if SHOW_GAZE_LINE:
-                fig.add_trace(make_gaze_line(dataset_name, cached["location"], cached["orientation"], scale=float(axis_len)))
+            for t in make_situation_arrow_trace(
+                cached["location"],
+                cached["orientation"],
+                scale=float(axis_len),
+            ):
+                fig.add_trace(t)
         except Exception as e:
-            print(f"[warn] could not render agent/gaze: {e}")
+            print(f"[warn] could not render situation arrow: {e}")
 
     return fig
 
@@ -1376,6 +1389,7 @@ def on_split_change(dataset_name: str, split_filter: str):
     qa_choices = []
     qa_val = None
 
+    # pick first scan that actually has QA choices
     for sid in scans:
         choices = qa_choices_for_scan(dataset_name, sid, split_filter)
         if choices:
@@ -1425,7 +1439,7 @@ def build_base(dataset_name, global_idx, max_points, point_size):
 
     cached, key = get_cached_scene(dataset_name, idx, int(max_points))
     fig = make_base_figure(cached, float(point_size))
-    return fig, fig, key
+    return fig, fig, key  # plot, fig_state, key_state
 
 def update_style(fig, key, dataset_name, global_idx,
                  color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points):
@@ -1435,13 +1449,13 @@ def update_style(fig, key, dataset_name, global_idx,
     idx = int(global_idx)
     cached, new_key = get_cached_scene(dataset_name, idx, int(max_points))
 
+    # if missing or key mismatch, rebuild base defensively
     if fig is None or key != new_key:
         fig = make_base_figure(cached, float(point_size))
         key = new_key
 
     fig = apply_style_and_overlays(
         fig=fig,
-        dataset_name=dataset_name,
         cached=cached,
         color_mode=color_mode,
         point_size=point_size,
@@ -1451,7 +1465,7 @@ def update_style(fig, key, dataset_name, global_idx,
         axis_len=axis_len,
         max_boxes=max_boxes,
     )
-    return fig, fig, key
+    return fig, fig, key  # plot, fig_state, key_state
 
 # ======================== Details panel toggle ========================
 
@@ -1524,7 +1538,7 @@ with gr.Blocks(
         "## MSQA Multi-Dataset Scene Viewer (Gradio + Plotly)\n"
         "Select **dataset → scene(folder) → QA**, optionally filter by split.\n\n"
         "**RScan** loads `<scan_id>/pcds.pth` inside each scan folder.\n\n"
-        "Agent marker: head + gaze cone + optional gaze line (replaces yaw arrow)."
+        "Fast mode: base geometry cached; styling updates avoid disk reload."
     )
 
     dataset_dd = gr.Dropdown(
@@ -1555,6 +1569,7 @@ with gr.Blocks(
             interactive=True,
         )
 
+    # states for accordion + fast plot updates
     details_open = gr.State(False)
     fig_state = gr.State(None)
     key_state = gr.State(None)
@@ -1569,8 +1584,8 @@ with gr.Blocks(
         with gr.Row():
             show_boxes = gr.Checkbox(value=False, label="Show instance bounding boxes")
             show_axis = gr.Checkbox(value=False, label="Show world axis")
-            show_arrow = gr.Checkbox(value=True, label="Show agent + gaze (head/cone/line)")
-            axis_len = gr.Slider(0.5, 5.0, value=1.5, step=0.1, label="Axis/gaze scale")
+            show_arrow = gr.Checkbox(value=True, label="Show situation arrow")
+            axis_len = gr.Slider(0.5, 5.0, value=1.5, step=0.1, label="Axis/arrow scale")
 
         with gr.Row():
             max_points = gr.Slider(10_000, 500_000, value=200_000, step=10_000, label="Max points (downsample for speed)")
@@ -1589,7 +1604,8 @@ with gr.Blocks(
                 send = gr.Button("Send")
                 clear = gr.Button("Clear")
 
-    # Init: dropdowns -> base -> style
+    # ============ Init ============
+    # Load dropdowns (dataset default) then render base+style once.
     demo.load(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd]).then(
         fn=build_base,
         inputs=[dataset_dd, qa_dd, max_points, point_size],
@@ -1600,12 +1616,17 @@ with gr.Blocks(
         outputs=[plot, fig_state, key_state],
     )
 
-    # Dropdown updates
+    # ============ Dataset changes ============
+    # Update dropdowns only; do not auto-render unless you want it.
     dataset_dd.change(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd])
+
+    # ============ Split changes ============
     split_filter.change(fn=on_split_change, inputs=[dataset_dd, split_filter], outputs=[scan_id_dd, qa_dd])
+
+    # ============ Scan changes ============
     scan_id_dd.change(fn=on_scan_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
 
-    # Details toggle
+    # ============ Details toggle ============
     toggle_btn.click(
         fn=toggle_details,
         inputs=[details_open],
@@ -1616,7 +1637,7 @@ with gr.Blocks(
         outputs=[toggle_btn],
     )
 
-    # Render button: heavy then light
+    # ============ Render button (heavy then light) ============
     btn.click(
         fn=build_base,
         inputs=[dataset_dd, qa_dd, max_points, point_size],
@@ -1627,15 +1648,45 @@ with gr.Blocks(
         outputs=[plot, fig_state, key_state],
     )
 
-    # Light updates
-    for comp in (color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes):
-        comp.change(
-            fn=update_style,
-            inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
-            outputs=[plot, fig_state, key_state],
-        )
+    # ============ Light updates (no disk reload) ============
+    # These update the cached figure in-place.
+    color_mode.change(
+        fn=update_style,
+        inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+        outputs=[plot, fig_state, key_state],
+    )
+    point_size.change(
+        fn=update_style,
+        inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+        outputs=[plot, fig_state, key_state],
+    )
+    show_boxes.change(
+        fn=update_style,
+        inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+        outputs=[plot, fig_state, key_state],
+    )
+    show_axis.change(
+        fn=update_style,
+        inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+        outputs=[plot, fig_state, key_state],
+    )
+    show_arrow.change(
+        fn=update_style,
+        inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+        outputs=[plot, fig_state, key_state],
+    )
+    axis_len.change(
+        fn=update_style,
+        inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+        outputs=[plot, fig_state, key_state],
+    )
+    max_boxes.change(
+        fn=update_style,
+        inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+        outputs=[plot, fig_state, key_state],
+    )
 
-    # Heavy update: max_points
+    # Max points is a heavy trigger: rebuild base.
     max_points.change(
         fn=build_base,
         inputs=[dataset_dd, qa_dd, max_points, point_size],
@@ -1646,7 +1697,7 @@ with gr.Blocks(
         outputs=[plot, fig_state, key_state],
     )
 
-    # Chat
+    # ============ Chat ============
     send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
     user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
     clear.click(fn=clear_chat, inputs=[], outputs=[chat])
