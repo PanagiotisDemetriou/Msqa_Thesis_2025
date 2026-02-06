@@ -1059,24 +1059,33 @@ def _normed(v):
     n = float(np.linalg.norm(v)) + 1e-12
     return v / n
 
-def make_situation_arrow_trace(location, orientation, scale=0.8,
-                               zoff=0.15,
-                               head_len_ratio=0.35,
-                               head_sizeref=0.5,
-                               flatten_xy=True):
+def make_situation_arrow_trace(
+    location, orientation,
+    scale=0.8,
+    zoff=0.15,
+    head_len_ratio=0.50,
+    head_radius_ratio=0.50,   # <-- thickness relative to overall arrow length
+    tip_push_ratio=0.25,      # <-- move cone tip forward by this fraction of head_len
+    flatten_xy=True,
+):
     """
     Returns [shaft_line_trace, cone_head_trace]
+
+    - Cone length scales with the line via head_len_ratio
+    - Cone thickness scales with the line via head_radius_ratio (through sizeref)
+    - Cone is pushed forward past the shaft tip via tip_push_ratio
     """
+
     loc = np.asarray(location, dtype=np.float32).reshape(3)
 
     d = _normed(get_view_vector_from_orientation(orientation))
-
     if flatten_xy:
         d = _normed(np.array([d[0], d[1], 0.0], dtype=np.float32))
 
     base = loc.copy()
     base[2] += float(zoff)
 
+    # arrow shaft
     tip = base + d * float(scale)
 
     shaft = go.Scatter3d(
@@ -1088,14 +1097,23 @@ def make_situation_arrow_trace(location, orientation, scale=0.8,
         showlegend=False,
     )
 
+    # head length proportional to shaft length
     head_len = float(scale) * float(head_len_ratio)
 
+    # push cone "forward" (since anchor="tip", we move the tip itself)
+    tip_push = float(tip_push_ratio) * head_len
+    cone_tip = tip + d * tip_push
+
+    # thickness proportional to arrow length (or use head_len if you prefer)
+    # good default: radius ~= 0.15–0.30 * head_len
+    sizeref = float(head_radius_ratio) * float(scale)
+
     head = go.Cone(
-        x=[tip[0]], y=[tip[1]], z=[tip[2]],
+        x=[cone_tip[0]], y=[cone_tip[1]], z=[cone_tip[2]],
         u=[d[0] * head_len], v=[d[1] * head_len], w=[d[2] * head_len],
         anchor="tip",
         sizemode="absolute",
-        sizeref=float(head_sizeref),
+        sizeref=sizeref,
         showscale=False,
         colorscale=[[0, "rgb(255,165,0)"], [1, "rgb(255,165,0)"]],
         opacity=0.95,
