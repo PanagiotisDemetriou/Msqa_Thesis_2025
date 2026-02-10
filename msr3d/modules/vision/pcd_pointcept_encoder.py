@@ -213,32 +213,85 @@ class PTv3PcdObjEncoder(nn.Module):
         core = self.model.module if hasattr(self.model, "module") else self.model
         return core
 
+    # def forward(self, obj_pcds, obj_locs=None, obj_masks=None, obj_sem_masks=None, **kwargs):
+    #     """
+    #     obj_pcds: (B,O,P,9) [xyz,rgb,normals]
+    #     """
+    #     B, O, P, C = obj_pcds.shape
+    #     device = obj_pcds.device
+
+
+    #     # point_data = transform_obj_pcds_to_pointcept(
+    #     #     obj_pcds=obj_pcds,
+    #     #     grid_size=self.grid_size,
+    #     # )
+    #     point_data = transform_obj_pcds_to_pointcept(
+    #         obj_pcds=obj_pcds,
+    #         grid_size=self.grid_size,
+    #         mode="scene",   
+    #     )
+
+    #     # if torch.distributed.get_rank() == 0:
+    #     #     print(
+    #     #         "PTv3 batching:",
+    #     #         "unique batch ids =", point_data["batch"].unique().numel(),
+    #     #         "expected =", obj_pcds.shape[0]
+    #     #     )
+    #     point_data = move_pointcept_data_to_device(point_data, device)
+
+    #     core = self._get_core().to(device).eval() if self.freeze else self._get_core().to(device)
+
+    #     if self.freeze:
+    #         with torch.no_grad():
+    #             point_out = core.backbone(point_data)
+    #     else:
+    #         point_out = core.backbone(point_data)
+
+    #     obj_feats = pool_point_features_to_objects(
+    #         point_feats=point_out.feat,
+    #         obj_id=point_data["obj_id"],
+    #         num_objs=B * O,
+    #         reduce=self.feat_reduce,
+    #     )
+
+
+    #     obj_feats = self.dropout(obj_feats)
+
+    #     obj_embeds = obj_feats.view(B, O, -1)
+
+    #     obj_sem_cls = None
+    #     if self.sem_head is not None:
+    #         obj_sem_cls = self.sem_head(obj_embeds)
+    #     return obj_embeds, obj_sem_cls
+    
     def forward(self, obj_pcds, obj_locs=None, obj_masks=None, obj_sem_masks=None, **kwargs):
         """
         obj_pcds: (B,O,P,9) [xyz,rgb,normals]
+        obj_masks: (B,O) bool, True=valid object, False=padding
         """
         B, O, P, C = obj_pcds.shape
         device = obj_pcds.device
 
+        # Create mask if not provided
+        if obj_masks is None:
+            obj_masks = torch.ones((B, O), device=device, dtype=torch.bool)
+        else:
+            obj_masks = obj_masks.to(device=device, dtype=torch.bool)
 
-        # point_data = transform_obj_pcds_to_pointcept(
-        #     obj_pcds=obj_pcds,
-        #     grid_size=self.grid_size,
-        # )
+        # Optional: Zero out padded object point clouds to avoid garbage data
+        # This ensures PTv3 processes clean data even for padding
+        obj_pcds_clean = obj_pcds.clone()
+        obj_pcds_clean = obj_pcds_clean * obj_masks.view(B, O, 1, 1)
+
+        # Transform to scene-level batching
         point_data = transform_obj_pcds_to_pointcept(
-            obj_pcds=obj_pcds,
+            obj_pcds=obj_pcds_clean,  # Use cleaned version
             grid_size=self.grid_size,
-            mode="scene",   # <-- THIS is the key
+            mode="scene",   
         )
-
-        # if torch.distributed.get_rank() == 0:
-        #     print(
-        #         "PTv3 batching:",
-        #         "unique batch ids =", point_data["batch"].unique().numel(),
-        #         "expected =", obj_pcds.shape[0]
-        #     )
         point_data = move_pointcept_data_to_device(point_data, device)
 
+        # Process through PTv3 backbone
         core = self._get_core().to(device).eval() if self.freeze else self._get_core().to(device)
 
         if self.freeze:
@@ -247,21 +300,30 @@ class PTv3PcdObjEncoder(nn.Module):
         else:
             point_out = core.backbone(point_data)
 
+        # Pool point features to object features
         obj_feats = pool_point_features_to_objects(
             point_feats=point_out.feat,
             obj_id=point_data["obj_id"],
             num_objs=B * O,
             reduce=self.feat_reduce,
-        )
+        )  # (B*O, F_backbone)
 
-
-        obj_feats = self.dropout(obj_feats)
-
+        # Reshape to (B, O, F)
         obj_embeds = obj_feats.view(B, O, -1)
+        
+        # CRITICAL: Mask out padded objects before any further processing
+        obj_embeds = obj_embeds * obj_masks.unsqueeze(-1).to(obj_embeds.dtype)
+        
+        # Apply dropout
+        obj_embeds = self.dropout(obj_embeds)
 
+        # Semantic classification head
         obj_sem_cls = None
         if self.sem_head is not None:
             obj_sem_cls = self.sem_head(obj_embeds)
+            # Optional: also mask semantic logits if your loss doesn't handle it
+            # obj_sem_cls = obj_sem_cls * obj_masks.unsqueeze(-1).to(obj_sem_cls.dtype)
+        
         return obj_embeds, obj_sem_cls
 
 # import torch
