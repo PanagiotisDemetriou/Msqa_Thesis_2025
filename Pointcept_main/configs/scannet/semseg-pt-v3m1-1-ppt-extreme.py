@@ -238,7 +238,7 @@ data = dict(
                     dict(type="ToTensor"),
                     dict(
                         type="Collect",
-                        keys=("coord", "grid_coord", "segment", "condition"),
+                        keys=("coord", "grid_coord", "segment", "condition", "inst_id"),# XXXX # 
                         feat_keys=("color", "normal"),
                     ),
                 ],

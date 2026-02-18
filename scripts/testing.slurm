@@ -30,7 +30,11 @@ export WANDB_API_KEY="69a13645442fec7ee7ba8e1a60fa320a26c3f0f8"
 export CUDA_VISIBLE_DEVICES=0,1
 
 # Run your training script
-cd /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d
-export PYTHONPATH="$PWD:$PWD/../Pointcept_main:$PYTHONPATH"
+cd /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/
+#export PYTHONPATH="$PWD:$PWD/../Pointcept_main:$PYTHONPATH"
+export PYTHONPATH="$PWD:$PWD/msr3d:$PWD/Pointcept_main:$PYTHONPATH"
 #python ./../load_one_item.py --cfg configs/ptv3.yaml --ptv3_cfg ../Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py --ptv3_ckpt /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/PTv3/model_best.pth
-python tools/interactive_inference.py
+#python tools/interactive_inference.py
+python msr3d/tools/data_loading_debug.py --cfg msr3d/configs/msr3d.yaml --split train --scan_id scene0231_00
+
+
