@@ -62,59 +62,19 @@ class ScanNetBase(Dataset):
             ##### ------ ##### uncoment
             pcd_normals_dict = torch.load(os.path.join(self.base_dir, "scan_data",
                                             "pcd_normals", f'{scan_id}.pth'), weights_only=False)
-            pcd_normals = pcd_normals_dict['obj_normals_list']  # (N, 3)
+            pcd_normals = pcd_normals_dict['scene_normals']  # (N, 3)
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[-1]
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
 
-            #################
-            # N = pcds.shape[0]
-            # scene_normals = np.zeros((N, 3), dtype=np.float32)
-
-            # # instance_labels is (N,) with values 0..max_inst
-            # max_inst = int(instance_labels.max())
-            # for inst_id in range(max_inst + 1):
-            #     mask = (instance_labels == inst_id)
-            #     ni = int(mask.sum())
-            #     if ni == 0:
-            #         continue
-
-            #     inst_normals = np.asarray(pcd_normals[inst_id], dtype=np.float32)
-            #     if inst_normals.shape[0] != ni:
-            #         raise ValueError(
-            #             f"[{scan_id}] scene normals build mismatch for inst {inst_id}: "
-            #             f"{inst_normals.shape[0]} vs {ni}"
-            #         )
-
-            #     scene_normals[mask] = inst_normals
-
-            # # scene_pcds: (N,9) [xyz, rgb(-1..1), normals]
-            # one_scan["scene_pcds"] = np.concatenate([pcds, scene_normals], axis=1)
-            #################
-
-
+            scene_pcd=np.concatenate([pcds, pcd_normals], axis=1)
+            one_scan['scene_fts'] = scene_pcd
             # convert to gt object
             if load_inst_info:
                 obj_pcds = []
                 for i in range(instance_labels.max() + 1):
-                    ##### to be commented #####
-                    # mask = instance_labels == i     # time consuming
-                    # obj_pcds.append(pcds[mask])
-                    ##### ------ ##### uncoment
-                    mask = (instance_labels == i)
-                    obj_xyzrgb = pcds[mask]                 # (Ni, 6)
-
-                    obj_normals = np.asarray(pcd_normals[i])  # (Ni, 3) expected
-
-                    # Safety check (this is the key)
-                    if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
-                        raise ValueError(
-                            f"Normals/points mismatch for inst {i}: "
-                            f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
-                        )
-
-                    obj_pcds.append(np.concatenate([obj_xyzrgb, obj_normals], axis=1))  # (Ni, 9)
-                    
+                    mask = instance_labels == i     # time consuming
+                    obj_pcds.append(pcds[mask])                    
                 one_scan['obj_pcds'] = obj_pcds
 
                 # calculate box for matching
@@ -150,30 +110,6 @@ class ScanNetBase(Dataset):
                     obj_box_size_pred.append(_b)
                 one_scan['obj_center_pred'] = obj_center_pred
                 one_scan['obj_box_size_pred'] = obj_box_size_pred
-
-                #######
-                #print("Pred Obj Pcds:", obj_pcds)
-                #######
-                ##################
-                # obj_pcds = []
-                # obj_mask = np.load(obj_mask_path)
-                # obj_labels = np.load(obj_label_path)
-                # obj_labels = [self.label_converter.nyu40id_to_id[int(l)] for l in obj_labels]
-                # for i in range(obj_mask.shape[0]):
-                #     mask = obj_mask[i]
-                #     obj_pcds.append(pcds[mask == 1, :])
-                # one_scan['obj_pcds_pred'] = obj_pcds
-                # one_scan['inst_labels_pred'] = obj_labels
-                # # calculate box for pred
-                # obj_center_pred = []
-                # obj_box_size_pred = []
-                # for obj_pcd in obj_pcds:
-                #     _c, _b = convert_pc_to_box(obj_pcd)
-                #     obj_center_pred.append(_c)
-                #     obj_box_size_pred.append(_b)
-                # one_scan['obj_center_pred'] = obj_center_pred
-                # one_scan['obj_box_size_pred'] = obj_box_size_pred
-                ##################
 
         if load_multiview_info:
             one_scan['multiview_info'] = self._load_multiview_info(scan_id, is_load_mv_feat = is_load_mv_feat)

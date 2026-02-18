@@ -273,10 +273,7 @@ class ScanDataLoader(object):
         if 'obj_pcds' in data_type:
             scan_data['obj_pcds'] = {idx: scan_data['obj_pcds'][idx] for idx in range(len(scan_data['obj_pcds']))}
         
-        # if 'scene_pcds' in data_type:
-        #         # we'll add it inside ScanNetBase._load_one_scan (recommended),
-        #         # or compute it here if you prefer.
-        #         assert 'scene_pcds' in scan_data, "scene_pcds requested but not found in ScanNetBase output"
+
         return scan_data
 
     def preprocess_2d(img, size=(224, 224)):

@@ -7,3 +7,129 @@ data:
   # Optional; ScanNetBase accesses it through rgetattr(..., False)
   mvdatasettings:
     use_cache: false
+
+  
+  obj_img_base: "/mnt/d/Thesis/data/"
+  msr3dmix:
+    args:
+      #mix: [msqa_scannet,msqa_3rscan, msqa_arkitscenes]
+      mix: [msqa_scannet]
+      ratio: 1.0
+      few_shot_num: 0
+      num_points: 1024
+
+  msqa_scannet:
+    args:
+      scannet_base: ${data.scan_family_base}
+      anno_dir: ${data.msr3d_base}/scannet
+      max_obj_len: ${dataset_wrapper.args.max_obj_len}
+      num_points: ${data.msr3dmix.args.num_points}
+      few_shot_num: ${data.msr3dmix.args.few_shot_num}
+      msr3d_max_img_num: ${dataset_wrapper.args.msr3d_max_img_num}
+      val_num: 1000
+  
+  msqa_3rscan:
+    args:
+      rscan_base: ${data.rscan_base}
+      anno_dir: ${data.msr3d_base}/rscan
+      max_obj_len: ${dataset_wrapper.args.max_obj_len}
+      num_points: ${data.msr3dmix.args.num_points}
+      few_shot_num: ${data.msr3dmix.args.few_shot_num}
+      msr3d_max_img_num: ${dataset_wrapper.args.msr3d_max_img_num}
+      val_num: 1000
+  
+  msqa_arkitscenes:
+    args:
+      arkit_base: ${data.ARkit_base}
+      anno_dir: ${data.msr3d_base}/arkitscenes
+      max_obj_len: ${dataset_wrapper.args.max_obj_len}
+      num_points: ${data.msr3dmix.args.num_points}
+      few_shot_num: ${data.msr3dmix.args.few_shot_num}
+      msr3d_max_img_num: ${dataset_wrapper.args.msr3d_max_img_num}
+      val_num: 1000
+  sqa3d:
+    args:
+      max_obj_len: 60
+      max_seq_len: 80
+      num_points: 1024
+      pc_type: 'gt'
+      sem_type: '607'
+      filter_lang: False
+      use_unanswer: True
+
+  process_args:
+    img_process_args:
+      bbox_keep_ratio: 0.5
+      bbox_expand: 0.1
+      img_processer: "openai/clip-vit-base-patch32" #'navigation_img_processer'
+      tgt_img_size: [224, 224]
+
+  #scan_family_base: "data/MSR3D_v2_pcds/scannet_base"    # must be set
+  #rscan_base: "data/MSR3D_v2_pcds/rscan_base"  # must be set
+  #ARkit_base: "/data/MSR3D_v2_pcds/ARkit_base"  # must be set
+
+  mv_info_base: "" # optional, not used in standard setting
+
+  msr3d_base: "/mnt/d/Thesis/data/text_annotations/msqa" # QA pairs, json files, must be set
+
+  # split one data item into multiple pieces roughly based on this, if needed
+  max_text_out_token_len: ${model.llm.max_out_len}
+
+# task details (dataset, dataloader, evaluator)
+task:
+  msr3d_train:
+    mode: [train]
+    dataset: MSR3DMix
+    dataset_wrapper: LeoScanFamilyDatasetWrapper # object padding
+    dataset_wrapper_args: ${dataset_wrapper.args}
+    train_dataloader_args: ${dataloader.train}
+    eval_dataloader_args: ${dataloader.eval}
+  msqa_scannet:
+    mode: [val, test]
+    dataset: MSQAScanNet
+    dataset_wrapper: LeoScanFamilyDatasetWrapper
+    dataset_wrapper_args: ${dataset_wrapper.args}
+    eval_dataloader_args: ${dataloader.eval}
+    evaluator: MSQAEval
+  # msqa_3rscan:
+  #   mode: [val, test]
+  #   #mode: []
+  #   dataset: MSQA3RScan
+  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
+  #   dataset_wrapper_args: ${dataset_wrapper.args}
+  #   eval_dataloader_args: ${dataloader.eval}
+  #   evaluator: MSQAEval
+  # msqa_arkitscenes:
+  #   mode: [val, test]
+  #   #mode: []
+  #   dataset: MSQAARkitScenes
+  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
+  #   dataset_wrapper_args: ${dataset_wrapper.args}
+  #   eval_dataloader_args: ${dataloader.eval}
+  #   evaluator: MSQAEval
+
+# shared dataset_wrapper args
+dataset_wrapper:
+  args:
+    max_obj_len: 60
+    msr3d_max_img_num: 60
+    
+# shared eval args
+eval:
+  save: True # prediction saving does not work for now
+
+# shared dataloader args
+dataloader:
+  train:
+    # This is a per-gpu batchsize
+    batchsize: 2
+    num_workers: 0
+  eval:
+    # This is a per-gpu batchsize
+    batchsize: 2
+    num_workers: 0
+debug:
+  flag: False
+  debug_test: False
+  debug_size: 30
+  save_tensor_flag: False

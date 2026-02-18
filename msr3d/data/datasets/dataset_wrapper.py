@@ -185,6 +185,16 @@ class LeoScanFamilyDatasetWrapper(Dataset):
             data_dict['obj_normals'] = self.pad_tensors(data_dict['obj_normals'],
                                                         lens=self.max_obj_len,
                                                         pad=0.0).float()   # O, num_points, 3
+        
+        max_scene_points = 553000
+        if 'scene_fts' in data_dict:
+            data_dict['scene_mask'] = (torch.arange(max_scene_points) < len(data_dict['scene_fts']))
+            data_dict['scene_fts'] = torch.from_numpy(data_dict['scene_fts']).float() # S, 6
+            data_dict['scene_fts'] = self.pad_tensors(data_dict['scene_fts'], 
+                                                      lens=max_scene_points, 
+                                                      pad=0.0).float()   # S, 3
+            
+
         return data_dict
 
 
