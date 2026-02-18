@@ -70,7 +70,8 @@ data:
 
   mv_info_base: "" # optional, not used in standard setting
 
-  msr3d_base: "/mnt/d/Thesis/data/text_annotations/msqa" # QA pairs, json files, must be set
+  #msr3d_base: "/mnt/d/Thesis/data/text_annotations/msqa" # QA pairs, json files, must be set
+  msr3d_base: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa" # QA pairs, json files, must be set
 
   # split one data item into multiple pieces roughly based on this, if needed
   max_text_out_token_len: ${model.llm.max_out_len}
