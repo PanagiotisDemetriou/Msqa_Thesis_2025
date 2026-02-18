@@ -469,7 +469,8 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     point_data = move_pointcept_data_to_device(point_data, device)
     core = model.eval().to(device)
-    out = core.backbone(point_data)
+    with torch.no_grad():
+        out = core.backbone(point_data)
     print(out.keys())
 
     obj_pcds = []
@@ -487,6 +488,7 @@ def main():
         p for p, k in zip(point_data['pooled_fts'], keep.tolist()) if k
     ]
     print(len(point_data['pooled_fts']))
+
     out = pool_features_scatter(point_data['pooled_fts'])
     print(out.shape)
 
