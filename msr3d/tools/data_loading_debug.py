@@ -474,22 +474,22 @@ def main():
     print(out.keys())
 
     obj_pcds = []
-    unique_inst_ids = torch.unique(point_data['inst_id'])
+    unique_inst_ids = torch.unique(out['inst_id'])
     for i in unique_inst_ids:
-        mask = point_data['inst_id'] == i     # time consuming
-        obj_pcds.append(point_data['feat'][mask])                    
-    point_data['pooled_fts'] = obj_pcds
-    print(len(point_data['pooled_fts']))
+        mask = out['inst_id'] == i     # time consuming
+        obj_pcds.append(out['feat'][mask])                    
+    out['pooled_fts'] = obj_pcds
+    print(len(out['pooled_fts']))
     
 
     keep = (wrapped_scannet_data['obj_masks'] == 1)
 
-    point_data['pooled_fts'] = [
-        p for p, k in zip(point_data['pooled_fts'], keep.tolist()) if k
+    out['pooled_fts'] = [
+        p for p, k in zip(out['pooled_fts'], keep.tolist()) if k
     ]
-    print(len(point_data['pooled_fts']))
+    print(len(out['pooled_fts']))
 
-    out = pool_features_scatter(point_data['pooled_fts'])
+    out = pool_features_scatter(out['pooled_fts'])
     print(out.shape)
 
 
