@@ -463,7 +463,8 @@ def main():
     print(f"inst_id shape: {point_data['inst_id'].shape}")
 
     model = build_model(ptv3_cfg.model)
-    weight_path = '/mnt/d/Thesis/PTv3/model_best.pth'
+    #weight_path = '/mnt/d/Thesis/PTv3/model_best.pth'
+    weight_path = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/PTv3/model_best.pth"
     model = load_pointcept_checkpoint(model, weight_path, strict=False)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     point_data = move_pointcept_data_to_device(point_data, device)
