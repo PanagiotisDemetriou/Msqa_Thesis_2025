@@ -8,6 +8,7 @@ import jsonlines
 from tqdm import tqdm
 from scipy import sparse
 import numpy as np
+import pandas as pd
 import torch
 from scipy.spatial.transform import Rotation as R
 from torch.utils.data import Dataset
@@ -16,6 +17,70 @@ from common.misc import rgetattr
 from ..data_utils import (convert_pc_to_box, LabelConverter, build_rotate_mat, load_matrix_from_txt)
 import einops 
 
+SCANNET20_NAMES = [
+    "wall", "floor", "cabinet", "bed", "chair", "sofa", "table", "door",
+    "window", "bookshelf", "picture", "counter", "desk", "curtain",
+    "refridgerator", "shower curtain", "toilet", "sink", "bathtub", "otherfurniture",
+]
+
+SCANNET20_TO_ID = {n: i for i, n in enumerate(SCANNET20_NAMES)}
+
+def _normalize_nyu40_class(name: str) -> str:
+    """Normalize TSV nyu40class values to match config spelling."""
+    name = (name or "").strip().lower()
+    # TSV commonly uses "refrigerator" while Pointcept config uses misspelling "refridgerator"
+    if name == "refrigerator":
+        return "refridgerator"
+    return name
+
+def build_nyu40_to_scannet20_map(tsv_path: str) -> np.ndarray:
+    """
+    Returns an array `lut` such that lut[nyu40id] = scannet20id or -1 if ignored.
+    Works for nyu40id in [0..max_nyu40id_in_tsv].
+    """
+    df = pd.read_csv(tsv_path, sep="\t")
+
+    if "nyu40id" not in df.columns or "nyu40class" not in df.columns:
+        raise ValueError(f"TSV missing required columns. Found: {df.columns.tolist()}")
+
+    # Build dict nyu40id -> normalized name
+    nyu40id_to_name = (
+        df[["nyu40id", "nyu40class"]]
+        .drop_duplicates()
+        .dropna()
+        .set_index("nyu40id")["nyu40class"]
+        .to_dict()
+    )
+
+    max_id = int(max(nyu40id_to_name.keys()))
+    lut = np.full((max_id + 1,), -1, dtype=np.int64)
+
+    for nyu_id, name in nyu40id_to_name.items():
+        key = _normalize_nyu40_class(name)
+        if key in SCANNET20_TO_ID:
+            lut[int(nyu_id)] = SCANNET20_TO_ID[key]
+
+    return lut
+
+def remap_nyu40_segment_to_scannet20(segment_nyu40: np.ndarray, lut: np.ndarray, ignore_index: int = -1) -> np.ndarray:
+    """
+    segment_nyu40: (N,) integer labels in NYU40 id space.
+    lut: array from build_nyu40_to_scannet20_map(), where lut[nyu40id] -> scannet20id or -1.
+    Returns: (N,) int64 labels in ScanNet20 id space (0..19) or ignore_index.
+    """
+    seg = np.asarray(segment_nyu40)
+    if seg.ndim != 1:
+        raise ValueError(f"segment must be 1D (N,), got shape {seg.shape}")
+
+    out = np.full(seg.shape, ignore_index, dtype=np.int64)
+
+    # only map valid ids within lut range
+    valid = (seg >= 0) & (seg < lut.shape[0])
+    out[valid] = lut[seg[valid].astype(np.int64)]
+
+    # lut uses -1 for ignore; convert to ignore_index (usually -1 anyway)
+    out[out < 0] = ignore_index
+    return out
 class ScanNetBase(Dataset):
     def __init__(self, cfg, split):
         self.cfg = cfg
@@ -30,6 +95,10 @@ class ScanNetBase(Dataset):
 
 
         self.label_converter = LabelConverter(os.path.join(self.base_dir,
+                                            "annotations/meta_data/scannetv2-labels.combined.tsv"))
+        
+        # XXXX #
+        self.nyu40_to_scannet20_lut = build_nyu40_to_scannet20_map(os.path.join(self.base_dir,
                                             "annotations/meta_data/scannetv2-labels.combined.tsv"))
 
         # self.referit3d_camera_pose = json.load(open(os.path.join(self.base_dir,
@@ -69,6 +138,10 @@ class ScanNetBase(Dataset):
 
             scene_pcd=np.concatenate([pcds, pcd_normals], axis=1)
             one_scan['scene_fts'] = scene_pcd
+            one_scan['instance_ids'] = instance_labels
+            segments = pcd_data[2]
+            segments_scannet20 = remap_nyu40_segment_to_scannet20(segments, self.nyu40_to_scannet20_lut, ignore_index=-1)
+            one_scan['segments'] = segments_scannet20
             # convert to gt object
             if load_inst_info:
                 obj_pcds = []

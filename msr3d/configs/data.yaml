@@ -2,8 +2,8 @@ data:
   # IMPORTANT: this must point to the folder that contains:
   # annotations/meta_data/scannetv2_raw_categories.json
   # annotations/meta_data/scannetv2-labels.combined.tsv
-  #scan_family_base: "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base"
-  scan_family_base: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/"
+  scan_family_base: "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base"
+  #scan_family_base: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/"
   # Optional; ScanNetBase accesses it through rgetattr(..., False)
   mvdatasettings:
     use_cache: false
@@ -70,8 +70,8 @@ data:
 
   mv_info_base: "" # optional, not used in standard setting
 
-  #msr3d_base: "/mnt/d/Thesis/data/text_annotations/msqa" # QA pairs, json files, must be set
-  msr3d_base: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa" # QA pairs, json files, must be set
+  msr3d_base: "/mnt/d/Thesis/data/text_annotations/msqa" # QA pairs, json files, must be set
+  #msr3d_base: "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa" # QA pairs, json files, must be set
 
   # split one data item into multiple pieces roughly based on this, if needed
   max_text_out_token_len: ${model.llm.max_out_len}
@@ -134,3 +134,82 @@ debug:
   debug_test: False
   debug_size: 30
   save_tensor_flag: False
+
+model:
+  name: MSR3D
+  prompter:
+    model:
+      name: OSE3DSituation
+      situation_type: 'as_transform_for_objects' # 'as_object',(LEO's method) 'as_object_add_loc', 'as_embedding', 'as_transform_for_objects' (MSR3D's method)
+      scene_token_len: 60
+      loc_fourier_dim: 63
+      hidden_size: 256
+      label_size: 300
+      vision_backbone_name: gtpcd # gt, gtpcd
+      # (S)patial-attention
+      use_spatial_attn: True
+      # (E)mbodied agent token
+      use_anchor: True
+      # additional additive orientation feature (to object features)
+      use_orientation: True
+      fourier_size: 84
+      attn_flat:
+        use_attn_flat: False
+        mcan_flat_mlp_size: 512
+        mcan_flat_glimpses: 1
+        mcan_flat_out_size: 1024
+      vision:
+        name: PTv3PcdObjEncoder
+        args:
+          embedding_size: 64
+          freeze: True
+          grid_size: 0.02
+          feat_reduce: "max"
+          sem_num_classes: 607
+          ptv3_cfg_path: "/home/panagiotis/msqa/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py"
+          weight_path: "/mnt/d/Thesis/PTv3/model_best.pth"
+      spatial_encoder:
+        dim_loc: 6
+        num_attention_heads: 8
+        dim_feedforward: 2048
+        dropout: 0.1
+        activation: gelu
+        spatial_multihead: True
+        spatial_dim: 5  # 1, 4, 5
+        spatial_dist_norm: True
+        spatial_attn_fusion: cond  # cond, mul, bias, ctx, add
+        num_layers: 3
+        obj_loc_encoding: same_all # same_0, same_all, diff_all
+        pairwise_rel_type: center
+  vision_2d:
+    # name: Backbone2D
+    # freeze: True
+    # args:
+    #   backbone_name: convnext_base
+    #   backbone_pretrain_dataset: laion2b
+    #   use_pretrain: True
+    #   # flat_output: True
+    #   pooling: avg # or conv, attn
+    name: BLIP2Backbone
+    freeze: False
+    args:
+      model_name: Salesforce/blip2-opt-2.7b
+      use_pretrain: True
+
+  llm:
+    name: Vicuna7B
+    cfg_path: "huangjy-pku/vicuna-7b"
+    #name: OpenLlama
+    #cfg_path: "openlm-research/open_llama_7b"   # must be set
+    truncation_side: right
+    prompt: ""
+    max_out_len: 256
+    max_context_len: 256 # for prompt_after_obj
+    inference_mode: generation
+    clip_fusion: False
+    lora:
+      flag: True
+      rank: 16
+      alpha: 16
+      target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+      dropout: 0.0

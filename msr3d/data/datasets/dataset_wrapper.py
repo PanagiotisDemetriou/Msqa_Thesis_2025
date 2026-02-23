@@ -5,6 +5,7 @@ import torch
 from fvcore.common.registry import Registry
 from torch.utils.data import Dataset, default_collate
 from transformers import BertTokenizer
+from pointcept.datasets.utils import point_collate_fn as pointcept_collate_fn
 
 from ..data_utils import pad_tensors, random_point_cloud, random_word
 
@@ -133,7 +134,6 @@ class LeoScanFamilyDatasetWrapper(Dataset):
         self.max_obj_len = dataset_wrapper_args.get('max_obj_len', 60)
 
         self.msr3d_max_img_num = dataset_wrapper_args.get('msr3d_max_img_num', 10)
-
     def __len__(self):
         return len(self.dataset)
 
@@ -185,14 +185,18 @@ class LeoScanFamilyDatasetWrapper(Dataset):
             data_dict['obj_normals'] = self.pad_tensors(data_dict['obj_normals'],
                                                         lens=self.max_obj_len,
                                                         pad=0.0).float()   # O, num_points, 3
-        
-        max_scene_points = 553000
-        if 'scene_fts' in data_dict:
-            data_dict['scene_mask'] = (torch.arange(max_scene_points) < len(data_dict['scene_fts']))
-            data_dict['scene_fts'] = torch.from_numpy(data_dict['scene_fts']).float() # S, 6
-            data_dict['scene_fts'] = self.pad_tensors(data_dict['scene_fts'], 
-                                                      lens=max_scene_points, 
-                                                      pad=0.0).float()   # S, 3
+        if 'selected_obj_ids' in data_dict:
+            data_dict['selected_obj_ids'] = self.pad_tensors(data_dict['selected_obj_ids'],
+                                                            lens=self.max_obj_len,
+                                                            pad=-1).long()   # O
+        # XXXX #
+        # max_scene_points = 553000
+        # if 'scene_fts' in data_dict:
+        #     data_dict['scene_mask'] = (torch.arange(max_scene_points) < len(data_dict['scene_fts']))
+        #     data_dict['scene_fts'] = torch.from_numpy(data_dict['scene_fts']).float() # S, 6
+        #     data_dict['scene_fts'] = self.pad_tensors(data_dict['scene_fts'], 
+        #                                               lens=max_scene_points, 
+        #                                               pad=0.0).float()   # S, 3
             
 
         return data_dict
@@ -202,6 +206,57 @@ class LeoScanFamilyDatasetWrapper(Dataset):
         batch_dict = {}
 
         for key in batch[0].keys():
+            if key in ['scene_fts']:
+                scenes = [item["scene_fts"] for item in batch]
+
+                # Ensure tensors
+                scenes = [s if torch.is_tensor(s) else torch.as_tensor(s) for s in scenes]
+
+                # Concatenate all points
+                scene_cat = torch.cat(scenes, dim=0)  # (sum Ni, 9)
+
+                # Build cumulative offset
+                lengths = torch.tensor(
+                    [s.shape[0] for s in scenes],
+                    dtype=torch.int32,
+                    device=scene_cat.device,
+                )
+                scene_offset = torch.cumsum(lengths, dim=0)  # (B,)
+
+                # Store in batch dict
+                batch_dict["scene_fts"] = scene_cat
+                batch_dict["scene_offset"] = scene_offset
+
+                continue
+            if key in ['segments']:
+                item = [item[key] for item in batch]
+                item = [torch.as_tensor(i) if not torch.is_tensor(i) else i for i in item]
+                item_cat = torch.cat(item, dim=0)
+                batch_dict[key] = item_cat
+                continue
+            if key in ['instance_ids']:
+                insts = [item["instance_ids"] for item in batch]
+                insts = [torch.as_tensor(i) if not torch.is_tensor(i) else i for i in insts]
+
+                inst_cat_list = []
+                next_global_id = 0
+                ignore_id = -100  
+
+                for inst in insts:
+                    inst = inst.clone()
+
+                    valid = inst != ignore_id
+                    if valid.any():
+                        # shift valid instance ids so they don't collide across scenes
+                        inst[valid] += next_global_id
+                        # update next_global_id = (max valid id + 1)
+                        next_global_id = int(inst[valid].max().item()) + 1
+
+                    inst_cat_list.append(inst)
+
+                batch_dict["instance_ids"] = torch.cat(inst_cat_list, dim=0)
+                continue
+                
             values = [item[key] for item in batch]
 
             # Handle tensors (stack or pad them)

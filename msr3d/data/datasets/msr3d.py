@@ -31,6 +31,8 @@ MSR3D_REQUIRED_KEYS = [
     'msr3d_imgs',  ## (B, max_num, C, H, W) this will be padded to max_num in the dataset wrapper
     'obj_fts',
     'scene_fts', # For the PTv3 Backbone
+    'instance_ids', # instance labels for each point in scene_fts, used for pooling object features; filled by the dataset wrapper
+    'segments', # segment labels for each point in scene_fts, used for pooling object features; filled by the dataset wrapper
     # 'scene_mask', # For the PTv3 Backbone filled by the dataset wrapper
     # 'obj_masks', # this is filled by dataset wrapper
     'obj_locs',
@@ -46,7 +48,8 @@ MSR3D_REQUIRED_KEYS = [
     'prompt_middle_2',
     'prompt_after_obj',
     'index',
-    'type'
+    'type',
+    'selected_obj_ids',  # List of selected object point clouds (each is a numpy array of shape [Ni, 9])
 ]
 
 # use a global cache to avoid loading the same data multiple times
@@ -283,38 +286,98 @@ class MSR3DBase(Dataset):
             return [prefix + sentence]
 
     # get inputs for scene encoder
-    def _get_scene_encoder_input(self, scan_data, scan_insts, situation = None):
-        obj_pcds = scan_data['obj_pcds'].copy()
-        # Dict: { int: np.ndarray (N, 6) }
+    def _get_scene_encoder_input(self, scan_data, scan_insts, situation=None):
+        obj_pcds = scan_data['obj_pcds'].copy()  # {inst_id: np.ndarray}
+
         if len(obj_pcds) <= self.max_obj_len:
-            # Dict to List
+            # Take everything — preserve original dict order (or sort if you prefer)
             selected_obj_pcds = list(obj_pcds.values())
+            selected_obj_ids   = list(obj_pcds.keys())           # parallel list of IDs
         else:
-            # crop objects to max_obj_len
+            # === Priority 1: relevant objects (in scan_insts order) ===
             selected_obj_pcds = []
+            selected_obj_ids  = []
 
-            # select relevant objs first
             for i in scan_insts:
-                if i not in obj_pcds:
-                    continue
-                selected_obj_pcds.append(obj_pcds[i])
+                if i in obj_pcds:
+                    selected_obj_pcds.append(obj_pcds[i])
+                    selected_obj_ids.append(i)
 
-            num_selected_objs = len(selected_obj_pcds)
-            if num_selected_objs >= self.max_obj_len:
-                random.shuffle(selected_obj_pcds)
-                selected_obj_pcds = selected_obj_pcds[:self.max_obj_len]
+            num_selected = len(selected_obj_pcds)
+
+            if num_selected >= self.max_obj_len:
+                # Too many relevant → subsample them (same random choice as original)
+                # We shuffle indices + pcds together so they stay aligned
+                combined = list(zip(selected_obj_ids, selected_obj_pcds))
+                random.shuffle(combined)
+                combined = combined[:self.max_obj_len]
+                selected_obj_ids, selected_obj_pcds = zip(*combined)   # unzip back
+                selected_obj_ids  = list(selected_obj_ids)
+                selected_obj_pcds = list(selected_obj_pcds)
+
             else:
-                # select from remaining objs
+                # === Fill with background objects ===
                 remained_obj_idx = [i for i in obj_pcds.keys() if i not in scan_insts]
                 random.shuffle(remained_obj_idx)
-                for i in remained_obj_idx[: self.max_obj_len - num_selected_objs]:
+
+                for i in remained_obj_idx[: self.max_obj_len - num_selected]:
+                    selected_obj_ids.append(i)
                     selected_obj_pcds.append(obj_pcds[i])
 
             assert len(selected_obj_pcds) == self.max_obj_len
+            assert len(selected_obj_ids)  == self.max_obj_len
+            assert len(selected_obj_ids)  == len(selected_obj_pcds)
 
-        output_dict = self.preprocess_pcd(selected_obj_pcds, return_anchor = False, rot_aug = self.use_rotate, situation = situation)
+        # Now preprocess the point clouds (order is already fixed)
+        output_dict = self.preprocess_pcd(
+            selected_obj_pcds,
+            return_anchor=False,
+            rot_aug=self.use_rotate,
+            situation=situation
+        )
+
+        # Attach the matching IDs — they are now guaranteed to correspond 1:1
+        output_dict['selected_obj_ids'] = torch.tensor(selected_obj_ids)   # list of int, same length & order
+
+        # Optional: for debugging only
+        # output_dict['selected_obj_pcds_raw'] = selected_obj_pcds
 
         return output_dict
+    # def _get_scene_encoder_input(self, scan_data, scan_insts, situation = None):
+    #     obj_pcds = scan_data['obj_pcds'].copy()
+    #     # Dict: { int: np.ndarray (N, 6) }
+    #     if len(obj_pcds) <= self.max_obj_len:
+    #         # Dict to List
+    #         selected_obj_pcds = list(obj_pcds.values())
+    #     else:
+    #         # crop objects to max_obj_len
+    #         selected_obj_pcds = []
+
+    #         # select relevant objs first
+    #         for i in scan_insts:
+    #             if i not in obj_pcds:
+    #                 continue
+    #             selected_obj_pcds.append(obj_pcds[i])
+
+    #         num_selected_objs = len(selected_obj_pcds)
+    #         if num_selected_objs >= self.max_obj_len:
+    #             random.shuffle(selected_obj_pcds)
+    #             selected_obj_pcds = selected_obj_pcds[:self.max_obj_len]
+    #         else:
+    #             # select from remaining objs
+    #             remained_obj_idx = [i for i in obj_pcds.keys() if i not in scan_insts]
+    #             random.shuffle(remained_obj_idx)
+    #             for i in remained_obj_idx[: self.max_obj_len - num_selected_objs]:
+    #                 selected_obj_pcds.append(obj_pcds[i])
+
+    #         assert len(selected_obj_pcds) == self.max_obj_len
+
+    #     output_dict = self.preprocess_pcd(selected_obj_pcds, return_anchor = False, rot_aug = self.use_rotate, situation = situation)
+        
+    #     # XXXX #
+    #     output_dict['selected_obj_pcds'] = selected_obj_pcds  
+        
+    #     return output_dict
 
     @staticmethod
     def transfer_leo_to_msr3d(data_dict):
@@ -446,6 +509,8 @@ class MSQAScanNet(MSR3DBase):
         obj_locs = output_dict['obj_locs']
         anchor_loc, anchor_orientation = output_dict["situation"]
         scene_fts = scan_data['scene_fts']
+        instance_labels = scan_data['instance_ids']
+        segments = scan_data['segments']
 
         ### process place holder ####
         img_list = []
@@ -502,6 +567,9 @@ class MSQAScanNet(MSR3DBase):
             'index': index,
             'type': qa_type,
             'scene_fts': scene_fts,
+            'instance_ids': instance_labels,
+            'segments': segments,
+            'selected_obj_ids': output_dict['selected_obj_ids'],
             # 'obj_normals': normals
         })
 
