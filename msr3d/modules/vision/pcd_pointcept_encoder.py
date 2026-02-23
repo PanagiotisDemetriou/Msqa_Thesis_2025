@@ -67,7 +67,7 @@ class PTv3PcdObjEncoder(nn.Module):
     ):
         super().__init__()
         self.cfg = cfg
-        self.batch_size = cfg.dataloader.train.batchsize
+        # self.batch_size = cfg.dataloader.train.batchsize
         self.grid_size = float(grid_size)
         self.freeze = freeze
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
