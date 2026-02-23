@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # 🧠 Set your .pth file path here
-path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0231_00.pth"
+path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0162_00.pth"
 #path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align/00d42bed-778d-2ac6-86a7-0e0e5f5f5660/pcds.pth"
 #path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align/41069021.pth"
 
@@ -54,6 +54,10 @@ try:
 
         for i, c in zip(ids, counts):
             print(f"{int(i):>2}  count={int(c):>7}  name={nyu40id_to_name.get(int(i), 'UNKNOWN')}")
+
+        print(f"Unique instance IDs: {len(np.unique(data[-1]))}")
+        print (f"Unique instance IDs: {np.unique(data[-1])}")
+        print(data[0].shape)
 
 
 

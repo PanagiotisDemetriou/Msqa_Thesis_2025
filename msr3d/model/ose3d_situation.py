@@ -288,10 +288,7 @@ class OSE3DSituation(BaseModel):
     #     return obj_pcd_feat
     def forward_gtpcd(self, data_dict):
         if self.cfg.vision.name == "PTv3PcdObjEncoder":
-            obj_pcd_feat, _ = self.obj_encoder(
-                data_dict['scene_fts'],
-                obj_masks=data_dict.get('obj_masks', None)
-            )
+            obj_pcd_feat, _ = self.obj_encoder(data_dict)           
         else:
             obj_pcd_feat, _ = self.obj_encoder(
                 data_dict['obj_fts'],

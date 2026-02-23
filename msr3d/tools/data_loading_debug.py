@@ -25,16 +25,17 @@ from pointcept.utils.config import Config as PCConfig
 from pointcept.datasets.transform import Compose
 from pointcept.models import build_model
 
-from data.datasets.scannet_base import ScanNetBase  # :contentReference[oaicite:1]{index=1}
+from data.datasets.scannet_base import ScanNetBase  
 from data.datasets.scan_data_loader import ScanDataLoader
 from data.datasets.msr3d import MSR3DBase
 from data.datasets.msr3d import MSQAScanNet
 from data.datasets.dataset_wrapper import LeoScanFamilyDatasetWrapper
+from modules.vision.pcd_pointcept_encoder import PTv3PcdObjEncoder
+from data.build import build_dataloader_leo
 
 # ✅ CHANGE THIS import to wherever your encoder code actually lives.
 # Example:
 # from modules.vision.ptv3_pcd_obj_encoder import transform_obj_pcds_to_pointcept
-from modules.vision.pcd_pointcept_encoder import transform_obj_pcds_to_pointcept
 SCANNET20_NAMES = [
     "wall", "floor", "cabinet", "bed", "chair", "sofa", "table", "door",
     "window", "bookshelf", "picture", "counter", "desk", "curtain",
@@ -108,129 +109,6 @@ def remap_nyu40_segment_to_scannet20(segment_nyu40: np.ndarray, lut: np.ndarray,
     out[out < 0] = ignore_index
     return out
 
-def subsample_or_repeat(x: np.ndarray, num_points: int) -> np.ndarray:
-    """Return (num_points, C) from (Ni, C) by random choice with replacement if needed."""
-    n = x.shape[0]
-    if n == num_points:
-        return x
-    idx = np.random.choice(n, size=num_points, replace=(n < num_points))
-    return x[idx]
-
-
-def print_scene_stats(obj_pcds_list):
-    sizes = [(i, np.asarray(p).shape[0], np.asarray(p).shape[1]) for i, p in enumerate(obj_pcds_list)]
-    sizes_sorted = sorted(sizes, key=lambda t: t[1], reverse=True)
-
-    print(f"\n=== Object stats ===")
-    print(f"n_objects={len(obj_pcds_list)}")
-    print("top-10 by points:")
-    for inst_id, npts, ncols in sizes_sorted[:10]:
-        print(f"  inst={inst_id:4d}  npts={npts:7d}  ncols={ncols}")
-
-    scene = np.concatenate([np.asarray(p) for p in obj_pcds_list], axis=0)
-    print(f"\n=== Dense scene (concat obj_pcds) ===")
-    print(f"scene.shape={scene.shape} dtype={scene.dtype}")
-
-    xyz = scene[:, :3].astype(np.float32, copy=False)
-    mn, mx = xyz.min(axis=0), xyz.max(axis=0)
-    print(f"xyz bbox min={mn.tolist()} max={mx.tolist()} extent={(mx-mn).tolist()}")
-
-    if scene.shape[1] >= 6:
-        rgb = scene[:, 3:6].astype(np.float32, copy=False)
-        print(f"rgb range: min={rgb.min(axis=0).tolist()} max={rgb.max(axis=0).tolist()}")
-
-    if scene.shape[1] >= 9:
-        nrm = scene[:, 6:9].astype(np.float32, copy=False)
-        nlen = np.linalg.norm(nrm, axis=1)
-        print(f"normals length: min={float(nlen.min()):.6f} max={float(nlen.max()):.6f} mean={float(nlen.mean()):.6f}")
-    else:
-        print("[WARN] scene has <9 cols; normals not present (expected Nx9 per object).")
-
-
-def print_pointcept_batching(point_data: dict, name: str, max_print: int = 12):
-    print(f"\n=== {name} ===")
-    for k in ["coord", "feat", "batch", "offset", "obj_id", "grid_size"]:
-        v = point_data.get(k, None)
-        if torch.is_tensor(v):
-            print(f"{k}: shape={tuple(v.shape)} dtype={v.dtype} device={v.device}")
-        else:
-            print(f"{k}: {v}")
-
-    batch = point_data["batch"]
-    offset = point_data["offset"]
-    obj_id = point_data["obj_id"]
-
-    uniq = batch.unique()
-    print(f"unique batch ids: {uniq.numel()}  min={int(uniq.min())} max={int(uniq.max())}")
-
-    # counts per batch id
-    counts = torch.bincount(batch)
-    print(f"counts per batch: len={counts.numel()} first {max_print} -> {counts[:max_print].tolist()}")
-
-    n_points = batch.numel()
-    last_offset = int(offset[-1]) if offset.numel() else 0
-    print(f"offset: len={offset.numel()} last={last_offset} (should equal N_points={n_points})")
-
-    uniq_obj = obj_id.unique()
-    print(f"unique obj_ids: {uniq_obj.numel()} min={int(uniq_obj.min())} max={int(uniq_obj.max())}")
-
-    print("first few (batch,obj_id):")
-    pairs = torch.stack([batch[:max_print], obj_id[:max_print]], dim=1)
-    print(pairs.tolist())
-def compare_obj_pcds(d1, d2, atol=1e-6):
-    if d1.keys() != d2.keys():
-        print("obj_pcds keys differ")
-        return False
-    for k in d1:
-        a = np.asarray(d1[k])
-        b = np.asarray(d2[k])
-        if a.shape != b.shape:
-            print(f"obj_pcds shape mismatch at {k}: {a.shape} vs {b.shape}")
-            return False
-        if not np.allclose(a, b, atol=atol):
-            print(f"obj_pcds values differ at {k}")
-            return False
-    return True
-
-def compare_scan_dict(scan1, scan2, atol=1e-6):
-    if scan1.keys() != scan2.keys():
-        print("top-level keys differ")
-        return False
-
-    for k in scan1:
-        v1, v2 = scan1[k], scan2[k]
-
-        if k == "obj_pcds":
-            if not compare_obj_pcds(v1, v2, atol=atol):
-                return False
-            continue
-
-        # numpy arrays
-        if isinstance(v1, np.ndarray):
-            if not np.allclose(v1, v2, atol=atol):
-                print(f"Mismatch at key {k}")
-                return False
-            continue
-
-        # lists (e.g., inst_colors might be list of arrays)
-        if isinstance(v1, list):
-            if len(v1) != len(v2):
-                print(f"Length mismatch at key {k}")
-                return False
-            for i, (a, b) in enumerate(zip(v1, v2)):
-                a = np.asarray(a)
-                b = np.asarray(b)
-                if a.shape != b.shape or not np.allclose(a, b, atol=atol):
-                    print(f"Mismatch at key {k}[{i}]")
-                    return False
-            continue
-
-        # scalars / simple types
-        if v1 != v2:
-            print(f"Mismatch at key {k}: {v1} vs {v2}")
-            return False
-
-    return True
 def prepare_test_data(idx, data_dict, transform, voxelize, post_transform, aug_transform):
         # load data
         data_dict = transform(data_dict)
@@ -310,9 +188,9 @@ def main():
     
 
     print("=== Original Scene ===")
-    #path = f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
-    path = f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
-    data = torch.load(path, map_location="cpu",weights_only=False)  # load safely on CPU
+    path = f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
+    #path = f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
+    data = torch.load(path, map_location="cpu",weights_only=False)  
     print("length:", len(data[0]))
     print(data[0].shape)
 
@@ -322,20 +200,15 @@ def main():
     msr3d_base = MSR3DBase(cfg,'ScanNet')
     msqa_scannet = MSQAScanNet(cfg,'test')
     
-
+    print(f"\n=== Load One Scan ===")
     # This path loads pcd_with_global_alignment + pcd_normals and builds obj_pcds as (Ni,9). 
     _, one_scan = ds._load_one_scan(args.scan_id, load_inst_info=True, load_pc_info=True)
 
-    obj_pcds_list = one_scan.get("obj_pcds", None)
-    if obj_pcds_list is None or len(obj_pcds_list) == 0:
-        raise RuntimeError("No obj_pcds found. Ensure load_inst_info=True and load_pc_info=True.")
-
-    print(f"\n=== Load One Scan ===")
     print(f"scan_id={args.scan_id} split={args.split}")
     print(one_scan.keys())
     print(f"Scene Pointcloud: {one_scan['scene_fts'].shape}")
-    #pcd = torch.load(f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
-    pcd = torch.load(f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
+    pcd = torch.load(f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
+    #pcd = torch.load(f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
     print(f"Normal size: {len(pcd[0])}")
     # print(one_scan['inst_labels'])
     # print(len(one_scan['inst_labels']))
@@ -388,36 +261,38 @@ def main():
     wrapped_scannet_data = wrapper[1]
     print(wrapped_scannet_data.keys())
     print(wrapped_scannet_data['scene_fts'].shape)
-    print(wrapped_scannet_data['scene_mask'].shape)
+    #print(wrapped_scannet_data['scene_mask'].shape)
     print(wrapped_scannet_data['obj_masks'].shape)
-    print(np.unique(wrapped_scannet_data['scene_mask']))
+    #print(np.unique(wrapped_scannet_data['scene_mask']))
     print(np.unique(wrapped_scannet_data['obj_masks']))
     print(f"\n=== After Mask ===")
-    print(wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1].shape)
+    #print(wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1].shape)
 
     
-    wrapped_scannet_data['scene_fts'] = wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1]
+    #wrapped_scannet_data['scene_fts'] = wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1]
     print("=== After Grouping into objects ===")
 
     instance_labels = pcd[-1]
-    obj_pcds = []
-    for i in range(instance_labels.max() + 1):
-        mask = instance_labels == i     # time consuming
-        obj_pcds.append(wrapped_scannet_data['scene_fts'][mask])                    
-    wrapped_scannet_data['pooled_fts'] = obj_pcds
-    print(len(wrapped_scannet_data['pooled_fts']))
+    # obj_pcds = []
+    # for i in range(instance_labels.max() + 1):
+    #     mask = instance_labels == i     # time consuming
+    #     obj_pcds.append(wrapped_scannet_data['scene_fts'][mask])                    
+    # wrapped_scannet_data['pooled_fts'] = obj_pcds
+    # print(len(wrapped_scannet_data['pooled_fts']))
     
-    keep = (wrapped_scannet_data['obj_masks'] == 1)
+    # keep = (wrapped_scannet_data['obj_masks'] == 1)
 
-    wrapped_scannet_data['pooled_fts'] = [
-        p for p, k in zip(wrapped_scannet_data['pooled_fts'], keep.tolist()) if k
-    ]
-    print(len(wrapped_scannet_data['pooled_fts']))
-    out = pool_features_scatter(wrapped_scannet_data['pooled_fts'])
-    print(out.shape)
+    # wrapped_scannet_data['pooled_fts'] = [
+    #     p for p, k in zip(wrapped_scannet_data['pooled_fts'], keep.tolist()) if k
+    # ]
+    # print(len(wrapped_scannet_data['pooled_fts']))
 
-    #ptv3_cfg = PCConfig.fromfile( "/home/panagiotis/msqa/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py")
-    ptv3_cfg = PCConfig.fromfile( "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py")
+    # out = pool_features_scatter(wrapped_scannet_data['pooled_fts'])
+    # print(out.shape)
+
+    # PTv3 Pipeline
+    ptv3_cfg = PCConfig.fromfile( "/home/panagiotis/msqa/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py")
+    #ptv3_cfg = PCConfig.fromfile( "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py")
     # transform_cfg = ptv3_cfg.data.test['transform']
     # voxelize_cfg = ptv3_cfg.data.test['test_cfg']['voxelize']
     # post_transform_cfg = ptv3_cfg.data.test['test_cfg']['post_transform']
@@ -427,71 +302,102 @@ def main():
     # voxelize = Compose([voxelize_cfg])
     # post_transform = Compose(post_transform_cfg)
     # aug_transforms = [Compose(aug_transform) for aug_transform in aug_cfg]
-    transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
-    transform = Compose(transform_cfg)
 
-    coord = scannet_data['scene_fts'][:,:3]
-    color = scannet_data['scene_fts'][:,3:6]
-    normals = scannet_data['scene_fts'][:,6:9]
-    condition = 'ScanNet'
-    data_dict ={
-        'coord': coord,
-        'color': color,
-        'normal': normals,
-        'condition': condition, 
-        'name': args.scan_id,
-        'inst_id' : instance_labels,
-    }
 
-    #csv_path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/annotations/meta_data/scannetv2-labels.combined.tsv"
-    csv_path = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/annotations/meta_data/scannetv2-labels.combined.tsv"
-    nyu40_to_scannet20_lut = build_nyu40_to_scannet20_map(csv_path)
-    #scene_path = f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
-    scene_path = f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
-    scene_data = torch.load(scene_path, map_location="cpu",weights_only=False)
-    data_dict["segment"] = scene_data[2]  # raw NYU40 segment
-    # after loading raw segment labels (NYU40 IDs)
-    data_dict["segment"] = remap_nyu40_segment_to_scannet20(data_dict["segment"], nyu40_to_scannet20_lut, ignore_index=-1)
 
-    # point_data = prepare_test_data(0, data_dict, transform, voxelize, post_transform, aug_transforms
-    point_data = prepare_train_data(transform, data_dict)
-    print("\n=== After Pointcept Transform ===")
-    print(f"Keys: {point_data.keys()}")
-    print(f"coord shape: {point_data['coord'].shape}")
-    print(f"grid coord shape: {point_data['grid_coord'].shape}")
-    print(f"feat shape: {point_data['feat'].shape}")
-    print(f"inst_id shape: {point_data['inst_id'].shape}")
+    # transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
+    # transform = Compose(transform_cfg)
 
-    model = build_model(ptv3_cfg.model)
-    #weight_path = '/mnt/d/Thesis/PTv3/model_best.pth'
-    weight_path = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/PTv3/model_best.pth"
-    model = load_pointcept_checkpoint(model, weight_path, strict=False)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    point_data = move_pointcept_data_to_device(point_data, device)
-    core = model.eval().to(device)
-    with torch.no_grad():
-        out = core.backbone(point_data)
-    print(out.keys())
+    # coord = wrapped_scannet_data['scene_fts'][:,:3]
+    # color = wrapped_scannet_data['scene_fts'][:,3:6]
+    # normals = wrapped_scannet_data['scene_fts'][:,6:9]
+    # condition = 'ScanNet'
+    # data_dict ={
+    #     'coord': coord,
+    #     'color': color,
+    #     'normal': normals,
+    #     'condition': condition, 
+    #     'name': args.scan_id,
+    #     'inst_id' : instance_labels,
+    # }
+    # print(type(data_dict["coord"]), getattr(data_dict["coord"], "shape", None))
+    # csv_path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/annotations/meta_data/scannetv2-labels.combined.tsv"
+    # #csv_path = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/annotations/meta_data/scannetv2-labels.combined.tsv"
+    # nyu40_to_scannet20_lut = build_nyu40_to_scannet20_map(csv_path)
+    # scene_path = f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
+    # #scene_path = f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
+    # scene_data = torch.load(scene_path, map_location="cpu",weights_only=False)
+    # data_dict["segment"] = scene_data[2]  # raw NYU40 segment
+    # # after loading raw segment labels (NYU40 IDs)
+    # data_dict["segment"] = remap_nyu40_segment_to_scannet20(data_dict["segment"], nyu40_to_scannet20_lut, ignore_index=-1)
 
-    obj_pcds = []
-    unique_inst_ids = torch.unique(out['inst_id'])
-    for i in unique_inst_ids:
-        mask = out['inst_id'] == i     # time consuming
-        obj_pcds.append(out['feat'][mask])                    
-    out['pooled_fts'] = obj_pcds
-    print(len(out['pooled_fts']))
+    # # point_data = prepare_test_data(0, data_dict, transform, voxelize, post_transform, aug_transforms
+    # point_data = prepare_train_data(transform, data_dict)
+    # print("\n=== After Pointcept Transform ===")
+    # print(f"Keys: {point_data.keys()}")
+    # print(f"coord shape: {point_data['coord'].shape}")
+    # print(f"grid coord shape: {point_data['grid_coord'].shape}")
+    # print(f"feat shape: {point_data['feat'].shape}")
+    # print(f"inst_id shape: {point_data['inst_id'].shape}")
+
+    # model = build_model(ptv3_cfg.model)
+    # weight_path = '/mnt/d/Thesis/PTv3/model_best.pth'
+    # #weight_path = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/modules/third_party/PTv3/model_best.pth"
+    # model = load_pointcept_checkpoint(model, weight_path, strict=False)
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # point_data = move_pointcept_data_to_device(point_data, device)
+    # core = model.eval().to(device)
+    # with torch.no_grad():
+    #     out = core.backbone(point_data)
+    # print(out.keys())
+
+    # obj_pcds = []
+    # unique_inst_ids = torch.unique(out['inst_id'])
+    # for i in unique_inst_ids:
+    #     mask = out['inst_id'] == i     # time consuming
+    #     obj_pcds.append(out['feat'][mask])                    
+    # out['pooled_fts'] = obj_pcds
+    # print(len(out['pooled_fts']))
     
 
-    keep = (wrapped_scannet_data['obj_masks'] == 1)
+    # keep = (wrapped_scannet_data['obj_masks'] == 1)
 
-    out['pooled_fts'] = [
-        p for p, k in zip(out['pooled_fts'], keep.tolist()) if k
-    ]
-    print(len(out['pooled_fts']))
+    # out['pooled_fts'] = [
+    #     p for p, k in zip(out['pooled_fts'], keep.tolist()) if k
+    # ]
+    # print(len(out['pooled_fts']))
 
-    out = pool_features_scatter(out['pooled_fts'])
-    print(out.shape)
+    # out = pool_features_scatter(out['pooled_fts'])
+    # print(out.shape)
 
+    task_name = "msr3d_train"
+    mode = "train"
+    loader = build_dataloader_leo(cfg,
+                                    cfg.task[task_name].dataset,
+                                    cfg.task[task_name].dataset_wrapper,
+                                    cfg.task[task_name].dataset_wrapper_args,
+                                    cfg.task[task_name].train_dataloader_args if mode == "train" else cfg.task[task_name].eval_dataloader_args,
+                                    split=mode,)
+    
+    batch = next(iter(loader))
+    print(batch.keys())
+    ptv3 = PTv3PcdObjEncoder(cfg = cfg,
+                            embedding_size = cfg.model.prompter.model.vision.args.embedding_size,
+                            sem_num_classes = cfg.model.prompter.model.vision.args.sem_num_classes,
+                            ptv3_cfg_path = cfg.model.prompter.model.vision.args.ptv3_cfg_path, 
+                            weight_path = cfg.model.prompter.model.vision.args.weight_path,
+                            grid_size = cfg.model.prompter.model.vision.args.grid_size,
+                            feat_reduce = cfg.model.prompter.model.vision.args.feat_reduce,
+                            freeze=True)
+
+
+    print(f"Scene Features Shape: {batch['scene_fts'].shape}")
+    #print(f"Object instance Shape: {batch['instance_ids'].shape}")
+    print(f"Object segment Shape: {batch['segments'].shape}")
+    
+    obj_embeds,obj_logits = ptv3(batch)
+    print(f"Object Embeddings Shape: {obj_embeds.shape}")
+    print(f"Object Logits Shape: {obj_logits.shape}")
 
     # print(f"Shape of point_data['fragment_list']: {len(point_data['fragment_list'])}")
     # for i, frag in enumerate(point_data['fragment_list']):
