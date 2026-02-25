@@ -59,6 +59,8 @@ def pool_features_scatter(obj_data):
 class PTV3DataProcessing():
    def __init__(self, cfg):
       self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
+      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
+
       self.transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
       self.transform = Compose(self.transform_cfg)
 
@@ -99,13 +101,7 @@ class PTV3DataProcessing():
       result_dict = self.transform(data_dict)
       return result_dict
 
-   # XXXX # prepeiu na dw ti ginetai me ta scenes pou allazoun kai na sasw to pooling gia batches 
-   # Problems:
-   # 1. Instance IDs missing due to transformation (e.g., cropping) -> can't pool by instance
-   # 2. Slow
-   # 3 .Check Masks 
-   
-
+   # XXXX # 
    def pool_object_features(self, data, obj_ids):
       inst_dct = {}
       unique_inst_ids = torch.unique(data['inst_id'])
@@ -122,19 +118,20 @@ class PTV3DataProcessing():
       # print(f"Object IDs in inst_dct: {list(inst_dct.keys())}")
       # print(f"Assetions = {list(inst_dct.keys()) == unique_inst_ids.tolist()}")
  
+      # Keep the objects that are selected for the other 3D Backbone
       accumulation = 0
-      obj_data = []  # will become: list of length B, where each element is a list of tensors
+      obj_data = []  
 
-      for b, row in enumerate(obj_ids):           # row = obj_ids[b]  shape [60] or similar
-         scene_objects = []                      # list of feature tensors for this scene
+      for b, row in enumerate(obj_ids):           
+         scene_objects = []                      
          
-         valid_row = row[row >= 0]               # ignore padding values (assuming <0 = pad)
+         valid_row = row[row >= 0]               
          if valid_row.numel() == 0:
-            obj_data.append(scene_objects)      # empty scene
-            accumulation += 1                   # or 0 — depends on your ID scheme
+            obj_data.append(scene_objects)      
+            accumulation += 1                  
             continue
 
-         seen = set()  # optional: avoid duplicate local ids if they appear multiple times
+         seen = set()  
 
          for lid_tensor in row:
             lid = lid_tensor.item()
@@ -145,16 +142,16 @@ class PTV3DataProcessing():
             global_id = lid + accumulation
 
             if global_id in inst_dct:
-                  feats = inst_dct[global_id]              # shape: [num_points_this_obj, feat_dim]
+                  feats = inst_dct[global_id]              
                   scene_objects.append(feats)
 
          obj_data.append(scene_objects)
 
-         # Update accumulation *after* processing the whole scene
+         
          max_in_scene = valid_row.max().item()
          accumulation += max_in_scene + 1
 
-         # print(f"Batch {b}: {len(scene_objects)} objects collected | Accumulation now: {accumulation}")
+         
 
       # ────────────────────────────────────────────────
       # Optional debug prints (safe now)
@@ -168,7 +165,7 @@ class PTV3DataProcessing():
       #       print("  → no objects")
                
 
-
+      # Pool Point features to per object features
       obj_embeds, obj_mask = pool_features_scatter(obj_data)
       
       return obj_embeds, obj_mask

@@ -114,14 +114,14 @@ class PTv3PcdObjEncoder(nn.Module):
 
         # Process through PTv3 backbone
         core = self._get_core().to(self.device).eval() if self.freeze else self._get_core().to(self.device)
-
+        
         if self.freeze:
             with torch.no_grad():
                 point_out = core.backbone(data_dict)
         else:
             point_out = core.backbone(data_dict)
 
-        point_out['offset'] = offset
+        # point_out['offset'] = offset # Prepei na mpei sto data dict?
         # Pool point features to object features
         obj_embeds, obj_mask = self.ptv3_processor.pool_object_features(point_out, obj_ids) 
 
