@@ -80,9 +80,9 @@ class PTV3DataProcessing():
       # color = scene_fts[:,3:6].numpy()
       # normals = scene_fts[:,6:9].numpy()
 
-      coord = scene_fts[:,:3]  
-      color = scene_fts[:,3:6]
-      normals = scene_fts[:,6:9]
+      coord = scene_fts[:,:3].detach().cpu().numpy()
+      color = scene_fts[:,3:6].detach().cpu().numpy()
+      normals = scene_fts[:,6:9].detach().cpu().numpy()
       condition = self.condition
       segments = data['segments']
 
