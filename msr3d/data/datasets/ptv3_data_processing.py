@@ -76,9 +76,13 @@ class PTV3DataProcessing():
       assert scene_fts.shape[1] == 9, f"Expected 9 features (coords, color, normals), got {scene_fts.shape[1]}"
       
       
-      coord = scene_fts[:,:3].numpy()  
-      color = scene_fts[:,3:6].numpy()
-      normals = scene_fts[:,6:9].numpy()
+      # coord = scene_fts[:,:3].numpy()  
+      # color = scene_fts[:,3:6].numpy()
+      # normals = scene_fts[:,6:9].numpy()
+
+      coord = scene_fts[:,:3]  
+      color = scene_fts[:,3:6]
+      normals = scene_fts[:,6:9]
       condition = self.condition
       segments = data['segments']
 
