@@ -32,6 +32,7 @@ from data.datasets.msr3d import MSQAScanNet
 from data.datasets.dataset_wrapper import LeoScanFamilyDatasetWrapper
 from modules.vision.pcd_pointcept_encoder import PTv3PcdObjEncoder
 from data.build import build_dataloader_leo
+from model.msr3d.msr3d import MSR3D
 
 # ✅ CHANGE THIS import to wherever your encoder code actually lives.
 # Example:
@@ -369,7 +370,7 @@ def main():
 
     # out = pool_features_scatter(out['pooled_fts'])
     # print(out.shape)
-
+    model = MSR3D(cfg)
     task_name = "msr3d_train"
     mode = "train"
     loader = build_dataloader_leo(cfg,
