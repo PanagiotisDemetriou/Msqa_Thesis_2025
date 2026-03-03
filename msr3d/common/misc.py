@@ -225,26 +225,49 @@ class CustomAccelerator(Accelerator):
         except TypeError:
             all_tensors = False
 
+        # ---------- OBJECT PATH ----------
         if not all_tensors:
             data = gather_object(input_data)
-            # (Optional) you may want to apply remainder trimming for list/dict here too,
-            # but leaving it as-is is usually OK if your eval code handles it.
+
+            # IMPORTANT: match Accelerate behavior on the last batch
+            try:
+                if self.gradient_state.end_of_dataloader and self.gradient_state.remainder > 0:
+                    r = self.gradient_state.remainder
+
+                    if isinstance(data, (list, tuple)):
+                        return data[:r]
+
+                    if isinstance(data, dict):
+                        trimmed = {}
+                        for k, v in data.items():
+                            if isinstance(v, (list, tuple)):
+                                trimmed[k] = v[:r]
+                            else:
+                                trimmed[k] = v
+                        return trimmed
+            except Exception:
+                pass
+
             return data
 
+        # ---------- TENSOR PATH ----------
         def _gather_one(t: torch.Tensor):
-            # gather per-rank length (scalar) -> 1D [world]
+            # Scalars cannot be ragged on dim0
+            if t.dim() == 0:
+                return self.gather(t)
+
             n_local = torch.tensor([t.size(0)], device=t.device, dtype=torch.long)
             n_all = self.gather(n_local).view(-1)
 
             # ragged dim0 -> pad/gather/unpad
             if (n_all != n_all[0]).any():
                 return _gather_ragged_dim0_with_lengths(self, t, n_all)
-            else:
-                return self.gather(t)
+
+            return self.gather(t)
 
         data = recursively_apply(_gather_one, input_data)
 
-        # Keep Accelerate's end-of-dataloader truncation semantics
+        # Keep Accelerate's end-of-dataloader truncation semantics for tensors
         try:
             if self.gradient_state.end_of_dataloader and self.gradient_state.remainder > 0:
                 def _adjust_samples(t):
