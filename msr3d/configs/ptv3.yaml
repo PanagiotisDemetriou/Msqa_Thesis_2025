@@ -17,8 +17,8 @@ save_frequency: 10000 # how many training steps to save a checkpoint using accer
 ckpt_path: "" # where to resume from, leave empty to resume from the latest checkpoint
 
 debug:
-  flag: True
-  debug_test: True
+  flag: False
+  debug_test: False
   debug_size: 30
   save_tensor_flag: False
 
