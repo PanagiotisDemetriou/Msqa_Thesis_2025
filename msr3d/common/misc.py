@@ -138,13 +138,87 @@ Customize Accelerator to support:
     1. advanced gather_for_metrics
     2. only saving partial model weights when calling save_state
 """
+# XXXX #
+from accelerate.utils import recursively_apply
+
+def _gather_ragged_dim0_with_lengths(accelerator, x: torch.Tensor, n_all: torch.Tensor):
+    """
+    x: tensor where dim0 differs across ranks.
+    n_all: 1D tensor [world] with per-rank lengths (on same device).
+    Returns concatenated unpadded tensor across ranks.
+    """
+    assert x.is_cuda
+    world = accelerator.num_processes
+    n_all = n_all.view(-1)
+    n_max = int(n_all.max().item())
+
+    if x.size(0) < n_max:
+        pad = torch.zeros((n_max - x.size(0), *x.shape[1:]), device=x.device, dtype=x.dtype)
+        x = torch.cat([x, pad], dim=0)
+
+    x_g = accelerator.gather(x)                 # [world*n_max, ...]
+    x_g = x_g.view(world, n_max, *x.shape[1:])  # [world, n_max, ...]
+
+    parts = [x_g[r, :int(n_all[r].item())] for r in range(world)]
+    return torch.cat(parts, dim=0)
+
 class CustomAccelerator(Accelerator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not hasattr(self, "trackers"):
             self.trackers = []
+    # def gather_for_metrics(self, input_data):
+    #     # by JY Huang: re-implement this method for gathering non-tensor objects
+    #     try:
+    #         recursively_apply(lambda x: x, input_data, error_on_other_type=True)
+    #         all_tensors = True
+    #     except TypeError:
+    #         all_tensors = False
+
+    #     if not all_tensors:
+    #         """ custom part 1 """
+    #         data = gather_object(input_data)
+    #         """ custom part 1 """
+    #     else:
+    #         data = self.gather(input_data)
+
+    #     try:
+    #         if self.gradient_state.end_of_dataloader:
+    #             # at the end of a dataloader, `gather_for_metrics` regresses to
+    #             # `gather` unless the dataset has a remainder so log.
+    #             if self.gradient_state.remainder == -1:
+    #                 logger.info(
+    #                     "The used dataset had no length, returning gathered tensors. You should drop the remainder yourself."
+    #                 )
+    #                 return data
+    #             elif self.gradient_state.remainder > 0:
+    #                 """ custom part 2 """
+    #                 # Last batch needs to be truncated on distributed systems as it contains additional samples
+    #                 def _adjust_samples(tensor):
+    #                     return tensor[: self.gradient_state.remainder] if tensor is not None else None
+    #                 if all_tensors:
+    #                     # This only applies to tensors, as defined in `recursively_apply`
+    #                     return recursively_apply(_adjust_samples, data)
+    #                 else:
+    #                     if isinstance(data, (list, tuple)):
+    #                         return _adjust_samples(data)
+    #                     elif isinstance(data, dict):
+    #                         return {k: _adjust_samples(v) for k, v in data.items()}
+    #                     else:
+    #                         raise NotImplementedError(f"Non-tensor gather only supports list, tuple or dict")
+    #                 """ custom part 2 """
+    #             else:  # remainder is 0
+    #                 # no remainder even though at end of dataloader, so nothing to do.
+    #                 return data
+    #         else:
+    #             # Not at the end of the dataloader, no need to adjust the tensors
+    #             return data
+    #     except Exception:
+    #         # Dataset had no length or raised an error
+    #         return data
+    # XXXX #
     def gather_for_metrics(self, input_data):
-        # by JY Huang: re-implement this method for gathering non-tensor objects
+        # detect whether input_data is tensors-only nested structure
         try:
             recursively_apply(lambda x: x, input_data, error_on_other_type=True)
             all_tensors = True
@@ -152,46 +226,34 @@ class CustomAccelerator(Accelerator):
             all_tensors = False
 
         if not all_tensors:
-            """ custom part 1 """
             data = gather_object(input_data)
-            """ custom part 1 """
-        else:
-            data = self.gather(input_data)
-
-        try:
-            if self.gradient_state.end_of_dataloader:
-                # at the end of a dataloader, `gather_for_metrics` regresses to
-                # `gather` unless the dataset has a remainder so log.
-                if self.gradient_state.remainder == -1:
-                    logger.info(
-                        "The used dataset had no length, returning gathered tensors. You should drop the remainder yourself."
-                    )
-                    return data
-                elif self.gradient_state.remainder > 0:
-                    """ custom part 2 """
-                    # Last batch needs to be truncated on distributed systems as it contains additional samples
-                    def _adjust_samples(tensor):
-                        return tensor[: self.gradient_state.remainder] if tensor is not None else None
-                    if all_tensors:
-                        # This only applies to tensors, as defined in `recursively_apply`
-                        return recursively_apply(_adjust_samples, data)
-                    else:
-                        if isinstance(data, (list, tuple)):
-                            return _adjust_samples(data)
-                        elif isinstance(data, dict):
-                            return {k: _adjust_samples(v) for k, v in data.items()}
-                        else:
-                            raise NotImplementedError(f"Non-tensor gather only supports list, tuple or dict")
-                    """ custom part 2 """
-                else:  # remainder is 0
-                    # no remainder even though at end of dataloader, so nothing to do.
-                    return data
-            else:
-                # Not at the end of the dataloader, no need to adjust the tensors
-                return data
-        except Exception:
-            # Dataset had no length or raised an error
+            # (Optional) you may want to apply remainder trimming for list/dict here too,
+            # but leaving it as-is is usually OK if your eval code handles it.
             return data
+
+        def _gather_one(t: torch.Tensor):
+            # gather per-rank length (scalar) -> 1D [world]
+            n_local = torch.tensor([t.size(0)], device=t.device, dtype=torch.long)
+            n_all = self.gather(n_local).view(-1)
+
+            # ragged dim0 -> pad/gather/unpad
+            if (n_all != n_all[0]).any():
+                return _gather_ragged_dim0_with_lengths(self, t, n_all)
+            else:
+                return self.gather(t)
+
+        data = recursively_apply(_gather_one, input_data)
+
+        # Keep Accelerate's end-of-dataloader truncation semantics
+        try:
+            if self.gradient_state.end_of_dataloader and self.gradient_state.remainder > 0:
+                def _adjust_samples(t):
+                    return t[: self.gradient_state.remainder] if t is not None else None
+                data = recursively_apply(_adjust_samples, data)
+        except Exception:
+            pass
+
+        return data
 
     def get_state_dict(self, model, unwrap=True):
         # only save learnable parameters
