@@ -95,7 +95,7 @@ def build_dataloader_leo(cfg, dataset_name, dataset_wrapper_name, dataset_wrappe
                       batch_size=dataloader_args.batchsize,
                       num_workers=dataloader_args.num_workers,
                       collate_fn=getattr(dataset, 'collate_fn', default_collate),
-                      pin_memory=True, # TODO: Test speed
+                      pin_memory=True, # TODO: Test speed # XXXX # dokimazw me false
                       shuffle=True if split == 'train' else False,
                       drop_last=True if split == 'train' else False) # TODO(jxma): maybe False for eval?
 
