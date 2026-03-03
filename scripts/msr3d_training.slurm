@@ -4,11 +4,11 @@
 #SBATCH --qos=long-a6000
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
-#SBATCH --gres=gpu:1        # Use 3 of 4 A6000 GPUs
+#SBATCH --gres=gpu:2        # Use 3 of 4 A6000 GPUs
 #SBATCH --mem=256000        # 256GB RAM
-#SBATCH --time=3-12:00:00   # 5 days
-#SBATCH -o msr3d_ptv3_training.out
-#SBATCH -e msr3d_ptv3_training.err
+#SBATCH --time=7-00:00:00   # 5 days
+#SBATCH -o msr3d_ptv3_final.out
+#SBATCH -e msr3d_ptv3_final.err
 
 module purge
 

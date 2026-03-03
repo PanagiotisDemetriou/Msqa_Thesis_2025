@@ -1,6 +1,6 @@
 # Experiment general info
 name: MSR3D # this will be the project name of wandb
-note: BLIPT_PTv3_VIC_LORA_2 # this will be the run name of wandb
+note: BLIPT_PTv3_VIC_LORA_FINAL # this will be the run name of wandb
 
 rng_seed: 42
 num_gpu: 1
