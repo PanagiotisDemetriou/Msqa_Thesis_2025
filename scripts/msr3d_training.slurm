@@ -29,6 +29,10 @@ export WANDB_API_KEY="69a13645442fec7ee7ba8e1a60fa320a26c3f0f8"
 # Set CUDA devices
 export CUDA_VISIBLE_DEVICES=0,1
 
+export NCCL_DEBUG=INFO
+export TORCH_DISTRIBUTED_DEBUG=DETAIL
+export NCCL_ASYNC_ERROR_HANDLING=1
+
 # Run your training script
 cd /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d
 export PYTHONPATH="$PWD:$PWD/../Pointcept_main:$PYTHONPATH"
