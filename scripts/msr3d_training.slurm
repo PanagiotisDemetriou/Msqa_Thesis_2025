@@ -27,7 +27,7 @@ export HF_DATASETS_CACHE=/lustreFS/data/vcg/pdemetriou/hf_cache
 export WANDB_API_KEY="69a13645442fec7ee7ba8e1a60fa320a26c3f0f8"
 
 # Set CUDA devices
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=0,1
 
 # Run your training script
 cd /lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d
