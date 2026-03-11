@@ -370,7 +370,7 @@ def main():
 
     # out = pool_features_scatter(out['pooled_fts'])
     # print(out.shape)
-    model = MSR3D(cfg)
+    #model = MSR3D(cfg)
     task_name = "msr3d_train"
     mode = "train"
     loader = build_dataloader_leo(cfg,
@@ -396,7 +396,7 @@ def main():
     #print(f"Object instance Shape: {batch['instance_ids'].shape}")
     print(f"Object segment Shape: {batch['segments'].shape}")
     
-    obj_embeds,obj_logits = ptv3(batch)
+    obj_embeds,obj_logits = ptv3(batch, mode = "inference")
     print(f"Object Embeddings Shape: {obj_embeds.shape}")
     print(f"Object Logits Shape: {obj_logits.shape}")
 
