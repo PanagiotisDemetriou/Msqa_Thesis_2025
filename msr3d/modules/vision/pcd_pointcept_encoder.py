@@ -73,7 +73,9 @@ class PTv3PcdObjEncoder(nn.Module):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # Build Pointcept model from config file
         self.ptv3_cfg = PCConfig.fromfile(ptv3_cfg_path)
-        model = build_model(self.ptv3_cfg.model)
+        #model = build_model(self.ptv3_cfg.model)
+        model = build_model(self.ptv3_cfg.model.backbone)
+
         self.ptv3_processor = PTV3DataProcessing(self.cfg)
        
         if weight_path is not None:
@@ -113,14 +115,18 @@ class PTv3PcdObjEncoder(nn.Module):
         data_dict = move_pointcept_data_to_device(data_dict, self.device)
 
         # Process through PTv3 backbone
-        core = self._get_core().to(self.device).eval() if self.freeze else self._get_core().to(self.device)
-        
+        #core = self._get_core().to(self.device).eval() if self.freeze else self._get_core().to(self.device)
+        core = self.model.to(self.device).eval()
+
         #print(data_dict.keys())
         if self.freeze:
             with torch.no_grad():
-                point_out = core.backbone(data_dict)
+                #point_out = core.backbone(data_dict)
+                point_out = core(data_dict)
         else:
-            point_out = core.backbone(data_dict)
+            #point_out = core.backbone(data_dict)
+            point_out = core(data_dict)
+            
         print(point_out.keys())
         if "inverse" in data_dict.keys(): # XXXX # 
             assert "origin_inst" in data_dict.keys()
