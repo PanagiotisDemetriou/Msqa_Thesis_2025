@@ -128,10 +128,10 @@ class PTv3PcdObjEncoder(nn.Module):
             #point_out = core(data_dict)
 
         print(len(point_out['feat']))
-        print(data_dict['inverse'])
+        print(point_out.keys())
         if "inverse" in data_dict.keys(): # XXXX # 
             assert "origin_inst" in data_dict.keys()
-            point_out = point_out[data_dict["inverse"]]
+            point_out['feat'] = point_out['feat'][data_dict["inverse"]]
             point_out['inst_id'] = data_dict["origin_inst"]
         print(len(point_out['feat']))
         # point_out['offset'] = offset # Prepei na mpei sto data dict?
