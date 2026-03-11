@@ -129,6 +129,7 @@ class PTv3PcdObjEncoder(nn.Module):
 
         print(len(point_out['feat']))
         print(point_out.keys())
+        print(len(data_dict['inverse']))
         if "inverse" in data_dict.keys(): # XXXX # 
             assert "origin_inst" in data_dict.keys()
             point_out['feat'] = point_out['feat'][data_dict["inverse"]]
