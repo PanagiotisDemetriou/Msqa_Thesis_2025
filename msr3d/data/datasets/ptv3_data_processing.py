@@ -58,11 +58,14 @@ def pool_features_scatter(obj_data):
 
 class PTV3DataProcessing():
    def __init__(self, cfg):
-      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
-      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
+      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
+      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
 
-      self.transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
-      self.transform = Compose(self.transform_cfg)
+      self.train_transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
+      self.train_transform = Compose(self.train_transform_cfg)
+
+      self.val_transform_cfg = ptv3_cfg.data.val['transform']
+      self.val_transform = Compose(self.val_transform_cfg)
 
       self.condition = 'ScanNet'
       
@@ -101,8 +104,13 @@ class PTV3DataProcessing():
       collated_batch = collate_fn(batch)
       return collated_batch
      
-   def prepare_data(self, data_dict):
-      result_dict = self.transform(data_dict)
+   def prepare_data(self, data_dict, mode):
+      if mode == "train":
+         print("doing training ----------")
+         result_dict = self.train_transform(data_dict)
+      else:
+         print("doing inference ----------")
+         result_dict = self.val_transform(data_dict)
       return result_dict
 
    # XXXX # 

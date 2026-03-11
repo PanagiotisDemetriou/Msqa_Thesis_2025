@@ -218,7 +218,8 @@ class MSR3D(nn.Module):
                             input_ids = None,       # (B, T)
                             attention_mask = None,  # (B, T)  
                             img_sp_token = None,    
-                            scene_sp_token = None  
+                            scene_sp_token = None,
+                            mode = "train",  
                             #img_sp_token = 30861,   # vicuna 
                             #scene_sp_token = 31495  # vicuna
                             ): 
@@ -284,7 +285,7 @@ class MSR3D(nn.Module):
             # scene_values = scene_values[scene_mask.bool()] # TODO, only one scene for each prompt text currently, the code should be compatible with LEO's training pipeline
             # embed()
             if 'obj_tokens' not in scene_dict:
-                scene_dict = self.visual_prompter(scene_dict)
+                scene_dict = self.visual_prompter(scene_dict, mode = mode)
 
             scene_embeds = self.llm_proj(scene_dict['obj_tokens'].to(self.device))
 
@@ -368,7 +369,7 @@ class MSR3D(nn.Module):
         inputs = self.processor(text=data_dict["prompt"])
 
         # try:
-        inputs_embeds, attention_mask = self.build_embeds(scene_dict=data_dict, input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'])
+        inputs_embeds, attention_mask = self.build_embeds(scene_dict=data_dict, input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'],mode = "train")
         # (B, T1+O+T2, D), (B, T1+O+T2)
         # except:
         #     ValueError("Error in building embeddings")
@@ -500,7 +501,8 @@ class MSR3D(nn.Module):
              inputs_embeds, attention_mask = self.build_embeds(
                  scene_dict=data_dict, 
                  input_ids=inputs['input_ids'], 
-                 attention_mask=inputs['attention_mask']
+                 attention_mask=inputs['attention_mask'],
+                 mode = "inference",
              )
              #print(f"DEBUG: build_embeds succeeded", flush=True)
              bs = inputs_embeds.shape[0]

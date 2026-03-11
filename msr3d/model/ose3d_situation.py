@@ -286,9 +286,9 @@ class OSE3DSituation(BaseModel):
     # def forward_gtpcd(self, data_dict):
     #     obj_pcd_feat = self.obj_linear_projection(self.obj_encoder(data_dict['obj_fts'])[0])
     #     return obj_pcd_feat
-    def forward_gtpcd(self, data_dict):
+    def forward_gtpcd(self, data_dict,mode = "train"):
         if self.cfg.vision.name == "PTv3PcdObjEncoder":
-            obj_pcd_feat, _ = self.obj_encoder(data_dict)           
+            obj_pcd_feat, _ = self.obj_encoder(data_dict,mode = mode)           
         else:
             obj_pcd_feat, _ = self.obj_encoder(
                 data_dict['obj_fts'],
@@ -297,7 +297,7 @@ class OSE3DSituation(BaseModel):
         obj_pcd_feat = self.obj_linear_projection(obj_pcd_feat)
         return obj_pcd_feat
 
-    def forward(self, data_dict):
+    def forward(self, data_dict, mode="train"):
         # Input:
         #   required keys:
         #       obj_fts: (B, N, M, 6)
@@ -320,11 +320,14 @@ class OSE3DSituation(BaseModel):
                 # TODO(lhxk) this method requires extra memory to store obj_fts, maybe we have better solution to avoid this operation
                 obj_fts = data_dict['obj_fts'].clone()
                 data_dict['obj_fts'] = data_dict['single_obj']
-                data_dict['single_obj_token'] = self.forward_gtpcd(data_dict)
+                data_dict['single_obj_token'] = self.forward_gtpcd(data_dict,mode = mode)
                 data_dict['obj_fts'] = obj_fts
                 return data_dict
-            object_feat = self.forward_gtpcd(data_dict)
+            object_feat = self.forward_gtpcd(data_dict,mode = mode)
             object_mask = ~data_dict['obj_masks']
+
+
+
 
         B, N = object_feat.shape[:2]
         device = object_feat.device

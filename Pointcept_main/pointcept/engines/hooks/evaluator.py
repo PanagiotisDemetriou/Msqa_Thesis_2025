@@ -129,7 +129,7 @@ class SemSegEvaluator(HookBase):
             loss = output_dict["loss"]
             pred = output.max(1)[1]
             segment = input_dict["segment"]
-            if "inverse" in input_dict.keys():
+            if "inverse" in input_dict.keys(): # XXXX # 
                 assert "origin_segment" in input_dict.keys()
                 pred = pred[input_dict["inverse"]]
                 segment = input_dict["origin_segment"]

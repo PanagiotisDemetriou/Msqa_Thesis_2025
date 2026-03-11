@@ -311,10 +311,10 @@ data = dict(
         data_root="data/scannet",
         transform=[
             dict(type="CenterShift", apply_z=True),
-            dict(type="Copy", keys_dict={"segment": "origin_segment"}),
+            dict(type="Copy", keys_dict={"inst_id": "origin_inst"}),
             dict(
                 type="GridSample",
-                grid_size=0.02,
+                grid_size=0.01,
                 hash_type="fnv",
                 mode="train",
                 return_grid_coord=True,
@@ -330,8 +330,9 @@ data = dict(
                     "coord",
                     "grid_coord",
                     "segment",
+                    "inst_id",
                     "condition",
-                    "origin_segment",
+                    "origin_inst",
                     "inverse",
                 ),
                 feat_keys=("color", "normal"),

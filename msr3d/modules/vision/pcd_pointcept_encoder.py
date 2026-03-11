@@ -94,7 +94,7 @@ class PTv3PcdObjEncoder(nn.Module):
         core = self.model.module if hasattr(self.model, "module") else self.model
         return core
  
-    def forward(self, data):
+    def forward(self, data, mode = "train"):
         obj_masks = data.get('obj_masks', None).to(self.device) if 'obj_masks' in data else None
         obj_ids = data.get('selected_obj_ids', None).to(self.device) if 'selected_obj_ids' in data else None
         offset = data['scene_offset']
@@ -107,7 +107,7 @@ class PTv3PcdObjEncoder(nn.Module):
         data_dict = self.ptv3_processor.create_data_dict(data)
         
         # Prepare data by applying Pointcept transforms
-        data_dict = self.ptv3_processor.prepare_data(data_dict)
+        data_dict = self.ptv3_processor.prepare_data(data_dict , mode)
         
         # Move data to device after processing
         data_dict = move_pointcept_data_to_device(data_dict, self.device)
@@ -115,11 +115,17 @@ class PTv3PcdObjEncoder(nn.Module):
         # Process through PTv3 backbone
         core = self._get_core().to(self.device).eval() if self.freeze else self._get_core().to(self.device)
         
+        #print(data_dict.keys())
         if self.freeze:
             with torch.no_grad():
                 point_out = core.backbone(data_dict)
         else:
             point_out = core.backbone(data_dict)
+        print(point_out.keys())
+        if "inverse" in data_dict.keys(): # XXXX # 
+            assert "origin_inst" in data_dict.keys()
+            point_out = point_out[data_dict["inverse"]]
+            point_out['inst_id'] = data_dict["origin_inst"]
 
         # point_out['offset'] = offset # Prepei na mpei sto data dict?
         # Pool point features to object features
