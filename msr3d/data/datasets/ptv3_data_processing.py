@@ -114,74 +114,133 @@ class PTV3DataProcessing():
       return result_dict
 
    # XXXX # 
+   # def pool_object_features(self, data, obj_ids):
+   #    inst_dct = {}
+   #    unique_inst_ids = torch.unique(data['inst_id'])
+      
+   #    # Break points into objects based on their instance ids
+   #    for i in unique_inst_ids:
+   #       mask = data['inst_id'] == i     # time consuming
+   #       inst_dct[int(i.item())] = data['feat'][mask]
+   #       # obj_pcds.append(data['feat'][mask])                    
+   #    # data['pooled_fts'] = obj_pcds
+   #    #print(f"Number of objects: {len(obj_pcds)}")
+   #    # print(f"Unique instance IDs: {unique_inst_ids}")
+   #    # print(f"Number of objects: {len(inst_dct.keys())}")
+   #    # print(f"Object IDs in inst_dct: {list(inst_dct.keys())}")
+   #    # print(f"Assetions = {list(inst_dct.keys()) == unique_inst_ids.tolist()}")
+ 
+   #    # Keep the objects that are selected for the other 3D Backbone
+   #    accumulation = 0
+   #    obj_data = []  
+
+   #    for b, row in enumerate(obj_ids):           
+   #       scene_objects = []                      
+         
+   #       valid_row = row[row >= 0]               
+   #       if valid_row.numel() == 0:
+   #          obj_data.append(scene_objects)      
+   #          accumulation += 1                  
+   #          continue
+
+   #       seen = set()  
+
+   #       for lid_tensor in row:
+   #          lid = lid_tensor.item()
+   #          if lid < 0 or lid in seen:
+   #                continue
+   #          seen.add(lid)
+
+   #          global_id = lid + accumulation
+
+   #          if global_id in inst_dct:
+   #                feats = inst_dct[global_id]              
+   #                scene_objects.append(feats)
+
+   #       obj_data.append(scene_objects)
+
+         
+   #       max_in_scene = valid_row.max().item()
+   #       accumulation += max_in_scene + 1
+
+         
+
+   #    # ────────────────────────────────────────────────
+   #    # Optional debug prints (safe now)
+   #    # ────────────────────────────────────────────────
+   #    # for b, scene_list in enumerate(obj_data):
+   #    #    print(f"Scene {b}: {len(scene_list)} objects")
+   #    #    if scene_list:
+   #    #       print(f"  → first object shape: {scene_list[0].shape}")
+   #    #       print(f"  → last  object shape: {scene_list[-1].shape}")
+   #    #    else:
+   #    #       print("  → no objects")
+               
+
+   #    # Pool Point features to per object features
+   #    obj_embeds, obj_mask = pool_features_scatter(obj_data)
+      
+   #    return obj_embeds, obj_mask
    def pool_object_features(self, data, obj_ids):
       inst_dct = {}
       unique_inst_ids = torch.unique(data['inst_id'])
-      
-      # Break points into objects based on their instance ids
+
+      # Build dictionary: global instance id -> point features
       for i in unique_inst_ids:
-         mask = data['inst_id'] == i     # time consuming
+         mask = data['inst_id'] == i
          inst_dct[int(i.item())] = data['feat'][mask]
-         # obj_pcds.append(data['feat'][mask])                    
-      # data['pooled_fts'] = obj_pcds
-      #print(f"Number of objects: {len(obj_pcds)}")
-      # print(f"Unique instance IDs: {unique_inst_ids}")
-      # print(f"Number of objects: {len(inst_dct.keys())}")
-      # print(f"Object IDs in inst_dct: {list(inst_dct.keys())}")
-      # print(f"Assetions = {list(inst_dct.keys()) == unique_inst_ids.tolist()}")
- 
-      # Keep the objects that are selected for the other 3D Backbone
+
+      obj_data = []
       accumulation = 0
-      obj_data = []  
+      max_objects = 60
 
-      for b, row in enumerate(obj_ids):           
-         scene_objects = []                      
-         
-         valid_row = row[row >= 0]               
-         if valid_row.numel() == 0:
-            obj_data.append(scene_objects)      
-            accumulation += 1                  
-            continue
+      for b, row in enumerate(obj_ids):
+         scene_objects = []
 
-         seen = set()  
+         valid_row = row[row >= 0]
+         seen = set()
 
+         # --------------------------------------------------
+         # 1. Add requested objects first, preserving order
+         # --------------------------------------------------
          for lid_tensor in row:
-            lid = lid_tensor.item()
-            if lid < 0 or lid in seen:
+               lid = lid_tensor.item()
+               if lid < 0 or lid in seen:
                   continue
-            seen.add(lid)
+               seen.add(lid)
 
-            global_id = lid + accumulation
+               global_id = lid + accumulation
+               if global_id in inst_dct:
+                  scene_objects.append(inst_dct[global_id])
 
-            if global_id in inst_dct:
-                  feats = inst_dct[global_id]              
-                  scene_objects.append(feats)
+         # --------------------------------------------------
+         # 2. Fill remaining slots with other objects
+         # --------------------------------------------------
+         if valid_row.numel() > 0:
+               max_in_scene = valid_row.max().item()
+               scene_global_ids = range(accumulation, accumulation + max_in_scene + 1)
+
+               for global_id in scene_global_ids:
+                  local_id = global_id - accumulation
+
+                  if len(scene_objects) >= max_objects:
+                     break
+
+                  if local_id in seen:
+                     continue
+
+                  if global_id in inst_dct:
+                     scene_objects.append(inst_dct[global_id])
+                     seen.add(local_id)
+
+               accumulation += max_in_scene + 1
+         else:
+               accumulation += 1
 
          obj_data.append(scene_objects)
 
-         
-         max_in_scene = valid_row.max().item()
-         accumulation += max_in_scene + 1
-
-         
-
-      # ────────────────────────────────────────────────
-      # Optional debug prints (safe now)
-      # ────────────────────────────────────────────────
-      # for b, scene_list in enumerate(obj_data):
-      #    print(f"Scene {b}: {len(scene_list)} objects")
-      #    if scene_list:
-      #       print(f"  → first object shape: {scene_list[0].shape}")
-      #       print(f"  → last  object shape: {scene_list[-1].shape}")
-      #    else:
-      #       print("  → no objects")
-               
-
-      # Pool Point features to per object features
       obj_embeds, obj_mask = pool_features_scatter(obj_data)
-      
       return obj_embeds, obj_mask
-
    
    
 
