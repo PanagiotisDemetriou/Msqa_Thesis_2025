@@ -126,8 +126,9 @@ class PTv3PcdObjEncoder(nn.Module):
         else:
             #point_out = core.backbone(data_dict)
             point_out = core(data_dict)
-            
+
         print(point_out.keys())
+        print(point_out.dtype())
         if "inverse" in data_dict.keys(): # XXXX # 
             assert "origin_inst" in data_dict.keys()
             point_out = point_out[data_dict["inverse"]]
