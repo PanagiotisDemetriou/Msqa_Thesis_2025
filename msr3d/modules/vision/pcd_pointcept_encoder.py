@@ -127,13 +127,12 @@ class PTv3PcdObjEncoder(nn.Module):
             #point_out = core.backbone(data_dict)
             point_out = core(data_dict)
 
-        print(point_out.keys())
-        print(point_out.dtype())
+        print(len(point_out['feat']))
         if "inverse" in data_dict.keys(): # XXXX # 
             assert "origin_inst" in data_dict.keys()
             point_out = point_out[data_dict["inverse"]]
             point_out['inst_id'] = data_dict["origin_inst"]
-
+        print(len(point_out['feat']))
         # point_out['offset'] = offset # Prepei na mpei sto data dict?
         # Pool point features to object features
         obj_embeds, obj_mask = self.ptv3_processor.pool_object_features(point_out, obj_ids) 
