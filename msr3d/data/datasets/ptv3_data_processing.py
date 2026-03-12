@@ -106,10 +106,10 @@ class PTV3DataProcessing():
      
    def prepare_data(self, data_dict, mode):
       if mode == "train":
-         print("doing training ----------")
+         #print("doing training ----------")
          result_dict = self.train_transform(data_dict)
       else:
-         print("doing inference ----------")
+         #print("doing inference ----------")
          result_dict = self.val_transform(data_dict)
       return result_dict
 
