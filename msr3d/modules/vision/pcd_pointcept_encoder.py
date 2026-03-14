@@ -102,11 +102,11 @@ class PTv3PcdObjEncoder(nn.Module):
         offset = data['scene_offset']
         # print(data['scan_id'])
         # print("----------------")
-        # print(data.keys())
+        print(data.keys())
         print("\n==== INSTANCE IDS CHECK ====")
-        print("unique instance_ids (first 30):", torch.unique(data['inst_id'])[:30])
-        print("min instance_id:", data['inst_id'].min().item())
-        print("max instance_id:", data['inst_id'].max().item())
+        print("unique instance_ids (first 30):", torch.unique(data['inst_ids'])[:30])
+        print("min instance_id:", data['inst_ids'].min().item())
+        print("max instance_id:", data['inst_ids'].max().item())
 
         # Convert raw data to Pointcept format and move to device
         data_dict = self.ptv3_processor.create_data_dict(data)
