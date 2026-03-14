@@ -58,8 +58,8 @@ def pool_features_scatter(obj_data):
 
 class PTV3DataProcessing():
    def __init__(self, cfg):
-      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
-      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
+      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
+      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
 
       self.train_transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
       self.train_transform = Compose(self.train_transform_cfg)
@@ -198,6 +198,9 @@ class PTV3DataProcessing():
          scene_objects = []
 
          valid_row = row[row >= 0]
+
+         print(f"\n[scene {b}] row={row.tolist()}")
+         print(f"[scene {b}] valid_row={valid_row.tolist()}")
          seen = set()
 
          # --------------------------------------------------
@@ -236,7 +239,9 @@ class PTV3DataProcessing():
                accumulation += max_in_scene + 1
          else:
                accumulation += 1
-
+         print(f"[pool_object_features] scene={b} | requested_valid={(row >= 0).sum().item()} | found={len(scene_objects)}")
+         if len(scene_objects) == 0:
+            print(f"  row={row.tolist()}")
          obj_data.append(scene_objects)
 
       obj_embeds, obj_mask = pool_features_scatter(obj_data)
