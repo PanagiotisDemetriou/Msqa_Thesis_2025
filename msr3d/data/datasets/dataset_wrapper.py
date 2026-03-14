@@ -235,27 +235,44 @@ class LeoScanFamilyDatasetWrapper(Dataset):
                 batch_dict[key] = item_cat
                 continue
             if key in ['instance_ids']:
+                # insts = [item["instance_ids"] for item in batch]
+                # insts = [torch.as_tensor(i) if not torch.is_tensor(i) else i for i in insts]
+
+                # inst_cat_list = []
+                # next_global_id = 0
+                # ignore_id = -100  
+
+                # for inst in insts:
+                #     inst = inst.clone()
+
+                #     valid = inst != ignore_id
+                #     if valid.any():
+                #         # shift valid instance ids so they don't collide across scenes
+                #         inst[valid] += next_global_id
+                #         # update next_global_id = (max valid id + 1)
+                #         next_global_id = int(inst[valid].max().item()) + 1
+
+                #     inst_cat_list.append(inst)
+
+                # batch_dict["instance_ids"] = torch.cat(inst_cat_list, dim=0)
                 insts = [item["instance_ids"] for item in batch]
                 insts = [torch.as_tensor(i) if not torch.is_tensor(i) else i for i in insts]
 
+                ignore_id = -100
+                K = 100000   # must be larger than any local instance id in a scene
+
                 inst_cat_list = []
-                next_global_id = 0
-                ignore_id = -100  
 
-                for inst in insts:
+                for scene_id, inst in enumerate(insts):
                     inst = inst.clone()
-
                     valid = inst != ignore_id
                     if valid.any():
-                        # shift valid instance ids so they don't collide across scenes
-                        inst[valid] += next_global_id
-                        # update next_global_id = (max valid id + 1)
-                        next_global_id = int(inst[valid].max().item()) + 1
-
+                        inst[valid] = scene_id * K + inst[valid]
                     inst_cat_list.append(inst)
 
                 batch_dict["instance_ids"] = torch.cat(inst_cat_list, dim=0)
                 continue
+                
                 
             values = [item[key] for item in batch]
 

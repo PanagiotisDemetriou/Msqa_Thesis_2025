@@ -8,7 +8,7 @@ from pointcept.datasets.transform import Compose
 from pointcept.datasets.utils import collate_fn
 from torch_scatter import scatter_mean
 
-def pool_features_scatter(obj_data):
+def pool_features_scatter(obj_data,device):
    embed_dim = 64   # ← or 128, 256, ... — decide what you want as final object size
 
    # Option A: keep same feature dim (just average)
@@ -22,7 +22,7 @@ def pool_features_scatter(obj_data):
       for obj_feat in scene_objs:
          if obj_feat.shape[0] == 0:
                # rare edge case - empty object
-               emb = torch.zeros(embed_dim, device=obj_feat.device)
+               emb = torch.zeros(embed_dim, device=device)
          else:
                emb = obj_feat.mean(dim=0)          # → (feat_dim,)
          
@@ -32,8 +32,8 @@ def pool_features_scatter(obj_data):
       # pad to fixed max_objects per scene if needed
       num_real = len(scene_embeds)
       if num_real == 0:
-         scene_embeds_padded = torch.zeros(60, embed_dim, device=obj_feat.device)
-         scene_mask_padded = torch.zeros(60, dtype=torch.bool, device=obj_feat.device)
+         scene_embeds_padded = torch.zeros(60, embed_dim, device=device)
+         scene_mask_padded = torch.zeros(60, dtype=torch.bool, device=device)
       else:
          scene_embeds_padded = torch.stack(scene_embeds)                     # (num_real, embed_dim)
          scene_embeds_padded = torch.nn.functional.pad(
@@ -42,7 +42,7 @@ def pool_features_scatter(obj_data):
                value=0.0
          )
          scene_mask_padded = torch.nn.functional.pad(
-               torch.tensor(scene_mask, device=obj_feat.device),
+               torch.tensor(scene_mask, device=device),
                (0, 60 - num_real),
                value=False
          )
@@ -182,49 +182,60 @@ class PTV3DataProcessing():
       
    #    return obj_embeds, obj_mask
    def pool_object_features(self, data, obj_ids):
+      K = 100000
+      max_objects = 60
+
       inst_dct = {}
       unique_inst_ids = torch.unique(data['inst_id'])
 
-      # Build dictionary: global instance id -> point features
+      # Build dictionary: encoded instance id -> point features
       for i in unique_inst_ids:
+         iid = int(i.item())
+         if iid < 0:   # skip ignore ids like -100
+               continue
          mask = data['inst_id'] == i
-         inst_dct[int(i.item())] = data['feat'][mask]
+         inst_dct[iid] = data['feat'][mask]
 
       obj_data = []
-      accumulation = 0
-      max_objects = 60
 
       for b, row in enumerate(obj_ids):
          scene_objects = []
-
          valid_row = row[row >= 0]
 
          print(f"\n[scene {b}] row={row.tolist()}")
          print(f"[scene {b}] valid_row={valid_row.tolist()}")
+
          seen = set()
 
-         # --------------------------------------------------
          # 1. Add requested objects first, preserving order
-         # --------------------------------------------------
          for lid_tensor in row:
-               lid = lid_tensor.item()
+               lid = int(lid_tensor.item())
                if lid < 0 or lid in seen:
                   continue
                seen.add(lid)
 
-               global_id = lid + accumulation
+               global_id = b * K + lid
+               print(f"scene={b}, local_id={lid}, global_id={global_id}, exists={global_id in inst_dct}")
+
                if global_id in inst_dct:
                   scene_objects.append(inst_dct[global_id])
 
-         # --------------------------------------------------
-         # 2. Fill remaining slots with other objects
-         # --------------------------------------------------
-         if valid_row.numel() > 0:
-               max_in_scene = valid_row.max().item()
-               scene_global_ids = range(accumulation, accumulation + max_in_scene + 1)
+               if len(scene_objects) >= max_objects:
+                  break
+
+         # 2. Fill remaining slots with other objects from the same scene
+         if len(scene_objects) < max_objects:
+               scene_start = b * K
+               scene_end = (b + 1) * K
+
+               # all encoded ids that belong to this scene
+               scene_global_ids = sorted(
+                  gid for gid in inst_dct.keys()
+                  if scene_start <= gid < scene_end
+               )
 
                for global_id in scene_global_ids:
-                  local_id = global_id - accumulation
+                  local_id = global_id - scene_start
 
                   if len(scene_objects) >= max_objects:
                      break
@@ -232,19 +243,14 @@ class PTV3DataProcessing():
                   if local_id in seen:
                      continue
 
-                  if global_id in inst_dct:
-                     scene_objects.append(inst_dct[global_id])
-                     seen.add(local_id)
-
-               accumulation += max_in_scene + 1
-         else:
-               accumulation += 1
-         print(f"[pool_object_features] scene={b} | requested_valid={(row >= 0).sum().item()} | found={len(scene_objects)}")
+                  scene_objects.append(inst_dct[global_id])
+                  seen.add(local_id)
          if len(scene_objects) == 0:
-            print(f"  row={row.tolist()}")
-         obj_data.append(scene_objects)
+               print(f"  row={row.tolist()}")
 
-      obj_embeds, obj_mask = pool_features_scatter(obj_data)
+         obj_data.append(scene_objects)
+      device = data['feat'].device
+      obj_embeds, obj_mask = pool_features_scatter(obj_data, device = device)
       return obj_embeds, obj_mask
    
    
