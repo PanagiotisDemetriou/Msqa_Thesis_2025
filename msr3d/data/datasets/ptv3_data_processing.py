@@ -58,8 +58,8 @@ def pool_features_scatter(obj_data,device):
 
 class PTV3DataProcessing():
    def __init__(self, cfg):
-      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
-      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
+      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
+      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
 
       self.train_transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
       self.train_transform = Compose(self.train_transform_cfg)
