@@ -202,8 +202,8 @@ class PTV3DataProcessing():
          scene_objects = []
          valid_row = row[row >= 0]
 
-         print(f"\n[scene {b}] row={row.tolist()}")
-         print(f"[scene {b}] valid_row={valid_row.tolist()}")
+         # print(f"\n[scene {b}] row={row.tolist()}")
+         # print(f"[scene {b}] valid_row={valid_row.tolist()}")
 
          seen = set()
 
@@ -215,7 +215,7 @@ class PTV3DataProcessing():
                seen.add(lid)
 
                global_id = b * K + lid
-               print(f"scene={b}, local_id={lid}, global_id={global_id}, exists={global_id in inst_dct}")
+               # print(f"scene={b}, local_id={lid}, global_id={global_id}, exists={global_id in inst_dct}")
 
                if global_id in inst_dct:
                   scene_objects.append(inst_dct[global_id])

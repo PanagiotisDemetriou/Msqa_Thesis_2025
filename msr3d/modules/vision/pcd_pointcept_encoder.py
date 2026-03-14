@@ -103,17 +103,17 @@ class PTv3PcdObjEncoder(nn.Module):
         # print(data['scan_id'])
         # print("----------------")
        
-        print("\n==== INSTANCE IDS CHECK ====")
-        print("unique instance_ids (first 30):", torch.unique(data['instance_ids'])[:30])
-        print("min instance_id:", data['instance_ids'].min().item())
-        print("max instance_id:", data['instance_ids'].max().item())
+        # print("\n==== INSTANCE IDS CHECK ====")
+        # print("unique instance_ids (first 30):", torch.unique(data['instance_ids'])[:30])
+        # print("min instance_id:", data['instance_ids'].min().item())
+        # print("max instance_id:", data['instance_ids'].max().item())
 
         # Convert raw data to Pointcept format and move to device
         data_dict = self.ptv3_processor.create_data_dict(data)
         
         # Prepare data by applying Pointcept transforms
         data_dict = self.ptv3_processor.prepare_data(data_dict , mode)
-        print(data_dict.keys())
+        # print(data_dict.keys())
         # Move data to device after processing
         data_dict = move_pointcept_data_to_device(data_dict, self.device)
 
@@ -142,10 +142,10 @@ class PTv3PcdObjEncoder(nn.Module):
         # Pool point features to object features
         obj_embeds, obj_mask = self.ptv3_processor.pool_object_features(point_out, obj_ids) 
 
-        print("\n==== FINAL OUTPUT ====")
-        print("obj_embeds shape:", obj_embeds.shape)
-        print("obj_mask shape:", obj_mask.shape)
-        print("valid objects per scene:", obj_mask.sum(dim=1))
+        # print("\n==== FINAL OUTPUT ====")
+        # print("obj_embeds shape:", obj_embeds.shape)
+        # print("obj_mask shape:", obj_mask.shape)
+        # print("valid objects per scene:", obj_mask.sum(dim=1))
         
         data['obj_masks'] = obj_mask  # Add object mask to data for downstream use
         
