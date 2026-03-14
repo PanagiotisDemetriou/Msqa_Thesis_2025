@@ -4,7 +4,7 @@
 #SBATCH --qos=long-a6000
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
-#SBATCH --gres=gpu:1        # Use 3 of 4 A6000 GPUs
+#SBATCH --gres=gpu:2        # Use 3 of 4 A6000 GPUs
 #SBATCH --mem=256000        # 256GB RAM
 #SBATCH --time=7-00:00:00   # 5 days
 #SBATCH -o msr3d_ptv3_final.out
@@ -27,8 +27,8 @@ export HF_DATASETS_CACHE=/lustreFS/data/vcg/pdemetriou/hf_cache
 export WANDB_API_KEY="69a13645442fec7ee7ba8e1a60fa320a26c3f0f8"
 
 # Set CUDA devices
-# export CUDA_VISIBLE_DEVICES=0,1
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=0,1
+# export CUDA_VISIBLE_DEVICES=0
 # export NCCL_DEBUG=INFO
 # export TORCH_DISTRIBUTED_DEBUG=DETAIL
 # export NCCL_ASYNC_ERROR_HANDLING=1
