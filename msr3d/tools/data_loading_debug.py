@@ -188,111 +188,111 @@ def main():
     args = ap.parse_args()
     
 
-    print("=== Original Scene ===")
-    path = f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
-    #path = f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
-    data = torch.load(path, map_location="cpu",weights_only=False)  
-    print("length:", len(data[0]))
-    print(data[0].shape)
+    # print("=== Original Scene ===")
+    # path = f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
+    # #path = f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth"
+    # data = torch.load(path, map_location="cpu",weights_only=False)  
+    # print("length:", len(data[0]))
+    # print(data[0].shape)
 
     cfg = OmegaConf.load(args.cfg)
-    ds = ScanNetBase(cfg, split=args.split)
-    dl = ScanDataLoader(cfg,'ScanNet')
-    msr3d_base = MSR3DBase(cfg,'ScanNet')
-    msqa_scannet = MSQAScanNet(cfg,'test')
+    # ds = ScanNetBase(cfg, split=args.split)
+    # dl = ScanDataLoader(cfg,'ScanNet')
+    # msr3d_base = MSR3DBase(cfg,'ScanNet')
+    # msqa_scannet = MSQAScanNet(cfg,'test')
     
-    print(f"\n=== Load One Scan ===")
-    # This path loads pcd_with_global_alignment + pcd_normals and builds obj_pcds as (Ni,9). 
-    _, one_scan = ds._load_one_scan(args.scan_id, load_inst_info=True, load_pc_info=True)
+    # print(f"\n=== Load One Scan ===")
+    # # This path loads pcd_with_global_alignment + pcd_normals and builds obj_pcds as (Ni,9). 
+    # _, one_scan = ds._load_one_scan(args.scan_id, load_inst_info=True, load_pc_info=True)
 
-    print(f"scan_id={args.scan_id} split={args.split}")
-    print(one_scan.keys())
-    print(f"Scene Pointcloud: {one_scan['scene_fts'].shape}")
-    pcd = torch.load(f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
-    #pcd = torch.load(f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
-    print(f"Normal size: {len(pcd[0])}")
-    # print(one_scan['inst_labels'])
-    # print(len(one_scan['inst_labels']))
-    # print(one_scan['inst_locs'])
-    # print(one_scan["inst_locs"].shape)
-    # print(one_scan['inst_colors'])
-    # print(one_scan['inst_colors'][0].shape)
-    # print(one_scan['obj_pcds'])
-    # print(len(one_scan['obj_pcds']))
-    # print(one_scan["obj_pcds"][1].shape)
-    # print(len(one_scan['obj_center']))
-    # print(len(one_scan['obj_center'][0]))
+    # print(f"scan_id={args.scan_id} split={args.split}")
+    # print(one_scan.keys())
+    # print(f"Scene Pointcloud: {one_scan['scene_fts'].shape}")
+    # pcd = torch.load(f"/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
+    # #pcd = torch.load(f"/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/{args.scan_id}.pth", map_location="cpu",weights_only=False)
+    # print(f"Normal size: {len(pcd[0])}")
+    # # print(one_scan['inst_labels'])
+    # # print(len(one_scan['inst_labels']))
+    # # print(one_scan['inst_locs'])
+    # # print(one_scan["inst_locs"].shape)
+    # # print(one_scan['inst_colors'])
+    # # print(one_scan['inst_colors'][0].shape)
+    # # print(one_scan['obj_pcds'])
+    # # print(len(one_scan['obj_pcds']))
+    # # print(one_scan["obj_pcds"][1].shape)
+    # # print(len(one_scan['obj_center']))
+    # # print(len(one_scan['obj_center'][0]))
     
-    # print(one_scan['obj_box_size'])
-    # print(len(one_scan['obj_box_size']))
-    # print(len(one_scan['obj_box_size'][0]))
-    print(f"\n=== Get Data ===")
-    data = dl.get_data('ScanNet',scan_id=args.scan_id,data_type=['obj_pcds'])
-    print(data['obj_pcds'].keys())
-    print(data['obj_pcds'][0].shape)
-    print(f"\n=== Prepare data loading cache ===")
-    cached_data = msr3d_base.prepare_data_loading_with_cache('ScanNet',scan_id=args.scan_id,data_type_list=['obj_pcds'])
-    print(cached_data.keys())
-    # print(cached_data['obj_pcds'].keys())
-    # print(compare_scan_dict(data,cached_data))
-    print(f"\n=== MSQA Scannet ===")
-    scannet_data = msqa_scannet[1]
-    print(scannet_data.keys())
-    print(scannet_data['scene_fts'].shape)
-    # print(f"Source: {scannet_data['source']}")
-    print(f"scan_id: {scannet_data['scan_id']}")
-    # print(f"obj_fts: {scannet_data['obj_fts'].shape}")
-    # print(f"obj_locs: {scannet_data['obj_locs'].shape}")
-    # print(f"img_fts: {scannet_data['img_fts'].shape}")
-    # print(f"img_masks: {scannet_data['img_masks']}")
-    # print(f"text_output: {scannet_data['text_output']}")
-    # print(f"answer_list: {scannet_data['answer_list']}")
-    # print(f"msr3d_prompt: {scannet_data['msr3d_prompt']}")
-    # print(f"msr3d_imgs: {scannet_data['msr3d_imgs']}")
-    # print(f"anchor_orientation: {scannet_data['anchor_orientation']}")
-    # print(f"anchor_locs: {scannet_data['anchor_locs']}")
-    # print(f"index: {scannet_data['index']}")
-    # print(f"type: {scannet_data['type']}")
-    # print(f"prompt_before_obj: {scannet_data['prompt_before_obj']}")
-    # print(f"prompt_middle_1: {scannet_data['prompt_middle_1']}")
-    # print(f"prompt_middle_2: {scannet_data['prompt_middle_2']}")
-    # print(f"prompt_after_obj: {scannet_data['prompt_after_obj']}")
-    print(f"\n=== After Dataset Wrap ===")
-    wrapper = LeoScanFamilyDatasetWrapper(cfg, msqa_scannet, cfg.dataset_wrapper.args)
-    wrapped_scannet_data = wrapper[1]
-    print(wrapped_scannet_data.keys())
-    print(wrapped_scannet_data['scene_fts'].shape)
-    #print(wrapped_scannet_data['scene_mask'].shape)
-    print(wrapped_scannet_data['obj_masks'].shape)
-    #print(np.unique(wrapped_scannet_data['scene_mask']))
-    print(np.unique(wrapped_scannet_data['obj_masks']))
-    print(f"\n=== After Mask ===")
-    #print(wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1].shape)
+    # # print(one_scan['obj_box_size'])
+    # # print(len(one_scan['obj_box_size']))
+    # # print(len(one_scan['obj_box_size'][0]))
+    # print(f"\n=== Get Data ===")
+    # data = dl.get_data('ScanNet',scan_id=args.scan_id,data_type=['obj_pcds'])
+    # print(data['obj_pcds'].keys())
+    # print(data['obj_pcds'][0].shape)
+    # print(f"\n=== Prepare data loading cache ===")
+    # cached_data = msr3d_base.prepare_data_loading_with_cache('ScanNet',scan_id=args.scan_id,data_type_list=['obj_pcds'])
+    # print(cached_data.keys())
+    # # print(cached_data['obj_pcds'].keys())
+    # # print(compare_scan_dict(data,cached_data))
+    # print(f"\n=== MSQA Scannet ===")
+    # scannet_data = msqa_scannet[1]
+    # print(scannet_data.keys())
+    # print(scannet_data['scene_fts'].shape)
+    # # print(f"Source: {scannet_data['source']}")
+    # print(f"scan_id: {scannet_data['scan_id']}")
+    # # print(f"obj_fts: {scannet_data['obj_fts'].shape}")
+    # # print(f"obj_locs: {scannet_data['obj_locs'].shape}")
+    # # print(f"img_fts: {scannet_data['img_fts'].shape}")
+    # # print(f"img_masks: {scannet_data['img_masks']}")
+    # # print(f"text_output: {scannet_data['text_output']}")
+    # # print(f"answer_list: {scannet_data['answer_list']}")
+    # # print(f"msr3d_prompt: {scannet_data['msr3d_prompt']}")
+    # # print(f"msr3d_imgs: {scannet_data['msr3d_imgs']}")
+    # # print(f"anchor_orientation: {scannet_data['anchor_orientation']}")
+    # # print(f"anchor_locs: {scannet_data['anchor_locs']}")
+    # # print(f"index: {scannet_data['index']}")
+    # # print(f"type: {scannet_data['type']}")
+    # # print(f"prompt_before_obj: {scannet_data['prompt_before_obj']}")
+    # # print(f"prompt_middle_1: {scannet_data['prompt_middle_1']}")
+    # # print(f"prompt_middle_2: {scannet_data['prompt_middle_2']}")
+    # # print(f"prompt_after_obj: {scannet_data['prompt_after_obj']}")
+    # print(f"\n=== After Dataset Wrap ===")
+    # wrapper = LeoScanFamilyDatasetWrapper(cfg, msqa_scannet, cfg.dataset_wrapper.args)
+    # wrapped_scannet_data = wrapper[1]
+    # print(wrapped_scannet_data.keys())
+    # print(wrapped_scannet_data['scene_fts'].shape)
+    # #print(wrapped_scannet_data['scene_mask'].shape)
+    # print(wrapped_scannet_data['obj_masks'].shape)
+    # #print(np.unique(wrapped_scannet_data['scene_mask']))
+    # print(np.unique(wrapped_scannet_data['obj_masks']))
+    # print(f"\n=== After Mask ===")
+    # #print(wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1].shape)
 
     
-    #wrapped_scannet_data['scene_fts'] = wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1]
-    print("=== After Grouping into objects ===")
+    # #wrapped_scannet_data['scene_fts'] = wrapped_scannet_data['scene_fts'][wrapped_scannet_data['scene_mask'] == 1]
+    # print("=== After Grouping into objects ===")
 
-    instance_labels = pcd[-1]
-    # obj_pcds = []
-    # for i in range(instance_labels.max() + 1):
-    #     mask = instance_labels == i     # time consuming
-    #     obj_pcds.append(wrapped_scannet_data['scene_fts'][mask])                    
-    # wrapped_scannet_data['pooled_fts'] = obj_pcds
-    # print(len(wrapped_scannet_data['pooled_fts']))
+    # #instance_labels = pcd[-1]
+    # # obj_pcds = []
+    # # for i in range(instance_labels.max() + 1):
+    # #     mask = instance_labels == i     # time consuming
+    # #     obj_pcds.append(wrapped_scannet_data['scene_fts'][mask])                    
+    # # wrapped_scannet_data['pooled_fts'] = obj_pcds
+    # # print(len(wrapped_scannet_data['pooled_fts']))
     
-    # keep = (wrapped_scannet_data['obj_masks'] == 1)
+    # # keep = (wrapped_scannet_data['obj_masks'] == 1)
 
-    # wrapped_scannet_data['pooled_fts'] = [
-    #     p for p, k in zip(wrapped_scannet_data['pooled_fts'], keep.tolist()) if k
-    # ]
-    # print(len(wrapped_scannet_data['pooled_fts']))
+    # # wrapped_scannet_data['pooled_fts'] = [
+    # #     p for p, k in zip(wrapped_scannet_data['pooled_fts'], keep.tolist()) if k
+    # # ]
+    # # print(len(wrapped_scannet_data['pooled_fts']))
 
     # out = pool_features_scatter(wrapped_scannet_data['pooled_fts'])
     # print(out.shape)
 
     # PTv3 Pipeline
-    ptv3_cfg = PCConfig.fromfile( "/home/panagiotis/msqa/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py")
+    #ptv3_cfg = PCConfig.fromfile( "/home/panagiotis/msqa/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py")
     #ptv3_cfg = PCConfig.fromfile( "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/Pointcept_main/configs/scannet/semseg-pt-v3m1-1-ppt-extreme.py")
     # transform_cfg = ptv3_cfg.data.test['transform']
     # voxelize_cfg = ptv3_cfg.data.test['test_cfg']['voxelize']
