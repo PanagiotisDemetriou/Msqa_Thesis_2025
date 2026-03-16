@@ -129,7 +129,14 @@ class PTv3PcdObjEncoder(nn.Module):
         else:
             point_out = core.backbone(data_dict)
             #point_out = core(data_dict)
-
+        if torch.isnan(point_out['feat']).any():
+            print("WARNING: NaNs detected in PTv3 features")
+        point_out['feat'] = torch.nan_to_num(
+            point_out['feat'],
+            nan=0.0,
+            posinf=0.0,
+            neginf=0.0
+        )
         # print(len(point_out['feat']))
         # print(point_out.keys())
         # print(len(data_dict['inverse']))
@@ -141,7 +148,12 @@ class PTv3PcdObjEncoder(nn.Module):
         # point_out['offset'] = offset # Prepei na mpei sto data dict?
         # Pool point features to object features
         obj_embeds, obj_mask = self.ptv3_processor.pool_object_features(point_out, obj_ids) 
-
+        obj_embeds = torch.nan_to_num(
+            obj_embeds,
+            nan=0.0,
+            posinf=0.0,
+            neginf=0.0
+        )
         # print("\n==== FINAL OUTPUT ====")
         # print("obj_embeds shape:", obj_embeds.shape)
         # print("obj_mask shape:", obj_mask.shape)
@@ -155,5 +167,8 @@ class PTv3PcdObjEncoder(nn.Module):
         obj_sem_cls = None
         if self.sem_head is not None:
             obj_sem_cls = self.sem_head(obj_embeds)
-        
+        print("PTV3 obj_embeds nan count:", torch.isnan(obj_embeds).sum().item())
+        print("PTV3 obj_embeds inf count:", torch.isinf(obj_embeds).sum().item())
+        print("PTV3 obj_embeds abs max:", obj_embeds.abs().max().item())
+        print("PTV3 obj_mask valid per scene:", obj_mask.sum(dim=1))
         return obj_embeds, obj_sem_cls
