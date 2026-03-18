@@ -153,12 +153,17 @@ class PTv3PcdObjEncoder(nn.Module):
         print(f"  offset shape:               {data_dict.get('offset').shape if 'offset' in data_dict else 'missing'}")
         print(f"  offset values:              {data_dict.get('offset').tolist() if 'offset' in data_dict else 'missing'}")
         print(f"  total points (coord):       {data_dict['coord'].shape[0] if 'coord' in data_dict else 'missing'}")
-        print(f"  unique instance ids:        {np.unique(data_dict.get('inst_id', np.array([-999])))}")
+        # print(f"  unique instance ids:        {np.unique(data_dict.get('inst_id', np.array([-999])))}")
+        inst = data_dict.get('inst_id', torch.tensor([-999], device='cpu'))
+        if isinstance(inst, torch.Tensor):
+            inst = inst.cpu().numpy()   # <--- crucial: .cpu() first
+        print(f" unique instance ids: {np.unique(inst)}")
+
         print(f"  keys in data_dict:          {sorted(data_dict.keys())}")
         print("="*60 + "\n")
         # Prepare data by applying Pointcept transforms
         #data_dict = self.ptv3_processor.prepare_data(data_dict, mode)
-        print(np.unique(data_dict['inst_id']))
+        
         
         # Move data to device after processing
         data_dict = move_pointcept_data_to_device(data_dict, self.device)
