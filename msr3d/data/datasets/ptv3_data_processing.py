@@ -197,11 +197,11 @@ class PTV3DataProcessing():
          inst_dct[iid] = data['feat'][mask]
 
       obj_data = []
-
+      kept_ids_per_scene = []   # ← ADD THIS ### 
       for b, row in enumerate(obj_ids):
          scene_objects = []
          valid_row = row[row >= 0]
-
+         kept_ids = []         # ← track kept IDs ###
          # print(f"\n[scene {b}] row={row.tolist()}")
          # print(f"[scene {b}] valid_row={valid_row.tolist()}")
 
@@ -244,11 +244,15 @@ class PTV3DataProcessing():
                      continue
 
                   scene_objects.append(inst_dct[global_id])
+                  kept_ids.append(local_id)   # ← record it ###
                   seen.add(local_id)
          if len(scene_objects) == 0:
                print(f"  row={row.tolist()}")
 
          obj_data.append(scene_objects)
+         kept_ids_per_scene.append(kept_ids)   # ← store per scene ### 
+         print(f"OBJ_IDS: {obj_ids}")
+         print(f"[Scene {b}] Kept object IDs ({len(kept_ids)}): {kept_ids}") ### 
       device = data['feat'].device
       obj_embeds, obj_mask = pool_features_scatter(obj_data, device = device)
       return obj_embeds, obj_mask

@@ -102,7 +102,7 @@ class PTv3PcdObjEncoder(nn.Module):
         offset = data['scene_offset']
         # print(data['scan_id'])
         # print("----------------")
-       
+        
         # print("\n==== INSTANCE IDS CHECK ====")
         # print("unique instance_ids (first 30):", torch.unique(data['instance_ids'])[:30])
         # print("min instance_id:", data['instance_ids'].min().item())
@@ -147,6 +147,8 @@ class PTv3PcdObjEncoder(nn.Module):
         # print(len(point_out['feat']))
         # point_out['offset'] = offset # Prepei na mpei sto data dict?
         # Pool point features to object features
+        print(f"ID: {data['scan_id']}")
+        print(f"Kept IDs:")
         obj_embeds, obj_mask = self.ptv3_processor.pool_object_features(point_out, obj_ids) 
         obj_embeds = torch.nan_to_num(
             obj_embeds,
@@ -167,8 +169,5 @@ class PTv3PcdObjEncoder(nn.Module):
         obj_sem_cls = None
         if self.sem_head is not None:
             obj_sem_cls = self.sem_head(obj_embeds)
-        print("PTV3 obj_embeds nan count:", torch.isnan(obj_embeds).sum().item())
-        print("PTV3 obj_embeds inf count:", torch.isinf(obj_embeds).sum().item())
-        print("PTV3 obj_embeds abs max:", obj_embeds.abs().max().item())
-        print("PTV3 obj_mask valid per scene:", obj_mask.sum(dim=1))
+        
         return obj_embeds, obj_sem_cls
