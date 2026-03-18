@@ -236,7 +236,7 @@ class PTv3PcdObjEncoder(nn.Module):
         print("Going to pooling with obj_ids shape:", obj_ids.shape if obj_ids is not None else "None")
         if obj_ids is not None:
             print("Scene 0 obj_ids:", obj_ids[0].tolist()[:35])
-            print("Scene 1 obj_ids:", obj_ids[1].tolist()[:35])
+            #print("Scene 1 obj_ids:", obj_ids[1].tolist()[:35])
         obj_embeds, obj_mask = self.ptv3_processor.pool_object_features(point_out, obj_ids) 
         obj_embeds = torch.nan_to_num(
             obj_embeds,
