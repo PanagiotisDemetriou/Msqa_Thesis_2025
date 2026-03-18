@@ -177,11 +177,12 @@ class PTv3PcdObjEncoder(nn.Module):
             print("Scene point counts:", torch.diff(data_dict['offset']).tolist())
         #print(data_dict.keys())
         if self.freeze:
-            with torch.no_grad():
+            with torch.no_grad(),torch.inference_mode(), torch.amp.autocast(device_type='cuda', dtype=torch.float16):
                 point_out = core.backbone(data_dict)
                 #point_out = core(data_dict)
         else:
-            point_out = core.backbone(data_dict)
+            with torch.inference_mode(), torch.amp.autocast(device_type='cuda', dtype=torch.float16):
+                point_out = core.backbone(data_dict)
             #point_out = core(data_dict)
         if torch.isnan(point_out['feat']).any():
             print("WARNING: NaNs detected in PTv3 features")
