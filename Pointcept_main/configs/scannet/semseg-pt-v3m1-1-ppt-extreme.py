@@ -314,7 +314,7 @@ data = dict(
             dict(type="Copy", keys_dict={"inst_id": "origin_inst"}),
             dict(
                 type="GridSample",
-                grid_size=0.01,
+                grid_size=0.02,
                 hash_type="fnv",
                 mode="train",
                 return_grid_coord=True,
