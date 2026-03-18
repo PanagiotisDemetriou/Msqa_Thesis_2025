@@ -371,8 +371,8 @@ def main():
     # out = pool_features_scatter(out['pooled_fts'])
     # print(out.shape)
     #model = MSR3D(cfg)
-    task_name = "msr3d_train"
-    mode = "train"
+    task_name = "msqa_scannet"
+    mode = "val"
     loader = build_dataloader_leo(cfg,
                                     cfg.task[task_name].dataset,
                                     cfg.task[task_name].dataset_wrapper,

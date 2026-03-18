@@ -58,8 +58,8 @@ def pool_features_scatter(obj_data,device):
 
 class PTV3DataProcessing():
    def __init__(self, cfg):
-      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
-      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
+      #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
+      self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
 
       self.train_transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
       self.train_transform = Compose(self.train_transform_cfg)
@@ -181,77 +181,156 @@ class PTV3DataProcessing():
    #    obj_embeds, obj_mask = pool_features_scatter(obj_data)
       
    #    return obj_embeds, obj_mask
+   # def pool_object_features(self, data, obj_ids):
+   #    K = 100000
+   #    max_objects = 60
+
+   #    inst_dct = {}
+   #    unique_inst_ids = torch.unique(data['inst_id'])
+
+   #    # Build dictionary: encoded instance id -> point features
+   #    for i in unique_inst_ids:
+   #       iid = int(i.item())
+   #       if iid < 0:   # skip ignore ids like -100
+   #             continue
+   #       mask = data['inst_id'] == i
+   #       inst_dct[iid] = data['feat'][mask]
+
+   #    obj_data = []
+   #    kept_ids_per_scene = []   # ← ADD THIS ### 
+   #    for b, row in enumerate(obj_ids):
+   #       scene_objects = []
+   #       valid_row = row[row >= 0]
+   #       kept_ids = []         # ← track kept IDs ###
+   #       # print(f"\n[scene {b}] row={row.tolist()}")
+   #       # print(f"[scene {b}] valid_row={valid_row.tolist()}")
+
+   #       seen = set()
+
+   #       # 1. Add requested objects first, preserving order
+   #       for lid_tensor in row:
+   #             lid = int(lid_tensor.item())
+   #             if lid < 0 or lid in seen:
+   #                continue
+   #             seen.add(lid)
+
+   #             global_id = b * K + lid
+   #             # print(f"scene={b}, local_id={lid}, global_id={global_id}, exists={global_id in inst_dct}")
+
+   #             if global_id in inst_dct:
+   #                scene_objects.append(inst_dct[global_id])
+
+   #             if len(scene_objects) >= max_objects:
+   #                break
+
+   #       # 2. Fill remaining slots with other objects from the same scene
+   #       if len(scene_objects) < max_objects:
+   #             scene_start = b * K
+   #             scene_end = (b + 1) * K
+
+   #             # all encoded ids that belong to this scene
+   #             scene_global_ids = sorted(
+   #                gid for gid in inst_dct.keys()
+   #                if scene_start <= gid < scene_end
+   #             )
+
+   #             for global_id in scene_global_ids:
+   #                local_id = global_id - scene_start
+
+   #                if len(scene_objects) >= max_objects:
+   #                   break
+
+   #                if local_id in seen:
+   #                   continue
+
+   #                scene_objects.append(inst_dct[global_id])
+   #                kept_ids.append(local_id)   # ← record it ###
+   #                seen.add(local_id)
+   #       if len(scene_objects) == 0:
+   #             print(f"  row={row.tolist()}")
+
+   #       obj_data.append(scene_objects)
+   #       kept_ids_per_scene.append(kept_ids)   # ← store per scene ### 
+   #       print(f"OBJ_IDS: {obj_ids}")
+   #       print(f"[Scene {b}] Kept object IDs ({len(kept_ids)}): {kept_ids}") ### 
+   #    device = data['feat'].device
+   #    obj_embeds, obj_mask = pool_features_scatter(obj_data, device = device)
+   #    return obj_embeds, obj_mask
    def pool_object_features(self, data, obj_ids):
-      K = 100000
-      max_objects = 60
+    MAX_OBJECTS = 60
+    K = 100000
+    device = data['feat'].device
 
-      inst_dct = {}
-      unique_inst_ids = torch.unique(data['inst_id'])
+    # Must have offset!
+    if 'offset' not in data:
+        raise ValueError("pool_object_features requires 'offset' in data")
 
-      # Build dictionary: encoded instance id -> point features
-      for i in unique_inst_ids:
-         iid = int(i.item())
-         if iid < 0:   # skip ignore ids like -100
-               continue
-         mask = data['inst_id'] == i
-         inst_dct[iid] = data['feat'][mask]
+    offset = data['offset'].cpu()  # (B+1,)
+    feat = data['feat']            # (total_points, dim)
+    inst_id = data['inst_id']      # (total_points,)
 
-      obj_data = []
+    assert offset[-1] == feat.shape[0], "Offset doesn't match feat length"
 
-      for b, row in enumerate(obj_ids):
-         scene_objects = []
-         valid_row = row[row >= 0]
+    obj_data = []
 
-         # print(f"\n[scene {b}] row={row.tolist()}")
-         # print(f"[scene {b}] valid_row={valid_row.tolist()}")
+    for b in range(len(obj_ids)):
+        start = offset[b].item()
+        end   = offset[b + 1].item()
 
-         seen = set()
+        # Slice only this scene's points and labels
+        scene_feat = feat[start:end]
+        scene_inst = inst_id[start:end]
 
-         # 1. Add requested objects first, preserving order
-         for lid_tensor in row:
-               lid = int(lid_tensor.item())
-               if lid < 0 or lid in seen:
-                  continue
-               seen.add(lid)
+        # Build local dict: global_id → features (only this scene)
+        global_inst_dct = {}
+        unique_globals = torch.unique(scene_inst)
+        for g in unique_globals:
+            g_int = int(g.item())
+            if g_int < 0:
+                continue
+            mask = (scene_inst == g)
+            global_inst_dct[g_int] = scene_feat[mask]
 
-               global_id = b * K + lid
-               # print(f"scene={b}, local_id={lid}, global_id={global_id}, exists={global_id in inst_dct}")
+        print(f"[Scene {b}] Available global ids: {sorted(global_inst_dct.keys())}")
 
-               if global_id in inst_dct:
-                  scene_objects.append(inst_dct[global_id])
+        row = obj_ids[b]
+        scene_objects = []
+        seen = set()
 
-               if len(scene_objects) >= max_objects:
-                  break
+        # 1. Priority objects (local → global)
+        for lid_t in row:
+            lid = int(lid_t.item())
+            if lid < 0 or lid in seen:
+                continue
+            seen.add(lid)
 
-         # 2. Fill remaining slots with other objects from the same scene
-         if len(scene_objects) < max_objects:
-               scene_start = b * K
-               scene_end = (b + 1) * K
+            global_id = b * K + lid
+            if global_id in global_inst_dct:
+                scene_objects.append(global_inst_dct[global_id])
+                print(f"  Matched priority {lid} → global {global_id}")
 
-               # all encoded ids that belong to this scene
-               scene_global_ids = sorted(
-                  gid for gid in inst_dct.keys()
-                  if scene_start <= gid < scene_end
-               )
+            if len(scene_objects) >= MAX_OBJECTS:
+                break
 
-               for global_id in scene_global_ids:
-                  local_id = global_id - scene_start
+        # 2. Random fill from this scene only
+        if len(scene_objects) < MAX_OBJECTS:
+            remaining_globals = [gid for gid in global_inst_dct if gid not in seen]
+            import random
+            random.shuffle(remaining_globals)
 
-                  if len(scene_objects) >= max_objects:
-                     break
+            for gid in remaining_globals:
+                if len(scene_objects) >= MAX_OBJECTS:
+                    break
+                scene_objects.append(global_inst_dct[gid])
+                local = gid - b * K
+                seen.add(local)
 
-                  if local_id in seen:
-                     continue
+        print(f"[Scene {b}] Final objects: {len(scene_objects)} (priority: {len(seen)})")
+        obj_data.append(scene_objects)
 
-                  scene_objects.append(inst_dct[global_id])
-                  seen.add(local_id)
-         if len(scene_objects) == 0:
-               print(f"  row={row.tolist()}")
-
-         obj_data.append(scene_objects)
-      device = data['feat'].device
-      obj_embeds, obj_mask = pool_features_scatter(obj_data, device = device)
-      return obj_embeds, obj_mask
+    # Pool as before
+    obj_embeds, obj_mask = pool_features_scatter(obj_data, device=device)
+    return obj_embeds, obj_mask
    
    
 

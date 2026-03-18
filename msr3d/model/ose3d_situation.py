@@ -324,13 +324,13 @@ class OSE3DSituation(BaseModel):
                 data_dict['obj_fts'] = obj_fts
                 return data_dict
             object_feat = self.forward_gtpcd(data_dict,mode = mode)
-            print("object_feat nan count:", torch.isnan(object_feat).sum().item())
-            print("object_feat inf count:", torch.isinf(object_feat).sum().item())
-            print("object_feat abs max:", object_feat.abs().max().item())
-            print("input obj_masks valid count:", data_dict['obj_masks'].sum(dim=1))
+            # print("object_feat nan count:", torch.isnan(object_feat).sum().item())
+            # print("object_feat inf count:", torch.isinf(object_feat).sum().item())
+            # print("object_feat abs max:", object_feat.abs().max().item())
+            # print("input obj_masks valid count:", data_dict['obj_masks'].sum(dim=1))
             object_mask = ~data_dict['obj_masks']
-            print("object_mask padded count:", object_mask.sum(dim=1))
-            print("object_mask valid count:", (~object_mask).sum(dim=1))
+            # print("object_mask padded count:", object_mask.sum(dim=1))
+            # print("object_mask valid count:", (~object_mask).sum(dim=1))
 
 
 
@@ -448,15 +448,15 @@ class OSE3DSituation(BaseModel):
                     situation_ori_feat = self.orientation_encoder(generate_fourier_features(situation_ori))
                     situation_feat = situation_loc_feat + situation_ori_feat
                     obj_embeds = self.situation_condition_layer[i](obj_embeds, situation_feat)
-                print("before pc_layer obj_embeds nan count:", torch.isnan(obj_embeds).sum().item())
-                print("before pc_layer obj_embeds inf count:", torch.isinf(obj_embeds).sum().item())
-                print("before pc_layer obj_embeds abs max:", obj_embeds.abs().max().item())
-                print("all_object_mask padded count:", all_object_mask.sum(dim=1))
-                print("all_object_mask valid count:", (~all_object_mask).sum(dim=1))
+                # print("before pc_layer obj_embeds nan count:", torch.isnan(obj_embeds).sum().item())
+                # print("before pc_layer obj_embeds inf count:", torch.isinf(obj_embeds).sum().item())
+                # print("before pc_layer obj_embeds abs max:", obj_embeds.abs().max().item())
+                # print("all_object_mask padded count:", all_object_mask.sum(dim=1))
+                # print("all_object_mask valid count:", (~all_object_mask).sum(dim=1))
                 if self.cfg.use_spatial_attn:
-                    print("pairwise_locs nan count:", torch.isnan(pairwise_locs).sum().item())
-                    print("pairwise_locs inf count:", torch.isinf(pairwise_locs).sum().item())
-                    print("pairwise_locs abs max:", pairwise_locs.abs().max().item())
+                    # print("pairwise_locs nan count:", torch.isnan(pairwise_locs).sum().item())
+                    # print("pairwise_locs inf count:", torch.isinf(pairwise_locs).sum().item())
+                    # print("pairwise_locs abs max:", pairwise_locs.abs().max().item())
                     obj_embeds, self_attn_matrices = pc_layer(
                         obj_embeds,
                         pairwise_locs,
