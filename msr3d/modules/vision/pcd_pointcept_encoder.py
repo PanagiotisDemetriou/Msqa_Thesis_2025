@@ -85,7 +85,14 @@ class PTv3PcdObjEncoder(nn.Module):
 
         # Keep only the backbone path you already validated
         self.model = model
-       
+        from spconv.pytorch import ConvAlgo
+
+        # Force Native algo to skip the broken tuner / binding crash
+        for m in self.model.modules():
+            if hasattr(m, 'algo'):
+                print(f"Forcing Native on {m.__class__.__name__}")
+                m.algo = ConvAlgo.Native
+                
         # Optional semantic classifier head (like your obj3d_clf_pre_head)
         self.sem_num_classes = sem_num_classes
         self.sem_head = get_mlp_head(64, 384, self.sem_num_classes, dropout=0.3).to(self.device)
@@ -93,11 +100,7 @@ class PTv3PcdObjEncoder(nn.Module):
         if self.freeze:
             for p in self.parameters():
                 p.requires_grad = False
-        from spconv.pytorch import ConvAlgo
 
-        for m in self.model.modules():
-            if hasattr(m, 'algo'):
-                m.algo = ConvAlgo.Native
     def _get_core(self):
         core = self.model.module if hasattr(self.model, "module") else self.model
         return core
