@@ -6,7 +6,8 @@ import torch_scatter
 from collections import OrderedDict
 from triton import Config
 import numpy as np
-
+import os
+os.environ["SPCONV_ALGO"] = "native"  # force Native globally before import
 from modules.build import VISION_REGISTRY # XXXX # was modules, the one below as well
 from modules.utils import get_mlp_head
 
@@ -92,7 +93,11 @@ class PTv3PcdObjEncoder(nn.Module):
         if self.freeze:
             for p in self.parameters():
                 p.requires_grad = False
+        from spconv.pytorch import ConvAlgo
 
+        for m in self.model.modules():
+            if hasattr(m, 'algo'):
+                m.algo = ConvAlgo.Native
     def _get_core(self):
         core = self.model.module if hasattr(self.model, "module") else self.model
         return core
