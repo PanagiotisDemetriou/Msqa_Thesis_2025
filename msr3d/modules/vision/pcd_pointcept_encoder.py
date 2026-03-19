@@ -208,15 +208,15 @@ class PTv3PcdObjEncoder(nn.Module):
             point_out['feat'] = point_out['feat'][data_dict["inverse"]]
             point_out['inst_id'] = data_dict["origin_inst"]
             # Critical: use ORIGINAL offset now that we un-downsampled feat & inst_id
-            if 'scene_offset' in data:  # the one you computed at the beginning
-                point_out['offset'] = torch.tensor(
-                    [0] + data['scene_offset'].cpu().numpy().tolist(),
-                    dtype=torch.long,
-                    device=data['scene_offset'].device
-                )
-            else:
-                # fallback: reconstruct from original lengths if needed
-                raise ValueError("scene_offset not found in input data")
+        if 'scene_offset' in data:  # the one you computed at the beginning
+            point_out['offset'] = torch.tensor(
+                [0] + data['scene_offset'].cpu().numpy().tolist(),
+                dtype=torch.long,
+                device=data['scene_offset'].device
+            )
+        else:
+            # fallback: reconstruct from original lengths if needed
+            raise ValueError("scene_offset not found in input data")
         print("\n=== POST-INVERSE / POST-REMAPPING DEBUG ===")
         print("point_out['feat'].shape:", point_out['feat'].shape)
         print("point_out has 'inst_id':", 'inst_id' in point_out)
