@@ -110,10 +110,11 @@ def main():
             # Save
             cache = {
                 "scene_id": scene_id,
+                "scene_normals":scene_normals,
                 # Dict: inst_id -> (Ni,3) normals (point order matches indices_by_inst)
-                "normals_by_inst": normals_by_inst,
+                #"normals_by_inst": normals_by_inst,
                 # Dict: inst_id -> indices into the original xyz/rgb arrays
-                "indices_by_inst": indices_by_inst,
+                #"indices_by_inst": indices_by_inst,
                 "meta": {
                     "method": "open3d_knn",
                     "k": k,

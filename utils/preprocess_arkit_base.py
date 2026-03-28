@@ -115,8 +115,9 @@ def main():
             # Save cache
             cache = {
                 "scene_id": scene_id,
-                "normals_by_inst": normals_by_inst,   # dict[int] -> (Ni,3)
-                "indices_by_inst": indices_by_inst,   # dict[int] -> (Ni,)
+                "scene_normals":scene_normals,
+                #"normals_by_inst": normals_by_inst,   # dict[int] -> (Ni,3)
+                #"indices_by_inst": indices_by_inst,   # dict[int] -> (Ni,)
                 "meta": {
                     "method": "open3d_knn",
                     "k": k,

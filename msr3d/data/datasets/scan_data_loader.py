@@ -48,14 +48,117 @@ class ScanDataLoader(object):
         else:
             raise NotImplementedError(f"{dataset} not supported")
     
-    def _get_rscan_data(self, scan_id, pc_type = 'gt', data_type = ['obj_pcds', 'mv_info']):
+    # def _get_rscan_data(self, scan_id, pc_type = 'gt', data_type = ['obj_pcds', 'mv_info']):
+    #     scan_data = {}
+    #     if 'mv_info' in data_type:
+    #         ### load mv info
+    #         mv_info_path = os.path.join(self.cfg.data.mv_info_base, "3RScan_caption_with_object", scan_id, "cap_res.json")
+    #         with open(mv_info_path, 'r') as f:
+    #             mv_info_all = json.load(f)
+            
+    #         obj_dict = {}
+    #         for inst_id in mv_info_all.keys():
+    #             for one_bbox in mv_info_all[inst_id]:
+    #                 bbox_2d = one_bbox["bbox"]
+    #                 frame_path = one_bbox["frame_path"]
+    #                 frame_name = one_bbox["frame"]
+    #                 one_bbox_to_save = {
+    #                     'bbox_2d': bbox_2d,
+    #                     'inst_id': inst_id,
+    #                     'frame_name': frame_name,
+    #                     'frame_path': frame_path,
+    #                     'label': one_bbox["tgt_label"],
+    #                 }
+    #                 if int(inst_id) not in obj_dict.keys():
+    #                     obj_dict[int(inst_id)] = []
+    #                 obj_dict[int(inst_id)].append(one_bbox_to_save)
+
+    #         #### sort the inst proj list by size of bbox from large to small for better ####
+    #         for inst_id in obj_dict.keys():
+    #             obj_dict[inst_id] = sorted(obj_dict[inst_id], key = lambda x: (x['bbox_2d'][1][0] - x['bbox_2d'][0][0]) * (x['bbox_2d'][1][1] - x['bbox_2d'][0][1]), reverse = True)
+    #             obj_dict[inst_id] = obj_dict[inst_id][: max(self.min_keep_num, int(len(obj_dict[inst_id]) * self.bbox_keep_ratio)) + 1]
+                
+    #         scan_data['mv_info'] = obj_dict
+
+    #     if 'obj_pcds' in data_type:
+    #         # scene pcds
+    #         pcd_data = torch.load(
+    #             os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "pcds.pth")
+    #         )
+    #         points, colors = pcd_data[0], pcd_data[1]
+
+    #         # ensure numpy arrays
+    #         if torch.is_tensor(points):
+    #             points = points.cpu().numpy()
+    #         if torch.is_tensor(colors):
+    #             colors = colors.cpu().numpy()
+
+    #         colors = colors / 127.5 - 1
+    #         pcds = np.concatenate([points, colors], axis=1)  # (N, 6)
+    #         N = pcds.shape[0]
+
+    #         # inst_to_label to decide which instances to keep
+    #         inst_to_label = torch.load(
+    #             os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "inst_to_label.pth")
+    #         )
+
+    #         # normals file (you said it has keys: scene_id, normals_by_inst, indices_by_inst, meta)
+    #         # NOTE: adjust this path if your normals file lives elsewhere / has a different filename.
+    #         normals_path = os.path.join(
+    #             self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "normals.pth"
+    #         )
+    #         normals_dict = torch.load(normals_path, weights_only=False)
+
+    #         normals_by_inst = normals_dict['normals_by_inst']   # dict: inst_id -> (Ni, 3)
+    #         indices_by_inst = normals_dict['indices_by_inst']   # dict: inst_id -> (Ni,) global indices
+
+    #         obj_pcds = {}
+    #         for inst_id in inst_to_label.keys():
+    #             if type(inst_id) != int:
+    #                 continue
+
+    #             # require normals + indices
+    #             if inst_id not in indices_by_inst or inst_id not in normals_by_inst:
+    #                 continue
+
+    #             idx = np.asarray(indices_by_inst[inst_id], dtype=np.int64)
+    #             if idx.size < 10:
+    #                 continue
+
+    #             # bounds safety
+    #             if idx.min() < 0 or idx.max() >= N:
+    #                 raise ValueError(
+    #                     f"[{scan_id}] indices out of bounds for inst {inst_id}: "
+    #                     f"min={idx.min()}, max={idx.max()}, N={N}"
+    #                 )
+
+    #             obj_xyzrgb = pcds[idx]  # (Ni, 6)
+    #             obj_normals = np.asarray(normals_by_inst[inst_id])  # (Ni, 3)
+
+    #             # safety check: normals count must match points count
+    #             if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+    #                 raise ValueError(
+    #                     f"[{scan_id}] Normals/points mismatch for inst {inst_id}: "
+    #                     f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+    #                 )
+
+    #             obj_pcds[inst_id] = np.concatenate([obj_xyzrgb, obj_normals], axis=1)  # (Ni, 9)
+
+    #         scan_data['obj_pcds'] = obj_pcds
+    #     return scan_data
+    def _get_rscan_data(self, scan_id, pc_type='gt', data_type=['obj_pcds', 'mv_info']):
         scan_data = {}
+
         if 'mv_info' in data_type:
-            ### load mv info
-            mv_info_path = os.path.join(self.cfg.data.mv_info_base, "3RScan_caption_with_object", scan_id, "cap_res.json")
+            mv_info_path = os.path.join(
+                self.cfg.data.mv_info_base,
+                "3RScan_caption_with_object",
+                scan_id,
+                "cap_res.json"
+            )
             with open(mv_info_path, 'r') as f:
                 mv_info_all = json.load(f)
-            
+
             obj_dict = {}
             for inst_id in mv_info_all.keys():
                 for one_bbox in mv_info_all[inst_id]:
@@ -69,93 +172,204 @@ class ScanDataLoader(object):
                         'frame_path': frame_path,
                         'label': one_bbox["tgt_label"],
                     }
-                    if int(inst_id) not in obj_dict.keys():
+                    if int(inst_id) not in obj_dict:
                         obj_dict[int(inst_id)] = []
                     obj_dict[int(inst_id)].append(one_bbox_to_save)
 
-            #### sort the inst proj list by size of bbox from large to small for better ####
             for inst_id in obj_dict.keys():
-                obj_dict[inst_id] = sorted(obj_dict[inst_id], key = lambda x: (x['bbox_2d'][1][0] - x['bbox_2d'][0][0]) * (x['bbox_2d'][1][1] - x['bbox_2d'][0][1]), reverse = True)
-                obj_dict[inst_id] = obj_dict[inst_id][: max(self.min_keep_num, int(len(obj_dict[inst_id]) * self.bbox_keep_ratio)) + 1]
-                
+                obj_dict[inst_id] = sorted(
+                    obj_dict[inst_id],
+                    key=lambda x: (
+                        (x['bbox_2d'][1][0] - x['bbox_2d'][0][0]) *
+                        (x['bbox_2d'][1][1] - x['bbox_2d'][0][1])
+                    ),
+                    reverse=True
+                )
+                obj_dict[inst_id] = obj_dict[inst_id][: max(
+                    self.min_keep_num,
+                    int(len(obj_dict[inst_id]) * self.bbox_keep_ratio)
+                ) + 1]
+
             scan_data['mv_info'] = obj_dict
 
-        if 'obj_pcds' in data_type:
-            # scene pcds
+        if 'obj_pcds' in data_type or 'scene_pcds' in data_type:
             pcd_data = torch.load(
-                os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "pcds.pth")
+                os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "pcds.pth"),
+                weights_only=False
             )
-            points, colors = pcd_data[0], pcd_data[1]
 
-            # ensure numpy arrays
+            points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[2]
+
             if torch.is_tensor(points):
                 points = points.cpu().numpy()
             if torch.is_tensor(colors):
                 colors = colors.cpu().numpy()
+            if torch.is_tensor(instance_labels):
+                instance_labels = instance_labels.cpu().numpy()
 
-            colors = colors / 127.5 - 1
-            pcds = np.concatenate([points, colors], axis=1)  # (N, 6)
-            N = pcds.shape[0]
+            points = np.asarray(points, dtype=np.float32)
+            colors = np.asarray(colors, dtype=np.float32)
+            instance_labels = np.asarray(instance_labels)
 
-            # inst_to_label to decide which instances to keep
-            inst_to_label = torch.load(
-                os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "inst_to_label.pth")
-            )
+            colors = colors / 127.5 - 1.0
 
-            # normals file (you said it has keys: scene_id, normals_by_inst, indices_by_inst, meta)
-            # NOTE: adjust this path if your normals file lives elsewhere / has a different filename.
             normals_path = os.path.join(
                 self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "normals.pth"
             )
             normals_dict = torch.load(normals_path, weights_only=False)
 
-            normals_by_inst = normals_dict['normals_by_inst']   # dict: inst_id -> (Ni, 3)
-            indices_by_inst = normals_dict['indices_by_inst']   # dict: inst_id -> (Ni,) global indices
+            if 'scene_normals' not in normals_dict:
+                raise KeyError(
+                    f"[{scan_id}] Expected key 'scene_normals' in normals cache, "
+                    f"but found keys: {list(normals_dict.keys())}"
+                )
 
-            obj_pcds = {}
-            for inst_id in inst_to_label.keys():
-                if type(inst_id) != int:
-                    continue
+            scene_normals = np.asarray(normals_dict['scene_normals'], dtype=np.float32)
 
-                # require normals + indices
-                if inst_id not in indices_by_inst or inst_id not in normals_by_inst:
-                    continue
+            if scene_normals.ndim != 2 or scene_normals.shape[1] != 3:
+                raise ValueError(
+                    f"[{scan_id}] scene_normals has invalid shape {scene_normals.shape}; expected (N, 3)"
+                )
 
-                idx = np.asarray(indices_by_inst[inst_id], dtype=np.int64)
-                if idx.size < 10:
-                    continue
+            if scene_normals.shape[0] != points.shape[0]:
+                raise ValueError(
+                    f"[{scan_id}] points/normals mismatch: "
+                    f"points={points.shape[0]} normals={scene_normals.shape[0]}"
+                )
 
-                # bounds safety
-                if idx.min() < 0 or idx.max() >= N:
-                    raise ValueError(
-                        f"[{scan_id}] indices out of bounds for inst {inst_id}: "
-                        f"min={idx.min()}, max={idx.max()}, N={N}"
-                    )
+            scene_pcds = np.concatenate([points, colors, scene_normals], axis=1)  # (N, 9)
 
-                obj_xyzrgb = pcds[idx]  # (Ni, 6)
-                obj_normals = np.asarray(normals_by_inst[inst_id])  # (Ni, 3)
+            if 'scene_pcds' in data_type:
+                scan_data['scene_pcds'] = scene_pcds
 
-                # safety check: normals count must match points count
-                if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
-                    raise ValueError(
-                        f"[{scan_id}] Normals/points mismatch for inst {inst_id}: "
-                        f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
-                    )
+            if 'obj_pcds' in data_type:
+                inst_to_label = torch.load(
+                    os.path.join(self.cfg.data.rscan_base, "3RScan-ours-align", scan_id, "inst_to_label.pth"),
+                    weights_only=False
+                )
 
-                obj_pcds[inst_id] = np.concatenate([obj_xyzrgb, obj_normals], axis=1)  # (Ni, 9)
+                obj_pcds = {}
+                for inst_id in inst_to_label.keys():
+                    if not isinstance(inst_id, int):
+                        continue
 
-            scan_data['obj_pcds'] = obj_pcds
+                    mask = (instance_labels == inst_id)
+                    if mask.sum() < 10:
+                        continue
+
+                    obj_pcds[inst_id] = scene_pcds[mask]   # (Ni, 9)
+
+                scan_data['obj_pcds'] = obj_pcds
+
         return scan_data
+    # def _get_arkit_data(self, scan_id, pc_type = 'gt', data_type = ['obj_pcds', 'mv_info']):
+    #     scan_data = {}
+    #     if 'mv_info' in data_type:
+    #         ### load mv info
+    #         mv_info_path = os.path.join(self.cfg.data.mv_info_base, "ARkit_caption_for_EQA", "arkit_unique", scan_id, "frame_bbox.json")
+    #         mv_img_dir = os.path.join(self.cfg.data.mv_info_base, "ARkit_caption_for_EQA", "arkit_unique", scan_id, "vga_wide", "vga_wide")
+    #         with open(mv_info_path, 'r') as f:
+    #             mv_info_all = json.load(f)
+            
+    #         mv_info_all = self.transfer_frame_to_obj(mv_info_all)
 
-    def _get_arkit_data(self, scan_id, pc_type = 'gt', data_type = ['obj_pcds', 'mv_info']):
+    #         obj_dict = {}
+    #         for inst_id in mv_info_all.keys():
+    #             for one_bbox in mv_info_all[inst_id]:
+    #                 bbox_2d = one_bbox["bbox"]
+    #                 frame_id = one_bbox["frame_id"]
+    #                 frame_name = f"{scan_id}_{frame_id}.png"
+    #                 frame_name = frame_name
+    #                 frame_path = os.path.join(mv_img_dir, frame_name)
+    #                 one_bbox_to_save = {
+    #                     'bbox_2d': bbox_2d,
+    #                     'inst_id': inst_id,
+    #                     'frame_name': frame_name,
+    #                     'frame_path': frame_path,
+    #                     'label': one_bbox["cls_label"],
+    #                 }
+    #                 if int(inst_id) not in obj_dict.keys():
+    #                     obj_dict[int(inst_id)] = []
+    #                 obj_dict[int(inst_id)].append(one_bbox_to_save)
+
+    #         #### sort the inst proj list by size of bbox from large to small for better ####
+    #         for inst_id in obj_dict.keys():
+    #             obj_dict[inst_id] = sorted(obj_dict[inst_id], key = lambda x: (x['bbox_2d'][1][0] - x['bbox_2d'][0][0]) * (x['bbox_2d'][1][1] - x['bbox_2d'][0][1]), reverse = True)
+    #             obj_dict[inst_id] = obj_dict[inst_id][: max(self.min_keep_num, int(len(obj_dict[inst_id]) * self.bbox_keep_ratio)) + 1]
+                
+    #         scan_data['mv_info'] = obj_dict
+
+    #     if 'obj_pcds' in data_type:
+    #         pcd_data = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd-align", f"{scan_id}.pth"))
+    #         normals_dict = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd_normals", f"{scan_id}.pth"),weights_only=False)
+            
+    #         normals_by_inst = normals_dict['normals_by_inst']   
+    #         indices_by_inst = normals_dict['indices_by_inst']
+            
+    #         points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[2]
+    #         colors = colors / 127.5 - 1
+    #         pcds = np.concatenate([points, colors], 1)
+    #         # build obj_pcds
+    #         inst_to_label = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "instance_id_to_label", f"{scan_id}_inst_to_label.pth"))
+    #         obj_pcds = {}
+    #         for inst_id in inst_to_label.keys():
+    #             if type(inst_id) != int:
+    #                 continue
+
+    #             # require normals+indices for this inst_id
+    #             if inst_id not in indices_by_inst or inst_id not in normals_by_inst:
+    #                 continue
+
+    #             idx = np.asarray(indices_by_inst[inst_id])
+    #             if idx.size < 10:
+    #                 continue
+
+    #             obj_xyzrgb = pcds[idx]                    # (Ni, 6) using explicit indices
+    #             obj_normals = np.asarray(normals_by_inst[inst_id])  # (Ni, 3)
+
+    #             # safety check: normals count must match indexed points count
+    #             if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
+    #                 raise ValueError(
+    #                     f"[{scan_id}] Normals/points mismatch for inst {inst_id}: "
+    #                     f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
+    #                 )
+
+    #             obj_pcds[inst_id] = np.concatenate([obj_xyzrgb, obj_normals], axis=1)  # (Ni, 9)
+    #         # for inst_id in inst_to_label.keys():
+    #         #     if type(inst_id) != int:
+    #         #         continue
+    #         #     mask = instance_labels == inst_id
+    #         #     if mask.sum() < 10:
+    #         #         continue
+    #         #     obj_pcds.update({inst_id: pcds[mask]})
+    #         scan_data['obj_pcds'] = obj_pcds
+            
+
+    #     return scan_data
+    def _get_arkit_data(self, scan_id, pc_type='gt', data_type=['obj_pcds', 'mv_info']):
         scan_data = {}
+
         if 'mv_info' in data_type:
             ### load mv info
-            mv_info_path = os.path.join(self.cfg.data.mv_info_base, "ARkit_caption_for_EQA", "arkit_unique", scan_id, "frame_bbox.json")
-            mv_img_dir = os.path.join(self.cfg.data.mv_info_base, "ARkit_caption_for_EQA", "arkit_unique", scan_id, "vga_wide", "vga_wide")
+            mv_info_path = os.path.join(
+                self.cfg.data.mv_info_base,
+                "ARkit_caption_for_EQA",
+                "arkit_unique",
+                scan_id,
+                "frame_bbox.json",
+            )
+            mv_img_dir = os.path.join(
+                self.cfg.data.mv_info_base,
+                "ARkit_caption_for_EQA",
+                "arkit_unique",
+                scan_id,
+                "vga_wide",
+                "vga_wide",
+            )
+
             with open(mv_info_path, 'r') as f:
                 mv_info_all = json.load(f)
-            
+
             mv_info_all = self.transfer_frame_to_obj(mv_info_all)
 
             obj_dict = {}
@@ -164,8 +378,8 @@ class ScanDataLoader(object):
                     bbox_2d = one_bbox["bbox"]
                     frame_id = one_bbox["frame_id"]
                     frame_name = f"{scan_id}_{frame_id}.png"
-                    frame_name = frame_name
                     frame_path = os.path.join(mv_img_dir, frame_name)
+
                     one_bbox_to_save = {
                         'bbox_2d': bbox_2d,
                         'inst_id': inst_id,
@@ -173,62 +387,99 @@ class ScanDataLoader(object):
                         'frame_path': frame_path,
                         'label': one_bbox["cls_label"],
                     }
-                    if int(inst_id) not in obj_dict.keys():
+
+                    if int(inst_id) not in obj_dict:
                         obj_dict[int(inst_id)] = []
                     obj_dict[int(inst_id)].append(one_bbox_to_save)
 
             #### sort the inst proj list by size of bbox from large to small for better ####
             for inst_id in obj_dict.keys():
-                obj_dict[inst_id] = sorted(obj_dict[inst_id], key = lambda x: (x['bbox_2d'][1][0] - x['bbox_2d'][0][0]) * (x['bbox_2d'][1][1] - x['bbox_2d'][0][1]), reverse = True)
-                obj_dict[inst_id] = obj_dict[inst_id][: max(self.min_keep_num, int(len(obj_dict[inst_id]) * self.bbox_keep_ratio)) + 1]
-                
+                obj_dict[inst_id] = sorted(
+                    obj_dict[inst_id],
+                    key=lambda x: (
+                        (x['bbox_2d'][1][0] - x['bbox_2d'][0][0]) *
+                        (x['bbox_2d'][1][1] - x['bbox_2d'][0][1])
+                    ),
+                    reverse=True
+                )
+                obj_dict[inst_id] = obj_dict[inst_id][: max(
+                    self.min_keep_num,
+                    int(len(obj_dict[inst_id]) * self.bbox_keep_ratio)
+                ) + 1]
+
             scan_data['mv_info'] = obj_dict
 
         if 'obj_pcds' in data_type:
-            pcd_data = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd-align", f"{scan_id}.pth"))
-            normals_dict = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd_normals", f"{scan_id}.pth"),weights_only=False)
-            
-            normals_by_inst = normals_dict['normals_by_inst']   
-            indices_by_inst = normals_dict['indices_by_inst']
-            
+            # full scene pcd
+            pcd_data = torch.load(
+                os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd-align", f"{scan_id}.pth"),
+                weights_only=False
+                
+            )
+
+            # new normals cache format
+            normals_dict = torch.load(
+                os.path.join(self.cfg.data.ARkit_base, "scan_data", "pcd_normals", f"{scan_id}.pth"),
+                weights_only=False
+            )
+
+            if 'scene_normals' not in normals_dict:
+                raise KeyError(
+                    f"[{scan_id}] Expected key 'scene_normals' in normals cache, "
+                    f"but found keys: {list(normals_dict.keys())}"
+                )
+
+            scene_normals = np.asarray(normals_dict['scene_normals'], dtype=np.float32)
+
             points, colors, instance_labels = pcd_data[0], pcd_data[1], pcd_data[2]
-            colors = colors / 127.5 - 1
-            pcds = np.concatenate([points, colors], 1)
-            # build obj_pcds
-            inst_to_label = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "instance_id_to_label", f"{scan_id}_inst_to_label.pth"))
+
+            points = np.asarray(points, dtype=np.float32)
+            colors = np.asarray(colors, dtype=np.float32)
+            instance_labels = np.asarray(instance_labels)
+
+            # normalize colors to [-1, 1]
+            colors = colors / 127.5 - 1.0
+
+            if scene_normals.ndim != 2 or scene_normals.shape[1] != 3:
+                raise ValueError(
+                    f"[{scan_id}] scene_normals has invalid shape {scene_normals.shape}; expected (N, 3)"
+                )
+
+            if points.shape[0] != scene_normals.shape[0]:
+                raise ValueError(
+                    f"[{scan_id}] scene_normals/points mismatch: "
+                    f"{scene_normals.shape[0]} normals vs {points.shape[0]} points"
+                )
+
+            # full dense scene: (N, 9) = xyz + rgb + normals
+            scene_pcds = np.concatenate([points, colors, scene_normals], axis=1)
+
+            # build obj_pcds from instance labels
+            inst_to_label = torch.load(
+                os.path.join(
+                    self.cfg.data.ARkit_base,
+                    "scan_data",
+                    "instance_id_to_label",
+                    f"{scan_id}_inst_to_label.pth"
+                ),
+                weights_only=False
+            )
+
             obj_pcds = {}
             for inst_id in inst_to_label.keys():
                 if type(inst_id) != int:
                     continue
 
-                # require normals+indices for this inst_id
-                if inst_id not in indices_by_inst or inst_id not in normals_by_inst:
+                mask = (instance_labels == inst_id)
+                if mask.sum() < 10:
                     continue
 
-                idx = np.asarray(indices_by_inst[inst_id])
-                if idx.size < 10:
-                    continue
+                obj_pcds[inst_id] = scene_pcds[mask]   # (Ni, 9)
 
-                obj_xyzrgb = pcds[idx]                    # (Ni, 6) using explicit indices
-                obj_normals = np.asarray(normals_by_inst[inst_id])  # (Ni, 3)
-
-                # safety check: normals count must match indexed points count
-                if obj_normals.shape[0] != obj_xyzrgb.shape[0]:
-                    raise ValueError(
-                        f"[{scan_id}] Normals/points mismatch for inst {inst_id}: "
-                        f"{obj_normals.shape[0]} vs {obj_xyzrgb.shape[0]}"
-                    )
-
-                obj_pcds[inst_id] = np.concatenate([obj_xyzrgb, obj_normals], axis=1)  # (Ni, 9)
-            # for inst_id in inst_to_label.keys():
-            #     if type(inst_id) != int:
-            #         continue
-            #     mask = instance_labels == inst_id
-            #     if mask.sum() < 10:
-            #         continue
-            #     obj_pcds.update({inst_id: pcds[mask]})
             scan_data['obj_pcds'] = obj_pcds
-            
+
+            # optional: also expose dense scene directly if useful later
+            scan_data['scene_pcds'] = scene_pcds
 
         return scan_data
 
