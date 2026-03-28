@@ -65,8 +65,8 @@ data:
       tgt_img_size: [224, 224]
 
   #scan_family_base: "data/MSR3D_v2_pcds/scannet_base"    # must be set
-  #rscan_base: "data/MSR3D_v2_pcds/rscan_base"  # must be set
-  #ARkit_base: "/data/MSR3D_v2_pcds/ARkit_base"  # must be set
+  rscan_base: "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/"  # must be set
+  ARkit_base: "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/"  # must be set
 
   mv_info_base: "" # optional, not used in standard setting
 
@@ -92,22 +92,22 @@ task:
     dataset_wrapper_args: ${dataset_wrapper.args}
     eval_dataloader_args: ${dataloader.eval}
     evaluator: MSQAEval
-  # msqa_3rscan:
-  #   mode: [val, test]
-  #   #mode: []
-  #   dataset: MSQA3RScan
-  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
-  #   dataset_wrapper_args: ${dataset_wrapper.args}
-  #   eval_dataloader_args: ${dataloader.eval}
-  #   evaluator: MSQAEval
-  # msqa_arkitscenes:
-  #   mode: [val, test]
-  #   #mode: []
-  #   dataset: MSQAARkitScenes
-  #   dataset_wrapper: LeoScanFamilyDatasetWrapper
-  #   dataset_wrapper_args: ${dataset_wrapper.args}
-  #   eval_dataloader_args: ${dataloader.eval}
-  #   evaluator: MSQAEval
+  msqa_3rscan:
+    mode: [val, test]
+    #mode: []
+    dataset: MSQA3RScan
+    dataset_wrapper: LeoScanFamilyDatasetWrapper
+    dataset_wrapper_args: ${dataset_wrapper.args}
+    eval_dataloader_args: ${dataloader.eval}
+    evaluator: MSQAEval
+  msqa_arkitscenes:
+    mode: [val, test]
+    #mode: []
+    dataset: MSQAARkitScenes
+    dataset_wrapper: LeoScanFamilyDatasetWrapper
+    dataset_wrapper_args: ${dataset_wrapper.args}
+    eval_dataloader_args: ${dataloader.eval}
+    evaluator: MSQAEval
 
 # shared dataset_wrapper args
 dataset_wrapper:
