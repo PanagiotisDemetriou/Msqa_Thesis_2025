@@ -765,7 +765,11 @@ class MSQA3RScan(MSR3DBase):
             'anchor_orientation': torch.tensor(anchor_orientation).float(),
             'anchor_locs' : torch.tensor(anchor_loc).float(),
             'index': index,
-            'type': qa_type
+            'type': qa_type,
+            'scene_fts': scan_data['scene_fts'],
+            'instance_ids': scan_data['instance_ids'],
+            'segments': scan_data['segments'],
+            'selected_obj_ids': output_dict['selected_obj_ids'],
         })
 
         return self.check_output_and_fill_dummy(data_dict)
@@ -933,7 +937,11 @@ class MSQAARkitScenes(MSR3DBase):
             'anchor_orientation': torch.tensor(anchor_orientation).float(),
             'anchor_locs' : torch.tensor(anchor_loc).float(),
             'index': qa_type,
-            'type': qa_type
+            'type': qa_type,
+            'scene_fts': scan_data['scene_fts'],
+            'instance_ids': scan_data['instance_ids'],
+            'segments': scan_data['segments'],
+            'selected_obj_ids': output_dict['selected_obj_ids'],
         })
 
         return self.check_output_and_fill_dummy(data_dict)

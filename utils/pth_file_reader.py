@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 
 # 🧠 Set your .pth file path here
-path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0162_00.pth"
-#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align/00d42bed-778d-2ac6-86a7-0e0e5f5f5660/pcds.pth"
-#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align/41069021.pth"
+#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment/scene0162_00.pth"
+#path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/00d42bed-778d-2ac6-86a7-0e0e5f5f5660/inst_to_label.pth"
+path = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/instance_id_to_label/41069021.pth"
 
 #path = "/mnt/d/Thesis/PTv3/model_best.pth"
 #path = "scene_with_normals.pth"
@@ -18,7 +18,7 @@ try:
     # Pretty-print if it's a dictionary (common in model checkpoints)
     if isinstance(data, dict):
         print("📦 Keys in this .pth file:")
-        pprint.pprint(list(data.keys()))
+        pprint.pprint(list(data.values()))
         print("\n🔍 Inspecting contents of first key (0):")
         pprint.pprint(len(data['obj_normals_list']))
         cnt=0
