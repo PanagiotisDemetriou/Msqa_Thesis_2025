@@ -108,7 +108,8 @@ class ScanNetBase(Dataset):
 
         self.use_cache = rgetattr(self.cfg.data, 'mvdatasettings.use_cache', False)
         self.cache = {}
-
+    def get_scannet_lut(self):
+        return self.nyu40_to_scannet20_lut
     def __len__(self):
         return len(self.lang_data)
 
