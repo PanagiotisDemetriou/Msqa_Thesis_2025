@@ -73,7 +73,6 @@ class LeoTrainer(BaseTrainer):
             log_with=cfg.logger.name,
             kwargs_handlers=kwargs
         )
-        print(f"Gradient accumulation steps: {cfg.solver.get('gradient_accumulation_steps', 1)}")
         # dataset, data loader, and evaluator
         self.eai_task_sources = ['hm3d', 'mp3d', 'cliport']
         self.data_loaders = {'train': {}, 'val': {}, 'test': {}}
