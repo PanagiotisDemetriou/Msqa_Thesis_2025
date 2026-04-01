@@ -205,8 +205,8 @@ class ScanDataLoader(object):
             normals = normal_dict['scene_normals']
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
-            pcds = np.concatenate([pcds, normals], 1)
-            scan_data['scene_fts'] = pcds
+            scene_pcds = np.concatenate([pcds, normals], 1)
+            scan_data['scene_fts'] = scene_pcds
             scan_data['instance_ids'] = instance_labels
 
             # build obj_pcds
@@ -348,8 +348,8 @@ class ScanDataLoader(object):
             normals = normals_dict['scene_normals']
             colors = colors / 127.5 - 1
             pcds = np.concatenate([points, colors], 1)
-            pcds = np.concatenate([pcds, normals], 1)
-            scan_data['scene_fts'] = pcds
+            scene_pcds = np.concatenate([pcds, normals], 1)
+            scan_data['scene_fts'] = scene_pcds
             scan_data['instance_ids'] = instance_labels
             # build obj_pcds
             inst_to_label = torch.load(os.path.join(self.cfg.data.ARkit_base, "scan_data", "instance_id_to_label", f"{scan_id}_inst_to_label.pth"),weights_only=False)
