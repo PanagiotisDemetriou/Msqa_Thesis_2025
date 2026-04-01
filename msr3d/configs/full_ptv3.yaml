@@ -142,7 +142,7 @@ task:
     dataset_wrapper_args: ${dataset_wrapper.args}
     eval_dataloader_args: ${dataloader.eval}
     evaluator: MSQAEval
-  msqa_arkitscenes:w
+  msqa_arkitscenes:
     mode: [val, test]
     # mode: []
     dataset: MSQAARkitScenes
