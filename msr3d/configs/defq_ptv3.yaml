@@ -3,7 +3,7 @@ name: MSR3D # this will be the project name of wandb
 note: DEFQ_SCANNET # this will be the run name of wandb
 
 rng_seed: 42
-num_gpu: 4
+num_gpu: 8
 mode: train
 # Choose keywords to feature your saving directory
 naming_keywords: [note]
