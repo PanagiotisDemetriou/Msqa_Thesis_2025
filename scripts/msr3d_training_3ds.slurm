@@ -3,12 +3,12 @@
 #SBATCH --partition=a6000
 #SBATCH --qos=long-a6000
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=16
+#SBATCH --cpus-per-task=8
 #SBATCH --gres=gpu:1        # Use 3 of 4 A6000 GPUs
 #SBATCH --mem=100000        # 256GB RAM
 #SBATCH --time=7-00:00:00   # 5 days
-#SBATCH -o 3ds.out
-#SBATCH -e 3ds.err
+#SBATCH -o 3ds_2.out
+#SBATCH -e 3ds_2.err
 
 module purge
 
