@@ -3212,6 +3212,42 @@ def update_style(
 
 # ======================== Chat ========================
 
+# def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value: str):
+#     user_msg = (user_msg or "").strip()
+#     if not user_msg:
+#         return ""
+
+#     if global_idx is None:
+#         return "No QA entry selected."
+
+#     if dataset_name != "scannet":
+#         return "Model chat is currently wired for ScanNet only (MSQAScanNet). Switch to scannet to ask questions."
+
+#     idx = int(global_idx)
+#     qa = DATA_BY_DATASET[dataset_name][idx]
+#     scene_id = qa["scan_id"]
+#     situation = qa.get("situation", "")
+
+#     scan_id = qa["scan_id"]
+#     if split_value == "all":
+#         effective_split = infer_split_from_scene(dataset_name, scan_id, qa_idx=global_idx)
+#     else:
+#         effective_split = split_value
+
+#     try:
+#         svc = get_msr3d_service()
+#         svc.change_split(effective_split)
+
+#         with MSR3D_LOCK:
+#             print(
+#                 f"[model] Generating answer for dataset='{dataset_name}', "
+#                 f"scan_id='{scan_id}', split='{effective_split}', "
+#                 f"situation='{situation}' | user_msg='{user_msg}'"
+#             )
+#             ans = svc.answer(scene_id=scene_id, question=user_msg, situation=situation)
+#         return ans
+#     except Exception as e:
+#         return f"[error] {type(e).__name__}: {e}"
 def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value: str):
     user_msg = (user_msg or "").strip()
     if not user_msg:
@@ -3225,14 +3261,22 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
 
     idx = int(global_idx)
     qa = DATA_BY_DATASET[dataset_name][idx]
-    scene_id = qa["scan_id"]
-    situation = qa.get("situation", "")
 
     scan_id = qa["scan_id"]
+    situation = qa.get("situation", "")
+
     if split_value == "all":
         effective_split = infer_split_from_scene(dataset_name, scan_id, qa_idx=global_idx)
     else:
         effective_split = split_value
+
+    qa_meta = {
+        "scan_id": qa["scan_id"],
+        "split": effective_split,
+        "situation": qa.get("situation", ""),
+        "location": qa.get("location", None),
+        "orientation": qa.get("orientation", None),
+    }
 
     try:
         svc = get_msr3d_service()
@@ -3244,12 +3288,27 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
                 f"scan_id='{scan_id}', split='{effective_split}', "
                 f"situation='{situation}' | user_msg='{user_msg}'"
             )
-            ans = svc.answer(scene_id=scene_id, question=user_msg, situation=situation)
+            ans = svc.answer(
+                qa_meta=qa_meta,
+                question=user_msg,
+                situation=situation,
+                images=[],
+            )
         return ans
     except Exception as e:
         return f"[error] {type(e).__name__}: {e}"
 
 
+# def chat_step(user_msg, history, dataset_name, global_idx, split_value):
+#     history = history or []
+#     user_msg = (user_msg or "").strip()
+#     if not user_msg:
+#         return "", history
+
+#     history.append({"role": "user", "content": user_msg})
+#     model_answer = answer_with_model(user_msg, dataset_name, global_idx, split_value)
+#     history.append({"role": "assistant", "content": model_answer})
+#     return "", history
 def chat_step(user_msg, history, dataset_name, global_idx, split_value):
     history = history or []
     user_msg = (user_msg or "").strip()
@@ -3259,6 +3318,7 @@ def chat_step(user_msg, history, dataset_name, global_idx, split_value):
     history.append({"role": "user", "content": user_msg})
     model_answer = answer_with_model(user_msg, dataset_name, global_idx, split_value)
     history.append({"role": "assistant", "content": model_answer})
+
     return "", history
 
 
