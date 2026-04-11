@@ -2,16 +2,15 @@
 # """
 # MSQA Multi-Dataset Scene Viewer (Gradio + Plotly) — ScanNet + ARKitScenes + RScan (folder-based)
 
-# What you asked for (implemented):
-# - For the RScan dataset: the scene dropdown shows the folder names (scan_id).
-# - When rendering an RScan scene, it loads: <RSCAN_PCD_ROOT>/<scan_id>/pcds.pth
+# Upgrades in this version:
+# - Fast updates: points are rendered once per (dataset, scan_id, max_points) and cached.
+# - UI changes like color mode / point size / toggles update the existing figure (no disk reload).
+# - Heavy reload only happens when dataset/scan/max_points (or QA selection) changes.
+# - Fixes split/scene/QA “glitch”: split change chooses a scan that actually has QA in that split.
+# - Keeps your right-side chat stub and visualization accordion toggle.
 
-# Other datasets:
-# - ScanNet / ARKit: still load from <PCD_ROOT>/<scan_id>.pth
-
-# UI additions retained:
-# 1) Visualization details hidden by default (Accordion) + Show/Hide toggle button.
-# 2) Right-side chat stub.
+# Notes:
+# - Plotly in Gradio still sends a figure JSON each update, but we avoid torch.load/downsample/rebuild point trace.
 # """
 
 # import os
@@ -22,17 +21,13 @@
 # import plotly.graph_objects as go
 # from scipy.spatial.transform import Rotation as R
 # from collections import defaultdict
-# import pandas as pd
+# import threading
 
 # # ======================== Config ========================
 
-# # SCANNET_ROOT_DIR = "/mnt/d/Thesis/data/text_annotations/msqa/scannet"
-# # ARKIT_ROOT_DIR   = "/mnt/d/Thesis/data/text_annotations/msqa/arkitscenes"
-# # RSCAN_ROOT_DIR   = "/mnt/d/Thesis/data/text_annotations/msqa/rscan"
 # SCANNET_ROOT_DIR = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa/scannet"
 # ARKIT_ROOT_DIR   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa/arkitscenes"
 # RSCAN_ROOT_DIR   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/text_annotations/msqa/rscan"
-
 
 # SCANNET_JSON_PATHS = {
 #     "train": os.path.join(SCANNET_ROOT_DIR, "msqa_scannet_train.json"),
@@ -50,15 +45,12 @@
 #     "test":  os.path.join(RSCAN_ROOT_DIR, "msqa_rscan_test.json"),
 # }
 
-# # SCANNET_PCD_ROOT = "/mnt/d/Thesis/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
-# # ARKIT_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/pcd-align"
 # SCANNET_PCD_ROOT = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
 # ARKIT_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/"
 
-# # IMPORTANT: RScan is folder-based, and we will load pcds.pth inside each folder
-# # RSCAN_PCD_ROOT   = "/mnt/d/Thesis/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/3RScan-ours-align"
+# # RScan is folder-based and loads pcds.pth inside each scan folder
 # RSCAN_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/"
-# RSCAN_PCD_FILE   = "pcds.pth"  # you explicitly requested this file
+# RSCAN_PCD_FILE   = "pcds.pth"
 
 # ONLY_SHOW_SCANS_WITH_PTH = True
 
@@ -68,13 +60,12 @@
 #     "rscan":   {"json_paths": RSCAN_JSON_PATHS,   "pcd_root": RSCAN_PCD_ROOT},
 # }
 
+# # ======================== Model (chat stub) ========================
 
-# import threading
 # from msr3d.tools.interactive_service import MSR3DInteractiveService
 
 # MSR3D_EXPERIMENT_PATH = "MSR3D_BLIPT_PTv3_VIC_LORA_2"
 
-# # One shared model instance
 # MSR3D_SERVICE = None
 # MSR3D_LOCK = threading.Lock()
 
@@ -86,6 +77,7 @@
 #             split="test",
 #         )
 #     return MSR3D_SERVICE
+
 # # ======================== Utils ========================
 
 # def load_json(path: str):
@@ -129,11 +121,50 @@
 
 # # -------- Orientation handling --------
 
+# # def get_view_vector_from_orientation(orientation):
+# #     o = ensure_np(orientation).astype(np.float32).reshape(-1)
+
+# #     if o.size == 4:
+# #         yaw = R.from_quat(o).as_euler("xyz", degrees=False)[-1]
+# #         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
+# #         return d / (np.linalg.norm(d) + 1e-12)
+
+# #     if o.size == 3:
+# #         n = float(np.linalg.norm(o))
+# #         if 0.5 <= n <= 1.5:
+# #             return (o / (n + 1e-12)).astype(np.float32)
+# #         yaw = float(o[-1])
+# #         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
+# #         return d / (np.linalg.norm(d) + 1e-12)
+
+# #     return np.array([1.0, 0.0, 0.0], dtype=np.float32)
 # def get_view_vector_from_orientation(orientation):
+#     """
+#     Robust handling:
+#     - quaternion may be [x,y,z,w] OR [w,x,y,z]
+#     - euler/yaw fallback for 3-vectors
+#     Returns a unit direction vector (default in XY plane).
+#     """
 #     o = ensure_np(orientation).astype(np.float32).reshape(-1)
 
 #     if o.size == 4:
-#         yaw = R.from_quat(o).as_euler("xyz", degrees=False)[-1]
+#         q = o.copy()
+
+#         # Try interpret as [x,y,z,w] first (scipy convention)
+#         try:
+#             yaw = R.from_quat([q[0], q[1], q[2], q[3]]).as_euler("xyz", degrees=False)[-1]
+#         except Exception:
+#             yaw = 0.0
+
+#         # Heuristic: if w is in front (typical [w,x,y,z]), yaw from the other ordering may be more stable
+#         # If q[3] is very small and q[0] is large, it might be [w,x,y,z]
+#         if abs(q[3]) < 0.2 and abs(q[0]) > 0.2:
+#             try:
+#                 yaw2 = R.from_quat([q[1], q[2], q[3], q[0]]).as_euler("xyz", degrees=False)[-1]
+#                 yaw = yaw2
+#             except Exception:
+#                 pass
+
 #         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
 #         return d / (np.linalg.norm(d) + 1e-12)
 
@@ -234,35 +265,99 @@
 
 #     return [line(O, X, "red"), line(O, Y, "green"), line(O, Z, "blue")]
 
-# def make_situation_arrow_trace(location, orientation, scale=0.8):
+# # def make_situation_arrow_trace(location, orientation, scale=0.8):
+# #     loc = np.asarray(location, dtype=np.float32).reshape(3)
+# #     d = get_view_vector_from_orientation(orientation)
+
+# #     loc2 = loc.copy()
+# #     loc2[2] += float(0.15)
+# #     tip = loc2 + d * float(scale)
+
+# #     return go.Scatter3d(
+# #         x=[loc2[0], tip[0]],
+# #         y=[loc2[1], tip[1]],
+# #         z=[loc2[2], tip[2]],
+# #         mode="lines+markers",
+# #         line=dict(width=10, color="orange"),
+# #         marker=dict(size=4),
+# #         showlegend=False,
+# #     )
+# def _normed(v):
+#     v = np.asarray(v, dtype=np.float32).reshape(3)
+#     n = float(np.linalg.norm(v)) + 1e-12
+#     return v / n
+
+# def make_situation_arrow_trace(
+#     location, orientation,
+#     scale=0.8,
+#     zoff=0.15,
+#     head_len_ratio=0.50,
+#     head_radius_ratio=0.50,   # <-- thickness relative to overall arrow length
+#     tip_push_ratio=0.25,      # <-- move cone tip forward by this fraction of head_len
+#     flatten_xy=True,
+# ):
+#     """
+#     Returns [shaft_line_trace, cone_head_trace]
+
+#     - Cone length scales with the line via head_len_ratio
+#     - Cone thickness scales with the line via head_radius_ratio (through sizeref)
+#     - Cone is pushed forward past the shaft tip via tip_push_ratio
+#     """
+
 #     loc = np.asarray(location, dtype=np.float32).reshape(3)
-#     d = get_view_vector_from_orientation(orientation)
 
-#     loc2 = loc.copy()
-#     loc2[2] += float(0.15)
-#     tip = loc2 + d * float(scale)
+#     d = _normed(get_view_vector_from_orientation(orientation))
+#     if flatten_xy:
+#         d = _normed(np.array([d[0], d[1], 0.0], dtype=np.float32))
 
-#     return go.Scatter3d(
-#         x=[loc2[0], tip[0]],
-#         y=[loc2[1], tip[1]],
-#         z=[loc2[2], tip[2]],
-#         mode="lines+markers",
-#         line=dict(width=10, color="orange"),
-#         marker=dict(size=4),
+#     base = loc.copy()
+#     base[2] += float(zoff)
+
+#     # arrow shaft
+#     tip = base + d * float(scale)
+
+#     shaft = go.Scatter3d(
+#         x=[base[0], tip[0]],
+#         y=[base[1], tip[1]],
+#         z=[base[2], tip[2]],
+#         mode="lines",
+#         line=dict(width=10, color="rgb(255,165,0)"),
 #         showlegend=False,
 #     )
+
+#     # head length proportional to shaft length
+#     head_len = float(scale) * float(head_len_ratio)
+
+#     # push cone "forward" (since anchor="tip", we move the tip itself)
+#     tip_push = float(tip_push_ratio) * head_len
+#     cone_tip = tip + d * tip_push
+
+#     # thickness proportional to arrow length (or use head_len if you prefer)
+#     # good default: radius ~= 0.15–0.30 * head_len
+#     sizeref = float(head_radius_ratio) * float(scale)
+
+#     head = go.Cone(
+#         x=[cone_tip[0]], y=[cone_tip[1]], z=[cone_tip[2]],
+#         u=[d[0] * head_len], v=[d[1] * head_len], w=[d[2] * head_len],
+#         anchor="tip",
+#         sizemode="absolute",
+#         sizeref=sizeref,
+#         showscale=False,
+#         colorscale=[[0, "rgb(255,165,0)"], [1, "rgb(255,165,0)"]],
+#         opacity=0.95,
+#     )
+
+#     return [shaft, head]
 
 # # ======================== Dataset path resolution ========================
 
 # def resolve_pth_path(dataset_name: str, scan_id: str) -> str:
 #     """
-#     What you asked for:
-#     - RScan: load <RSCAN_PCD_ROOT>/<scan_id>/pcds.pth
-#     - Others: load <PCD_ROOT>/<scan_id>.pth
+#     - RScan: <RSCAN_PCD_ROOT>/<scan_id>/pcds.pth
+#     - Others: <PCD_ROOT>/<scan_id>.pth
 #     """
 #     if dataset_name == "rscan":
 #         return os.path.join(RSCAN_PCD_ROOT, scan_id, RSCAN_PCD_FILE)
-
 #     root = DATASET_SPECS[dataset_name]["pcd_root"]
 #     return os.path.join(root, f"{scan_id}.pth")
 
@@ -320,9 +415,9 @@
 #         inds = [i for i in inds if DATA_BY_DATASET[dataset_name][i].get("split") == split_filter]
 #     return [(qa_label(dataset_name, i), i) for i in inds]
 
-# # ======================== Scene load + render ========================
+# # ======================== Scene load (heavy) ========================
 
-# def load_scene(dataset_name: str, idx: int):
+# def load_scene_full(dataset_name: str, idx: int):
 #     qa = DATA_BY_DATASET[dataset_name][idx]
 #     scan_id = qa["scan_id"]
 
@@ -331,7 +426,6 @@
 #         raise FileNotFoundError(f"Missing PTH: {pth_path}")
 
 #     pcd_data = torch.load(pth_path, weights_only=False)
-
 #     if not isinstance(pcd_data, (tuple, list)) or len(pcd_data) < 2:
 #         raise ValueError(f"Unsupported PTH format for {pth_path}: {type(pcd_data)}")
 
@@ -339,7 +433,6 @@
 #     colors = ensure_np(pcd_data[1]).astype(np.float32).reshape(-1, 3)
 #     rgb01 = normalize_rgb01(colors)
 
-#     # Attempt labels (best-effort)
 #     instance_labels = None
 #     if len(pcd_data) >= 3:
 #         cand_last = ensure_np(pcd_data[-1]).reshape(-1)
@@ -369,65 +462,68 @@
 #         "points": points,
 #         "rgb01": rgb01,
 #         "instance_labels": instance_labels,
-#         "segment20": None,
-#         "segment200": None,
 #         "location": location,
 #         "orientation": orientation,
 #     }
 
-# def build_plotly_figure(scene, color_mode: str, point_size: float,
-#                         show_boxes: bool, show_axis: bool, show_arrow: bool,
-#                         axis_len: float, max_points: int, max_boxes: int):
+# # ======================== Cache: downsampled per (dataset, scan_id, max_points) ========================
 
-#     xyz = scene["points"].reshape(-1, 3)
+# SCENE_CACHE = {}  # key -> cached dict
+
+# def get_cached_scene(dataset_name: str, idx: int, max_points: int):
+#     qa = DATA_BY_DATASET[dataset_name][idx]
+#     scan_id = qa["scan_id"]
+#     key = (dataset_name, scan_id, int(max_points))
+
+#     if key in SCENE_CACHE:
+#         return SCENE_CACHE[key], key
+
+#     scene = load_scene_full(dataset_name, idx)
+#     xyz = scene["points"]
+#     rgb = scene["rgb01"]
+#     inst = scene["instance_labels"]
+
 #     N = xyz.shape[0]
+#     if max_points is not None and int(max_points) > 0 and N > int(max_points):
+#         sel = np.random.default_rng(0).choice(N, size=int(max_points), replace=False)
+#         xyz = xyz[sel]
+#         rgb = rgb[sel]
+#         inst = inst[sel] if inst is not None else None
 
-#     if max_points is not None and max_points > 0 and N > max_points:
-#         idx = np.random.default_rng(0).choice(N, size=int(max_points), replace=False)
-#         xyz_vis = xyz[idx]
-#         rgb_vis = scene["rgb01"][idx]
-#         inst_vis = scene["instance_labels"][idx] if scene["instance_labels"] is not None else None
-#     else:
-#         xyz_vis = xyz
-#         rgb_vis = scene["rgb01"]
-#         inst_vis = scene["instance_labels"]
+#     cached = {
+#         "scan_id": scene["scan_id"],
+#         "split": scene["split"],
+#         "situation": scene["situation"],
+#         "xyz": xyz.astype(np.float32),
+#         "rgb01": rgb.astype(np.float32),
+#         "inst": inst.astype(np.int32) if inst is not None else None,
+#         "location": scene["location"],
+#         "orientation": scene["orientation"],
+#         "center": xyz.mean(axis=0).astype(np.float32),
+#     }
+#     SCENE_CACHE[key] = cached
+#     return cached, key
 
-#     if color_mode == "RGB":
-#         cols = rgb_vis
-#     elif color_mode == "Instance":
-#         cols = rgb_vis if inst_vis is None else hash_colors_for_labels(inst_vis, seed=123)
-#     else:
-#         cols = rgb_vis
+# # ======================== Plotly figure: base + style overlays ========================
 
-#     cols255 = np.clip(cols * 255.0, 0, 255).astype(np.uint8)
+# def make_base_figure(cached, point_size: float):
+#     xyz = cached["xyz"]
+#     rgb01 = cached["rgb01"]
+
+#     cols255 = np.clip(rgb01 * 255.0, 0, 255).astype(np.uint8)
 #     color_str = [f"rgb({r},{g},{b})" for r, g, b in cols255]
 
 #     fig = go.Figure()
 #     fig.add_trace(go.Scatter3d(
-#         x=xyz_vis[:, 0], y=xyz_vis[:, 1], z=xyz_vis[:, 2],
+#         x=xyz[:, 0], y=xyz[:, 1], z=xyz[:, 2],
 #         mode="markers",
 #         marker=dict(size=float(point_size), color=color_str, opacity=1.0),
 #         showlegend=False,
 #     ))
 
-#     if show_boxes and scene["instance_labels"] is not None:
-#         for t in build_instance_bboxes_as_traces(scene["points"], scene["instance_labels"], max_boxes=int(max_boxes)):
-#             fig.add_trace(t)
-
-#     if show_axis:
-#         center = xyz_vis.mean(axis=0)
-#         for t in make_world_axis_traces(center, axis_len=float(axis_len)):
-#             fig.add_trace(t)
-
-#     if show_arrow and scene["location"] is not None and scene["orientation"] is not None:
-#         try:
-#             fig.add_trace(make_situation_arrow_trace(scene["location"], scene["orientation"], scale=float(axis_len)))
-#         except Exception as e:
-#             print(f"[warn] could not render situation arrow: {e}")
-
-#     title = f"{scene['scan_id']} | split: {scene.get('split','?')}"
-#     if scene.get("situation"):
-#         title += f" | {scene['situation']}"
+#     title = f"{cached['scan_id']} | split: {cached.get('split','?')}"
+#     if cached.get("situation"):
+#         title += f" | {cached['situation']}"
 
 #     fig.update_layout(
 #         title=title,
@@ -442,190 +538,58 @@
 #         paper_bgcolor="black",
 #         font=dict(color="white"),
 #     )
-    
 #     return fig
 
-# # ======================== Gradio callbacks ========================
-# def scans_for_split(dataset_name: str, split_filter: str):
-#     data = DATA_BY_DATASET[dataset_name]
-#     scan_to_inds = SCAN_TO_INDICES_BY_DATASET[dataset_name]
+# def apply_style_and_overlays(fig, cached, color_mode: str, point_size: float,
+#                              show_boxes: bool, show_axis: bool, show_arrow: bool,
+#                              axis_len: float, max_boxes: int):
+#     # update marker size
+#     fig.data[0].marker.size = float(point_size)
 
-#     if split_filter == "all":
-#         scans = list(scan_to_inds.keys())
+#     # update marker color
+#     if color_mode == "RGB":
+#         cols = cached["rgb01"]
+#     elif color_mode == "Instance":
+#         cols = cached["rgb01"] if cached["inst"] is None else hash_colors_for_labels(cached["inst"], seed=123)
 #     else:
-#         scans = []
-#         for sid, inds in scan_to_inds.items():
-#             if any(data[i].get("split") == split_filter for i in inds):
-#                 scans.append(sid)
+#         cols = cached["rgb01"]
 
-#     scans = sorted(scans)  # nice ascending order
+#     cols255 = np.clip(cols * 255.0, 0, 255).astype(np.uint8)
+#     fig.data[0].marker.color = [f"rgb({r},{g},{b})" for r, g, b in cols255]
 
-#     if ONLY_SHOW_SCANS_WITH_PTH:
-#         scans = [sid for sid in scans if pth_exists(dataset_name, sid)]
+#     # clear overlays (keep points trace)
+#     fig.data = fig.data[:1]
 
-#     return scans
-# def on_split_change(dataset_name: str, split_filter: str):
-#     scans = scans_for_split(dataset_name, split_filter)
-#     scan_val = scans[0] if scans else None
+#     # add overlays
+#     if show_boxes and cached["inst"] is not None:
+#         for t in build_instance_bboxes_as_traces(cached["xyz"], cached["inst"], max_boxes=int(max_boxes)):
+#             fig.add_trace(t)
 
-#     qa_choices = qa_choices_for_scan(dataset_name, scan_val, split_filter) if scan_val else []
-#     qa_val = qa_choices[0][1] if qa_choices else None
+#     if show_axis:
+#         for t in make_world_axis_traces(cached["center"], axis_len=float(axis_len)):
+#             fig.add_trace(t)
 
-#     return (
-#         gr.update(choices=scans, value=scan_val),      # scan_id_dd
-#         gr.update(choices=qa_choices, value=qa_val),   # qa_dd
-#     )
+#     # if show_arrow and cached["location"] is not None and cached["orientation"] is not None:
+#     #     try:
+#     #         fig.add_trace(make_situation_arrow_trace(cached["location"], cached["orientation"], scale=float(axis_len)))
+#     #     except Exception as e:
+#     #         print(f"[warn] could not render situation arrow: {e}")
+#     if show_arrow and cached["location"] is not None and cached["orientation"] is not None:
+#         try:
+#             for t in make_situation_arrow_trace(
+#                 cached["location"],
+#                 cached["orientation"],
+#                 scale=float(axis_len),
+#             ):
+#                 fig.add_trace(t)
+#         except Exception as e:
+#             print(f"[warn] could not render situation arrow: {e}")
 
-
-# def on_dataset_change(dataset_name: str):
-#     scans = AVAILABLE_SCANS_BY_DATASET[dataset_name]
-#     scan_val = scans[0] if scans else None
-#     split_val = "all"
-
-#     qa_choices = qa_choices_for_scan(dataset_name, scan_val, split_val) if scan_val else []
-#     qa_val = qa_choices[0][1] if qa_choices else None
-
-#     return (
-#         gr.update(choices=scans, value=scan_val),     # scan_id_dd
-#         gr.update(value=split_val),                   # split_filter
-#         gr.update(choices=qa_choices, value=qa_val),  # qa_dd
-#     )
-
-# def on_scan_or_split_change(dataset_name: str, scan_id: str, split_filter: str):
-#     choices = qa_choices_for_scan(dataset_name, scan_id, split_filter)
-#     default_val = choices[0][1] if choices else None
-#     return gr.update(choices=choices, value=default_val)
-
-# def render(dataset_name, global_idx, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_points, max_boxes):
-#     if global_idx is None:
-#         raise gr.Error("No QA entry selected for this scan_id/split filter.")
-#     idx = int(global_idx)
-
-#     scene = load_scene(dataset_name, idx)
-#     fig = build_plotly_figure(
-#         scene=scene,
-#         color_mode=color_mode,
-#         point_size=point_size,
-#         show_boxes=show_boxes,
-#         show_axis=show_axis,
-#         show_arrow=show_arrow,
-#         axis_len=axis_len,
-#         max_points=int(max_points),
-#         max_boxes=int(max_boxes),
-#     )
 #     return fig
 
-# # ---- Details panel toggle ----
-
-# def toggle_details(is_open: bool):
-#     new_state = not bool(is_open)
-#     return gr.update(open=new_state), new_state
-
-# def update_toggle_button_label(is_open: bool):
-#     return gr.update(value=("Hide visualization details" if is_open else "Show visualization details"))
-
-# # ---- Chat stub ----
-
-# def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value: str):
-#     user_msg = (user_msg or "").strip()
-#     if not user_msg:
-#         return ""
-
-#     if global_idx is None:
-#         return "No QA entry selected."
-
-#     # (Right now) your inference code uses MSQAScanNet, so it only matches ScanNet scans.
-#     if dataset_name != "scannet":
-#         return "Model chat is currently wired for ScanNet only (MSQAScanNet). Switch to scannet to ask questions."
-
-#     idx = int(global_idx)
-#     qa = DATA_BY_DATASET[dataset_name][idx]
-#     scene_id = qa["scan_id"]
-#     situation = qa.get("situation", "")
-
-#     scan_id = qa["scan_id"]
-
-#     if split_value == "all":
-#         effective_split = infer_split_from_scene(dataset_name, scan_id, qa_idx=global_idx)
-#     else:
-#         effective_split = split_value
-
-#     try:
-#         svc = get_msr3d_service()
-#         svc.change_split(effective_split)  # ensure the model's dataset matches the default UI selection
-
-#         # Lock to avoid concurrent generate() calls stepping on each other if Gradio queues multiple requests
-#         with MSR3D_LOCK:
-#             print(f"[model] Generating answer for dataset='{dataset_name}', scan_id='{scan_id}', split='{effective_split}', situation='{situation}' | user_msg='{user_msg}'")
-#             ans = svc.answer(scene_id=scene_id, question=user_msg, situation=situation)
-#         return ans
-#     except Exception as e:
-#         # show useful error without killing gradio
-#         return f"[error] {type(e).__name__}: {e}"
-
-# def chat_step(user_msg, history, dataset_name, global_idx, split_value):
-#     history = history or []
-#     user_msg = (user_msg or "").strip()
-#     if not user_msg:
-#         return "", history
-
-#     # add user message
-#     history.append({"role": "user", "content": user_msg})
-
-#     # generate answer
-#     model_answer = answer_with_model(user_msg, dataset_name, global_idx, split_value)
-
-#     # add assistant message
-#     history.append({"role": "assistant", "content": model_answer})
-
-#     return "", history
-
-# def clear_chat():
-#     return []
-# # ======================== Render Automations ================
-# def on_dataset_change_and_render(dataset_name: str, color_mode, point_size,
-#                                  show_boxes, show_axis, show_arrow, axis_len,
-#                                  max_points, max_boxes):
-#     scans = AVAILABLE_SCANS_BY_DATASET[dataset_name]
-#     scan_val = scans[0] if scans else None
-#     split_val = "all"
-
-#     qa_choices = qa_choices_for_scan(dataset_name, scan_val, split_val) if scan_val else []
-#     qa_val = qa_choices[0][1] if qa_choices else None
-
-#     fig = None
-#     if qa_val is not None:
-#         fig = render(dataset_name, qa_val, color_mode, point_size,
-#                      show_boxes, show_axis, show_arrow, axis_len, max_points, max_boxes)
-
-#     return (
-#         gr.update(choices=scans, value=scan_val),     # scan_id_dd
-#         gr.update(value=split_val),                   # split_filter
-#         gr.update(choices=qa_choices, value=qa_val),  # qa_dd
-#         fig,                                          # plot
-#     )
-
-
-# def on_scan_or_split_change_and_render(dataset_name: str, scan_id: str, split_filter: str,
-#                                        color_mode, point_size, show_boxes, show_axis,
-#                                        show_arrow, axis_len, max_points, max_boxes):
-#     choices = qa_choices_for_scan(dataset_name, scan_id, split_filter)
-#     qa_val = choices[0][1] if choices else None
-
-#     fig = None
-#     if qa_val is not None:
-#         fig = render(dataset_name, qa_val, color_mode, point_size,
-#                      show_boxes, show_axis, show_arrow, axis_len, max_points, max_boxes)
-
-#     return gr.update(choices=choices, value=qa_val), fig
+# # ======================== Split inference (for chat) ========================
 
 # def infer_split_from_scene(dataset_name: str, scan_id: str, qa_idx: int | None = None) -> str:
-#     """
-#     Infer split for a scene (scan_id).
-#     - If scan_id exists in exactly one split -> return it
-#     - If it exists in multiple splits -> use the selected QA's split if provided
-#     - Otherwise deterministic fallback (only for true ambiguity)
-#     """
 #     inds = SCAN_TO_INDICES_BY_DATASET[dataset_name].get(scan_id, [])
 #     splits = sorted({DATA_BY_DATASET[dataset_name][i].get("split", "test") for i in inds})
 
@@ -638,11 +602,175 @@
 #         except Exception:
 #             pass
 
-#     # Only used if the same scan_id exists in multiple splits and we can't disambiguate
 #     for pref in ("test", "val", "train"):
 #         if pref in splits:
 #             return pref
 #     return "test"
+
+# # ======================== Gradio callbacks: dataset/split/scan/qa ========================
+
+# def scans_for_split(dataset_name: str, split_filter: str):
+#     data = DATA_BY_DATASET[dataset_name]
+#     scan_to_inds = SCAN_TO_INDICES_BY_DATASET[dataset_name]
+
+#     if split_filter == "all":
+#         scans = list(scan_to_inds.keys())
+#     else:
+#         scans = []
+#         for sid, inds in scan_to_inds.items():
+#             if any(data[i].get("split") == split_filter for i in inds):
+#                 scans.append(sid)
+
+#     scans = sorted(scans)
+
+#     if ONLY_SHOW_SCANS_WITH_PTH:
+#         scans = [sid for sid in scans if pth_exists(dataset_name, sid)]
+
+#     return scans
+
+# def on_split_change(dataset_name: str, split_filter: str):
+#     scans = scans_for_split(dataset_name, split_filter)
+
+#     scan_val = None
+#     qa_choices = []
+#     qa_val = None
+
+#     # pick first scan that actually has QA choices
+#     for sid in scans:
+#         choices = qa_choices_for_scan(dataset_name, sid, split_filter)
+#         if choices:
+#             scan_val = sid
+#             qa_choices = choices
+#             qa_val = choices[0][1]
+#             break
+
+#     return (
+#         gr.update(choices=scans, value=scan_val),
+#         gr.update(choices=qa_choices, value=qa_val),
+#     )
+
+# def on_dataset_change(dataset_name: str):
+#     scans = AVAILABLE_SCANS_BY_DATASET[dataset_name]
+#     split_val = "all"
+
+#     scan_val = None
+#     qa_choices = []
+#     qa_val = None
+
+#     for sid in scans:
+#         choices = qa_choices_for_scan(dataset_name, sid, split_val)
+#         if choices:
+#             scan_val = sid
+#             qa_choices = choices
+#             qa_val = choices[0][1]
+#             break
+
+#     return (
+#         gr.update(choices=scans, value=scan_val),
+#         gr.update(value=split_val),
+#         gr.update(choices=qa_choices, value=qa_val),
+#     )
+
+# def on_scan_change(dataset_name: str, scan_id: str, split_filter: str):
+#     choices = qa_choices_for_scan(dataset_name, scan_id, split_filter)
+#     qa_val = choices[0][1] if choices else None
+#     return gr.update(choices=choices, value=qa_val)
+
+# # ======================== Render callbacks: base vs style ========================
+
+# def build_base(dataset_name, global_idx, max_points, point_size):
+#     if global_idx is None:
+#         raise gr.Error("No QA entry selected.")
+#     idx = int(global_idx)
+
+#     cached, key = get_cached_scene(dataset_name, idx, int(max_points))
+#     fig = make_base_figure(cached, float(point_size))
+#     return fig, fig, key  # plot, fig_state, key_state
+
+# def update_style(fig, key, dataset_name, global_idx,
+#                  color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points):
+#     if global_idx is None:
+#         return fig, fig, key
+
+#     idx = int(global_idx)
+#     cached, new_key = get_cached_scene(dataset_name, idx, int(max_points))
+
+#     # if missing or key mismatch, rebuild base defensively
+#     if fig is None or key != new_key:
+#         fig = make_base_figure(cached, float(point_size))
+#         key = new_key
+
+#     fig = apply_style_and_overlays(
+#         fig=fig,
+#         cached=cached,
+#         color_mode=color_mode,
+#         point_size=point_size,
+#         show_boxes=show_boxes,
+#         show_axis=show_axis,
+#         show_arrow=show_arrow,
+#         axis_len=axis_len,
+#         max_boxes=max_boxes,
+#     )
+#     return fig, fig, key  # plot, fig_state, key_state
+
+# # ======================== Details panel toggle ========================
+
+# def toggle_details(is_open: bool):
+#     new_state = not bool(is_open)
+#     return gr.update(open=new_state), new_state
+
+# def update_toggle_button_label(is_open: bool):
+#     return gr.update(value=("Hide visualization details" if is_open else "Show visualization details"))
+
+# # ======================== Chat stub ========================
+
+# def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value: str):
+#     user_msg = (user_msg or "").strip()
+#     if not user_msg:
+#         return ""
+
+#     if global_idx is None:
+#         return "No QA entry selected."
+
+#     if dataset_name != "scannet":
+#         return "Model chat is currently wired for ScanNet only (MSQAScanNet). Switch to scannet to ask questions."
+
+#     idx = int(global_idx)
+#     qa = DATA_BY_DATASET[dataset_name][idx]
+#     scene_id = qa["scan_id"]
+#     situation = qa.get("situation", "")
+
+#     scan_id = qa["scan_id"]
+#     if split_value == "all":
+#         effective_split = infer_split_from_scene(dataset_name, scan_id, qa_idx=global_idx)
+#     else:
+#         effective_split = split_value
+
+#     try:
+#         svc = get_msr3d_service()
+#         svc.change_split(effective_split)
+
+#         with MSR3D_LOCK:
+#             print(f"[model] Generating answer for dataset='{dataset_name}', scan_id='{scan_id}', split='{effective_split}', situation='{situation}' | user_msg='{user_msg}'")
+#             ans = svc.answer(scene_id=scene_id, question=user_msg, situation=situation)
+#         return ans
+#     except Exception as e:
+#         return f"[error] {type(e).__name__}: {e}"
+
+# def chat_step(user_msg, history, dataset_name, global_idx, split_value):
+#     history = history or []
+#     user_msg = (user_msg or "").strip()
+#     if not user_msg:
+#         return "", history
+
+#     history.append({"role": "user", "content": user_msg})
+#     model_answer = answer_with_model(user_msg, dataset_name, global_idx, split_value)
+#     history.append({"role": "assistant", "content": model_answer})
+
+#     return "", history
+
+# def clear_chat():
+#     return []
 
 # # ======================== Gradio App ========================
 
@@ -654,8 +782,9 @@
 # ) as demo:
 #     gr.Markdown(
 #         "## MSQA Multi-Dataset Scene Viewer (Gradio + Plotly)\n"
-#         "Select **dataset → scene(folder) → QA**, optionally filter by split, then render.\n\n"
-#         "**RScan** loads `<scan_id>/pcds.pth` inside each scan folder."
+#         "Select **dataset → scene(folder) → QA**, optionally filter by split.\n\n"
+#         "**RScan** loads `<scan_id>/pcds.pth` inside each scan folder.\n\n"
+#         "Fast mode: base geometry cached; styling updates avoid disk reload."
 #     )
 
 #     dataset_dd = gr.Dropdown(
@@ -686,7 +815,11 @@
 #             interactive=True,
 #         )
 
+#     # states for accordion + fast plot updates
 #     details_open = gr.State(False)
+#     fig_state = gr.State(None)
+#     key_state = gr.State(None)
+
 #     toggle_btn = gr.Button("Show visualization details")
 
 #     with gr.Accordion("Visualization details", open=False) as details_panel:
@@ -717,32 +850,29 @@
 #                 send = gr.Button("Send")
 #                 clear = gr.Button("Clear")
 
-#     # Init
-#     #demo.load(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd])
-#     demo.load(
-#         fn=on_dataset_change_and_render,
-#         inputs=[dataset_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_points, max_boxes],
-#         outputs=[scan_id_dd, split_filter, qa_dd, plot],
+#     # ============ Init ============
+#     # Load dropdowns (dataset default) then render base+style once.
+#     demo.load(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd]).then(
+#         fn=build_base,
+#         inputs=[dataset_dd, qa_dd, max_points, point_size],
+#         outputs=[plot, fig_state, key_state],
+#     ).then(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
 #     )
 
-#     # Dataset changes -> update scenes + QA list
+#     # ============ Dataset changes ============
+#     # Update dropdowns only; do not auto-render unless you want it.
 #     dataset_dd.change(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd])
-#     # dataset_dd.change(
-#     #         fn=on_split_change,   # reuse the same logic
-#     #         inputs=[dataset_dd, split_filter],
-#     #         outputs=[scan_id_dd, qa_dd],
-#     #     )
 
-#     # Scan/split changes -> update QA list
-#     scan_id_dd.change(fn=on_scan_or_split_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
-#     #split_filter.change(fn=on_scan_or_split_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
-#     split_filter.change(
-#         fn=on_split_change,
-#         inputs=[dataset_dd, split_filter],
-#         outputs=[scan_id_dd, qa_dd],
-#     )
+#     # ============ Split changes ============
+#     split_filter.change(fn=on_split_change, inputs=[dataset_dd, split_filter], outputs=[scan_id_dd, qa_dd])
 
-#     # Details toggle
+#     # ============ Scan changes ============
+#     scan_id_dd.change(fn=on_scan_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
+
+#     # ============ Details toggle ============
 #     toggle_btn.click(
 #         fn=toggle_details,
 #         inputs=[details_open],
@@ -753,40 +883,95 @@
 #         outputs=[toggle_btn],
 #     )
 
-#     # Render
+#     # ============ Render button (heavy then light) ============
 #     btn.click(
-#         fn=render,
-#         inputs=[dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_points, max_boxes],
-#         outputs=[plot],
+#         fn=build_base,
+#         inputs=[dataset_dd, qa_dd, max_points, point_size],
+#         outputs=[plot, fig_state, key_state],
+#     ).then(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
 #     )
 
-#     # Chat
-#     # send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd], outputs=[user_msg, chat])
-#     # user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd], outputs=[user_msg, chat])
+#     # ============ Light updates (no disk reload) ============
+#     # These update the cached figure in-place.
+#     color_mode.change(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+#     point_size.change(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+#     show_boxes.change(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+#     show_axis.change(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+#     show_arrow.change(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+#     axis_len.change(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+#     max_boxes.change(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+
+#     # Max points is a heavy trigger: rebuild base.
+#     max_points.change(
+#         fn=build_base,
+#         inputs=[dataset_dd, qa_dd, max_points, point_size],
+#         outputs=[plot, fig_state, key_state],
+#     ).then(
+#         fn=update_style,
+#         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
+#         outputs=[plot, fig_state, key_state],
+#     )
+
+#     # ============ Chat ============
 #     send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
 #     user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
-
 #     clear.click(fn=clear_chat, inputs=[], outputs=[chat])
 
 # if __name__ == "__main__":
 #     demo.launch(share=True)
 #!/usr/bin/env python3
 """
-MSQA Multi-Dataset Scene Viewer (Gradio + Plotly) — ScanNet + ARKitScenes + RScan (folder-based)
+MSQA Multi-Dataset Scene Viewer (Gradio + Plotly) — optimized drop-in replacement
 
-Upgrades in this version:
-- Fast updates: points are rendered once per (dataset, scan_id, max_points) and cached.
-- UI changes like color mode / point size / toggles update the existing figure (no disk reload).
-- Heavy reload only happens when dataset/scan/max_points (or QA selection) changes.
-- Fixes split/scene/QA “glitch”: split change chooses a scan that actually has QA in that split.
-- Keeps your right-side chat stub and visualization accordion toggle.
+Main improvements:
+- Loads each .pth scene only once per (dataset, scan_id).
+- Downsamples only once per (dataset, scan_id, max_points).
+- Precomputes RGB colors + instance colors once for the downsampled scene.
+- Caches bbox traces once per (dataset, scan_id, max_points, max_boxes).
+- UI-only changes (color mode / point size / toggles / axis_len / max_boxes) do NOT hit disk.
+- Model can preload at startup instead of waiting for the first question.
 
-Notes:
-- Plotly in Gradio still sends a figure JSON each update, but we avoid torch.load/downsample/rebuild point trace.
+Important note:
+- Gradio + Plotly still re-sends the whole figure JSON on each update.
+  So this is not true client-side recolor-only rendering.
+- But it avoids repeated torch.load, repeated downsampling, repeated color generation,
+  and repeated bbox recomputation, which should make it much faster.
 """
 
 import os
 import json
+import copy
 import torch
 import numpy as np
 import gradio as gr
@@ -819,8 +1004,6 @@ RSCAN_JSON_PATHS = {
 
 SCANNET_PCD_ROOT = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/scannet_base/scan_data/pcd_with_global_alignment"
 ARKIT_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/ARkit_base/scan_data/pcd-align/"
-
-# RScan is folder-based and loads pcds.pth inside each scan folder
 RSCAN_PCD_ROOT   = "/lustreFS/data/vcg/pdemetriou/Msqa_Thesis_2025/msr3d/data/data/MSR3D_v2_pcds/rscan_base/3RScan-ours-align/"
 RSCAN_PCD_FILE   = "pcds.pth"
 
@@ -832,6 +1015,16 @@ DATASET_SPECS = {
     "rscan":   {"json_paths": RSCAN_JSON_PATHS,   "pcd_root": RSCAN_PCD_ROOT},
 }
 
+# cache limits
+MAX_RAW_SCENES_IN_MEMORY = 16
+MAX_DOWNSAMPLED_SCENES_IN_MEMORY = 48
+MAX_FIG_TEMPLATES_IN_MEMORY = 48
+MAX_BBOX_CACHE_IN_MEMORY = 96
+
+# model preload
+PRELOAD_MODEL_ON_STARTUP = True
+PRELOAD_MODEL_BLOCKING = True
+
 # ======================== Model (chat stub) ========================
 
 from msr3d.tools.interactive_service import MSR3DInteractiveService
@@ -840,15 +1033,44 @@ MSR3D_EXPERIMENT_PATH = "MSR3D_BLIPT_PTv3_VIC_LORA_2"
 
 MSR3D_SERVICE = None
 MSR3D_LOCK = threading.Lock()
+MSR3D_LOAD_LOCK = threading.Lock()
+MSR3D_STATUS = {"loaded": False, "error": None, "loading": False}
+
 
 def get_msr3d_service():
     global MSR3D_SERVICE
     if MSR3D_SERVICE is None:
-        MSR3D_SERVICE = MSR3DInteractiveService(
-            experiment_path=MSR3D_EXPERIMENT_PATH,
-            split="test",
-        )
+        with MSR3D_LOAD_LOCK:
+            if MSR3D_SERVICE is None:
+                MSR3D_STATUS["loading"] = True
+                try:
+                    MSR3D_SERVICE = MSR3DInteractiveService(
+                        experiment_path=MSR3D_EXPERIMENT_PATH,
+                        split="test",
+                    )
+                    MSR3D_STATUS["loaded"] = True
+                    MSR3D_STATUS["error"] = None
+                except Exception as e:
+                    MSR3D_STATUS["loaded"] = False
+                    MSR3D_STATUS["error"] = f"{type(e).__name__}: {e}"
+                    raise
+                finally:
+                    MSR3D_STATUS["loading"] = False
     return MSR3D_SERVICE
+
+
+def warmup_model():
+    try:
+        get_msr3d_service()
+        print("[model] preloaded successfully")
+    except Exception as e:
+        print(f"[model] preload failed: {type(e).__name__}: {e}")
+
+
+def warmup_model_async():
+    t = threading.Thread(target=warmup_model, daemon=True)
+    t.start()
+
 
 # ======================== Utils ========================
 
@@ -856,10 +1078,12 @@ def load_json(path: str):
     with open(path, "r") as f:
         return json.load(f)
 
+
 def ensure_np(x):
     if isinstance(x, torch.Tensor):
         return x.detach().cpu().numpy()
     return np.asarray(x)
+
 
 def normalize_rgb01(colors):
     """
@@ -873,13 +1097,17 @@ def normalize_rgb01(colors):
     cmin, cmax = float(np.nanmin(c)), float(np.nanmax(c))
 
     if cmin >= -1.01 and cmax <= 1.01:
-        # either [-1,1] or [0,1]
         if cmin < 0.0:
             return np.clip((c + 1.0) * 0.5, 0.0, 1.0)
         return np.clip(c, 0.0, 1.0)
 
-    # assume [0,255]
     return np.clip(c / 255.0, 0.0, 1.0)
+
+
+def rgb01_to_plotly_strings(rgb01):
+    rgb = np.clip(rgb01 * 255.0, 0, 255).astype(np.uint8)
+    return [f"rgb({r},{g},{b})" for r, g, b in rgb]
+
 
 def hash_colors_for_labels(labels, seed=0):
     labels = np.asarray(labels).reshape(-1)
@@ -891,25 +1119,20 @@ def hash_colors_for_labels(labels, seed=0):
         table[int(u)] = col.astype(np.float32)
     return np.array([table[int(x)] for x in labels], dtype=np.float32)
 
+
+def evict_if_needed(d: dict, max_size: int):
+    while len(d) > max_size:
+        oldest_key = next(iter(d))
+        d.pop(oldest_key, None)
+
+
+def stable_seed_from_key(*parts):
+    s = "||".join(map(str, parts))
+    return abs(hash(s)) % (2**32)
+
+
 # -------- Orientation handling --------
 
-# def get_view_vector_from_orientation(orientation):
-#     o = ensure_np(orientation).astype(np.float32).reshape(-1)
-
-#     if o.size == 4:
-#         yaw = R.from_quat(o).as_euler("xyz", degrees=False)[-1]
-#         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
-#         return d / (np.linalg.norm(d) + 1e-12)
-
-#     if o.size == 3:
-#         n = float(np.linalg.norm(o))
-#         if 0.5 <= n <= 1.5:
-#             return (o / (n + 1e-12)).astype(np.float32)
-#         yaw = float(o[-1])
-#         d = np.array([np.cos(yaw), np.sin(yaw), 0.0], dtype=np.float32)
-#         return d / (np.linalg.norm(d) + 1e-12)
-
-#     return np.array([1.0, 0.0, 0.0], dtype=np.float32)
 def get_view_vector_from_orientation(orientation):
     """
     Robust handling:
@@ -921,15 +1144,11 @@ def get_view_vector_from_orientation(orientation):
 
     if o.size == 4:
         q = o.copy()
-
-        # Try interpret as [x,y,z,w] first (scipy convention)
         try:
             yaw = R.from_quat([q[0], q[1], q[2], q[3]]).as_euler("xyz", degrees=False)[-1]
         except Exception:
             yaw = 0.0
 
-        # Heuristic: if w is in front (typical [w,x,y,z]), yaw from the other ordering may be more stable
-        # If q[3] is very small and q[0] is large, it might be [w,x,y,z]
         if abs(q[3]) < 0.2 and abs(q[0]) > 0.2:
             try:
                 yaw2 = R.from_quat([q[1], q[2], q[3], q[0]]).as_euler("xyz", degrees=False)[-1]
@@ -949,6 +1168,13 @@ def get_view_vector_from_orientation(orientation):
         return d / (np.linalg.norm(d) + 1e-12)
 
     return np.array([1.0, 0.0, 0.0], dtype=np.float32)
+
+
+def _normed(v):
+    v = np.asarray(v, dtype=np.float32).reshape(3)
+    n = float(np.linalg.norm(v)) + 1e-12
+    return v / n
+
 
 # ======================== Plotly overlay geometry ========================
 
@@ -976,6 +1202,7 @@ def aabb_edges(minb, maxb):
         (0, 4), (1, 5), (2, 6), (3, 7),
     ]
     return [(corners[i], corners[j]) for i, j in edges]
+
 
 def build_instance_bboxes_as_traces(xyz, instance_labels, max_boxes=200, seed=123):
     if instance_labels is None:
@@ -1014,11 +1241,15 @@ def build_instance_bboxes_as_traces(xyz, instance_labels, max_boxes=200, seed=12
         traces.append(go.Scatter3d(
             x=xs, y=ys, z=zs,
             mode="lines",
-            line=dict(width=4, color=f"rgb({int(col[0]*255)},{int(col[1]*255)},{int(col[2]*255)})"),
+            line=dict(
+                width=4,
+                color=f"rgb({int(col[0]*255)},{int(col[1]*255)},{int(col[2]*255)})"
+            ),
             showlegend=False,
         ))
 
     return traces
+
 
 def make_world_axis_traces(origin, axis_len=1.0):
     origin = np.asarray(origin, dtype=np.float32).reshape(3)
@@ -1037,43 +1268,18 @@ def make_world_axis_traces(origin, axis_len=1.0):
 
     return [line(O, X, "red"), line(O, Y, "green"), line(O, Z, "blue")]
 
-# def make_situation_arrow_trace(location, orientation, scale=0.8):
-#     loc = np.asarray(location, dtype=np.float32).reshape(3)
-#     d = get_view_vector_from_orientation(orientation)
-
-#     loc2 = loc.copy()
-#     loc2[2] += float(0.15)
-#     tip = loc2 + d * float(scale)
-
-#     return go.Scatter3d(
-#         x=[loc2[0], tip[0]],
-#         y=[loc2[1], tip[1]],
-#         z=[loc2[2], tip[2]],
-#         mode="lines+markers",
-#         line=dict(width=10, color="orange"),
-#         marker=dict(size=4),
-#         showlegend=False,
-#     )
-def _normed(v):
-    v = np.asarray(v, dtype=np.float32).reshape(3)
-    n = float(np.linalg.norm(v)) + 1e-12
-    return v / n
 
 def make_situation_arrow_trace(
     location, orientation,
     scale=0.8,
     zoff=0.15,
     head_len_ratio=0.50,
-    head_radius_ratio=0.50,   # <-- thickness relative to overall arrow length
-    tip_push_ratio=0.25,      # <-- move cone tip forward by this fraction of head_len
+    head_radius_ratio=0.50,
+    tip_push_ratio=0.25,
     flatten_xy=True,
 ):
     """
     Returns [shaft_line_trace, cone_head_trace]
-
-    - Cone length scales with the line via head_len_ratio
-    - Cone thickness scales with the line via head_radius_ratio (through sizeref)
-    - Cone is pushed forward past the shaft tip via tip_push_ratio
     """
 
     loc = np.asarray(location, dtype=np.float32).reshape(3)
@@ -1085,7 +1291,6 @@ def make_situation_arrow_trace(
     base = loc.copy()
     base[2] += float(zoff)
 
-    # arrow shaft
     tip = base + d * float(scale)
 
     shaft = go.Scatter3d(
@@ -1097,15 +1302,9 @@ def make_situation_arrow_trace(
         showlegend=False,
     )
 
-    # head length proportional to shaft length
     head_len = float(scale) * float(head_len_ratio)
-
-    # push cone "forward" (since anchor="tip", we move the tip itself)
     tip_push = float(tip_push_ratio) * head_len
     cone_tip = tip + d * tip_push
-
-    # thickness proportional to arrow length (or use head_len if you prefer)
-    # good default: radius ~= 0.15–0.30 * head_len
     sizeref = float(head_radius_ratio) * float(scale)
 
     head = go.Cone(
@@ -1121,20 +1320,19 @@ def make_situation_arrow_trace(
 
     return [shaft, head]
 
+
 # ======================== Dataset path resolution ========================
 
 def resolve_pth_path(dataset_name: str, scan_id: str) -> str:
-    """
-    - RScan: <RSCAN_PCD_ROOT>/<scan_id>/pcds.pth
-    - Others: <PCD_ROOT>/<scan_id>.pth
-    """
     if dataset_name == "rscan":
         return os.path.join(RSCAN_PCD_ROOT, scan_id, RSCAN_PCD_FILE)
     root = DATASET_SPECS[dataset_name]["pcd_root"]
     return os.path.join(root, f"{scan_id}.pth")
 
+
 def pth_exists(dataset_name: str, scan_id: str) -> bool:
     return os.path.exists(resolve_pth_path(dataset_name, scan_id))
+
 
 # ======================== Load + merge splits (per dataset) ========================
 
@@ -1142,11 +1340,13 @@ DATA_BY_DATASET = {}
 SCAN_TO_INDICES_BY_DATASET = {}
 AVAILABLE_SCANS_BY_DATASET = {}
 
+
 def build_scan_index(data):
     scan_to_indices = defaultdict(list)
     for i, qa in enumerate(data):
         scan_to_indices[qa["scan_id"]].append(i)
     return dict(scan_to_indices)
+
 
 for dname, spec in DATASET_SPECS.items():
     data = []
@@ -1172,6 +1372,7 @@ for dname, spec in DATASET_SPECS.items():
         raise RuntimeError(f"No scan_ids available for dataset '{dname}'. Check JSON paths and PCD roots.")
     AVAILABLE_SCANS_BY_DATASET[dname] = avail
 
+
 # ======================== QA dropdown helpers ========================
 
 def qa_label(dataset_name: str, i: int) -> str:
@@ -1181,15 +1382,25 @@ def qa_label(dataset_name: str, i: int) -> str:
         sit = sit[:87] + "..."
     return f"{i} | {qa['scan_id']} | {qa.get('split','?')} | {sit}"
 
+
 def qa_choices_for_scan(dataset_name: str, scan_id: str, split_filter: str):
     inds = SCAN_TO_INDICES_BY_DATASET[dataset_name].get(scan_id, [])
     if split_filter != "all":
         inds = [i for i in inds if DATA_BY_DATASET[dataset_name][i].get("split") == split_filter]
     return [(qa_label(dataset_name, i), i) for i in inds]
 
-# ======================== Scene load (heavy) ========================
 
-def load_scene_full(dataset_name: str, idx: int):
+# ======================== Caches ========================
+
+RAW_SCENE_CACHE = {}          # key: (dataset, scan_id) -> full scene arrays
+DOWNSAMPLED_CACHE = {}        # key: (dataset, scan_id, max_points) -> downsampled payload
+FIG_TEMPLATE_CACHE = {}       # key: (dataset, scan_id, max_points) -> base points-only figure
+BBOX_TRACE_CACHE = {}         # key: (dataset, scan_id, max_points, max_boxes) -> list[traces]
+
+
+# ======================== Scene load (heavy, cached) ========================
+
+def load_scene_full_uncached(dataset_name: str, idx: int):
     qa = DATA_BY_DATASET[dataset_name][idx]
     scan_id = qa["scan_id"]
 
@@ -1238,64 +1449,128 @@ def load_scene_full(dataset_name: str, idx: int):
         "orientation": orientation,
     }
 
-# ======================== Cache: downsampled per (dataset, scan_id, max_points) ========================
 
-SCENE_CACHE = {}  # key -> cached dict
+def get_raw_scene(dataset_name: str, idx: int):
+    qa = DATA_BY_DATASET[dataset_name][idx]
+    scan_id = qa["scan_id"]
+    key = (dataset_name, scan_id)
 
-def get_cached_scene(dataset_name: str, idx: int, max_points: int):
+    if key in RAW_SCENE_CACHE:
+        val = RAW_SCENE_CACHE.pop(key)
+        RAW_SCENE_CACHE[key] = val
+        return val
+
+    scene = load_scene_full_uncached(dataset_name, idx)
+    RAW_SCENE_CACHE[key] = scene
+    evict_if_needed(RAW_SCENE_CACHE, MAX_RAW_SCENES_IN_MEMORY)
+    return scene
+
+
+def get_downsampled_scene(dataset_name: str, idx: int, max_points: int):
     qa = DATA_BY_DATASET[dataset_name][idx]
     scan_id = qa["scan_id"]
     key = (dataset_name, scan_id, int(max_points))
 
-    if key in SCENE_CACHE:
-        return SCENE_CACHE[key], key
+    if key in DOWNSAMPLED_CACHE:
+        val = DOWNSAMPLED_CACHE.pop(key)
+        DOWNSAMPLED_CACHE[key] = val
+        return val, key
 
-    scene = load_scene_full(dataset_name, idx)
+    scene = get_raw_scene(dataset_name, idx)
+
     xyz = scene["points"]
     rgb = scene["rgb01"]
     inst = scene["instance_labels"]
 
     N = xyz.shape[0]
-    if max_points is not None and int(max_points) > 0 and N > int(max_points):
-        sel = np.random.default_rng(0).choice(N, size=int(max_points), replace=False)
-        xyz = xyz[sel]
-        rgb = rgb[sel]
-        inst = inst[sel] if inst is not None else None
+    max_points = int(max_points)
 
-    cached = {
+    if max_points > 0 and N > max_points:
+        seed = stable_seed_from_key(dataset_name, scan_id, max_points)
+        rng = np.random.default_rng(seed)
+        sel = rng.choice(N, size=max_points, replace=False)
+        xyz_ds = xyz[sel]
+        rgb_ds = rgb[sel]
+        inst_ds = inst[sel] if inst is not None else None
+    else:
+        xyz_ds = xyz
+        rgb_ds = rgb
+        inst_ds = inst
+
+    rgb_colors = rgb01_to_plotly_strings(rgb_ds)
+
+    if inst_ds is not None:
+        inst_rgb01 = hash_colors_for_labels(inst_ds, seed=123)
+        inst_colors = rgb01_to_plotly_strings(inst_rgb01)
+    else:
+        inst_colors = rgb_colors
+
+    payload = {
         "scan_id": scene["scan_id"],
         "split": scene["split"],
         "situation": scene["situation"],
-        "xyz": xyz.astype(np.float32),
-        "rgb01": rgb.astype(np.float32),
-        "inst": inst.astype(np.int32) if inst is not None else None,
+        "xyz": xyz_ds.astype(np.float32),
+        "inst": inst_ds.astype(np.int32) if inst_ds is not None else None,
         "location": scene["location"],
         "orientation": scene["orientation"],
-        "center": xyz.mean(axis=0).astype(np.float32),
+        "center": xyz_ds.mean(axis=0).astype(np.float32),
+        "rgb_colors": rgb_colors,
+        "inst_colors": inst_colors,
     }
-    SCENE_CACHE[key] = cached
-    return cached, key
 
-# ======================== Plotly figure: base + style overlays ========================
+    DOWNSAMPLED_CACHE[key] = payload
+    evict_if_needed(DOWNSAMPLED_CACHE, MAX_DOWNSAMPLED_SCENES_IN_MEMORY)
+    return payload, key
 
-def make_base_figure(cached, point_size: float):
-    xyz = cached["xyz"]
-    rgb01 = cached["rgb01"]
 
-    cols255 = np.clip(rgb01 * 255.0, 0, 255).astype(np.uint8)
-    color_str = [f"rgb({r},{g},{b})" for r, g, b in cols255]
+def get_bbox_traces(dataset_name: str, idx: int, max_points: int, max_boxes: int):
+    qa = DATA_BY_DATASET[dataset_name][idx]
+    scan_id = qa["scan_id"]
+    key = (dataset_name, scan_id, int(max_points), int(max_boxes))
+
+    if key in BBOX_TRACE_CACHE:
+        val = BBOX_TRACE_CACHE.pop(key)
+        BBOX_TRACE_CACHE[key] = val
+        return val
+
+    payload, _ = get_downsampled_scene(dataset_name, idx, max_points)
+
+    traces = []
+    if payload["inst"] is not None:
+        traces = build_instance_bboxes_as_traces(
+            payload["xyz"],
+            payload["inst"],
+            max_boxes=int(max_boxes),
+            seed=123,
+        )
+
+    BBOX_TRACE_CACHE[key] = traces
+    evict_if_needed(BBOX_TRACE_CACHE, MAX_BBOX_CACHE_IN_MEMORY)
+    return traces
+
+
+# ======================== Figure helpers ========================
+
+def make_base_figure_template(payload, point_size: float):
+    xyz = payload["xyz"]
 
     fig = go.Figure()
     fig.add_trace(go.Scatter3d(
-        x=xyz[:, 0], y=xyz[:, 1], z=xyz[:, 2],
+        x=xyz[:, 0],
+        y=xyz[:, 1],
+        z=xyz[:, 2],
         mode="markers",
-        marker=dict(size=float(point_size), color=color_str, opacity=1.0),
+        marker=dict(
+            size=float(point_size),
+            color=payload["rgb_colors"],
+            opacity=1.0,
+        ),
         showlegend=False,
     ))
 
-    title = f"{cached['scan_id']} | split: {cached.get('split','?')}"
-    if cached.get("situation"):
-        title += f" | {cached['situation']}"
+    title = f"{payload['scan_id']} | split: {payload.get('split','?')}"
+    if payload.get("situation"):
+        title += f" | {payload['situation']}"
 
     fig.update_layout(
         title=title,
@@ -1309,48 +1584,68 @@ def make_base_figure(cached, point_size: float):
         ),
         paper_bgcolor="black",
         font=dict(color="white"),
+        uirevision=f"{payload['scan_id']}::{payload['split']}",
     )
     return fig
 
-def apply_style_and_overlays(fig, cached, color_mode: str, point_size: float,
-                             show_boxes: bool, show_axis: bool, show_arrow: bool,
-                             axis_len: float, max_boxes: int):
-    # update marker size
-    fig.data[0].marker.size = float(point_size)
 
-    # update marker color
-    if color_mode == "RGB":
-        cols = cached["rgb01"]
-    elif color_mode == "Instance":
-        cols = cached["rgb01"] if cached["inst"] is None else hash_colors_for_labels(cached["inst"], seed=123)
-    else:
-        cols = cached["rgb01"]
+def get_base_figure_template(dataset_name: str, idx: int, max_points: int, point_size: float):
+    payload, key = get_downsampled_scene(dataset_name, idx, max_points)
 
-    cols255 = np.clip(cols * 255.0, 0, 255).astype(np.uint8)
-    fig.data[0].marker.color = [f"rgb({r},{g},{b})" for r, g, b in cols255]
+    if key in FIG_TEMPLATE_CACHE:
+        fig = FIG_TEMPLATE_CACHE.pop(key)
+        FIG_TEMPLATE_CACHE[key] = fig
+        out = go.Figure(fig)
+        out.data[0].marker.size = float(point_size)
+        return out, payload, key
 
-    # clear overlays (keep points trace)
+    fig = make_base_figure_template(payload, point_size=float(point_size))
+    FIG_TEMPLATE_CACHE[key] = fig
+    evict_if_needed(FIG_TEMPLATE_CACHE, MAX_FIG_TEMPLATES_IN_MEMORY)
+    return go.Figure(fig), payload, key
+
+
+def apply_style_and_overlays(
+    fig,
+    payload,
+    dataset_name,
+    idx,
+    max_points,
+    color_mode: str,
+    point_size: float,
+    show_boxes: bool,
+    show_axis: bool,
+    show_arrow: bool,
+    axis_len: float,
+    max_boxes: int,
+):
+    # keep only the point cloud trace
     fig.data = fig.data[:1]
 
-    # add overlays
-    if show_boxes and cached["inst"] is not None:
-        for t in build_instance_bboxes_as_traces(cached["xyz"], cached["inst"], max_boxes=int(max_boxes)):
-            fig.add_trace(t)
+    # update point size
+    fig.data[0].marker.size = float(point_size)
+
+    # update point colors
+    if color_mode == "Instance":
+        fig.data[0].marker.color = payload["inst_colors"]
+    else:
+        fig.data[0].marker.color = payload["rgb_colors"]
+
+    # overlays
+    if show_boxes and payload["inst"] is not None:
+        bbox_traces = get_bbox_traces(dataset_name, idx, max_points, max_boxes)
+        for t in bbox_traces:
+            fig.add_trace(copy.deepcopy(t))
 
     if show_axis:
-        for t in make_world_axis_traces(cached["center"], axis_len=float(axis_len)):
+        for t in make_world_axis_traces(payload["center"], axis_len=float(axis_len)):
             fig.add_trace(t)
 
-    # if show_arrow and cached["location"] is not None and cached["orientation"] is not None:
-    #     try:
-    #         fig.add_trace(make_situation_arrow_trace(cached["location"], cached["orientation"], scale=float(axis_len)))
-    #     except Exception as e:
-    #         print(f"[warn] could not render situation arrow: {e}")
-    if show_arrow and cached["location"] is not None and cached["orientation"] is not None:
+    if show_arrow and payload["location"] is not None and payload["orientation"] is not None:
         try:
             for t in make_situation_arrow_trace(
-                cached["location"],
-                cached["orientation"],
+                payload["location"],
+                payload["orientation"],
                 scale=float(axis_len),
             ):
                 fig.add_trace(t)
@@ -1359,9 +1654,10 @@ def apply_style_and_overlays(fig, cached, color_mode: str, point_size: float,
 
     return fig
 
+
 # ======================== Split inference (for chat) ========================
 
-def infer_split_from_scene(dataset_name: str, scan_id: str, qa_idx: int | None = None) -> str:
+def infer_split_from_scene(dataset_name: str, scan_id: str, qa_idx: int = None) -> str:
     inds = SCAN_TO_INDICES_BY_DATASET[dataset_name].get(scan_id, [])
     splits = sorted({DATA_BY_DATASET[dataset_name][i].get("split", "test") for i in inds})
 
@@ -1378,6 +1674,7 @@ def infer_split_from_scene(dataset_name: str, scan_id: str, qa_idx: int | None =
         if pref in splits:
             return pref
     return "test"
+
 
 # ======================== Gradio callbacks: dataset/split/scan/qa ========================
 
@@ -1400,6 +1697,7 @@ def scans_for_split(dataset_name: str, split_filter: str):
 
     return scans
 
+
 def on_split_change(dataset_name: str, split_filter: str):
     scans = scans_for_split(dataset_name, split_filter)
 
@@ -1407,7 +1705,6 @@ def on_split_change(dataset_name: str, split_filter: str):
     qa_choices = []
     qa_val = None
 
-    # pick first scan that actually has QA choices
     for sid in scans:
         choices = qa_choices_for_scan(dataset_name, sid, split_filter)
         if choices:
@@ -1420,6 +1717,7 @@ def on_split_change(dataset_name: str, split_filter: str):
         gr.update(choices=scans, value=scan_val),
         gr.update(choices=qa_choices, value=qa_val),
     )
+
 
 def on_dataset_change(dataset_name: str):
     scans = AVAILABLE_SCANS_BY_DATASET[dataset_name]
@@ -1443,47 +1741,73 @@ def on_dataset_change(dataset_name: str):
         gr.update(choices=qa_choices, value=qa_val),
     )
 
+
 def on_scan_change(dataset_name: str, scan_id: str, split_filter: str):
     choices = qa_choices_for_scan(dataset_name, scan_id, split_filter)
     qa_val = choices[0][1] if choices else None
     return gr.update(choices=choices, value=qa_val)
 
-# ======================== Render callbacks: base vs style ========================
+
+# ======================== Render callbacks ========================
 
 def build_base(dataset_name, global_idx, max_points, point_size):
     if global_idx is None:
         raise gr.Error("No QA entry selected.")
+
     idx = int(global_idx)
+    fig, payload, key = get_base_figure_template(
+        dataset_name=dataset_name,
+        idx=idx,
+        max_points=int(max_points),
+        point_size=float(point_size),
+    )
+    return fig, fig, key
 
-    cached, key = get_cached_scene(dataset_name, idx, int(max_points))
-    fig = make_base_figure(cached, float(point_size))
-    return fig, fig, key  # plot, fig_state, key_state
 
-def update_style(fig, key, dataset_name, global_idx,
-                 color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points):
+def update_style(
+    fig,
+    key,
+    dataset_name,
+    global_idx,
+    color_mode,
+    point_size,
+    show_boxes,
+    show_axis,
+    show_arrow,
+    axis_len,
+    max_boxes,
+    max_points,
+):
     if global_idx is None:
         return fig, fig, key
 
     idx = int(global_idx)
-    cached, new_key = get_cached_scene(dataset_name, idx, int(max_points))
+    payload, new_key = get_downsampled_scene(dataset_name, idx, int(max_points))
 
-    # if missing or key mismatch, rebuild base defensively
     if fig is None or key != new_key:
-        fig = make_base_figure(cached, float(point_size))
-        key = new_key
+        fig, payload, new_key = get_base_figure_template(
+            dataset_name=dataset_name,
+            idx=idx,
+            max_points=int(max_points),
+            point_size=float(point_size),
+        )
 
     fig = apply_style_and_overlays(
         fig=fig,
-        cached=cached,
+        payload=payload,
+        dataset_name=dataset_name,
+        idx=idx,
+        max_points=int(max_points),
         color_mode=color_mode,
-        point_size=point_size,
-        show_boxes=show_boxes,
-        show_axis=show_axis,
-        show_arrow=show_arrow,
-        axis_len=axis_len,
-        max_boxes=max_boxes,
+        point_size=float(point_size),
+        show_boxes=bool(show_boxes),
+        show_axis=bool(show_axis),
+        show_arrow=bool(show_arrow),
+        axis_len=float(axis_len),
+        max_boxes=int(max_boxes),
     )
-    return fig, fig, key  # plot, fig_state, key_state
+    return fig, fig, new_key
+
 
 # ======================== Details panel toggle ========================
 
@@ -1491,8 +1815,22 @@ def toggle_details(is_open: bool):
     new_state = not bool(is_open)
     return gr.update(open=new_state), new_state
 
+
 def update_toggle_button_label(is_open: bool):
     return gr.update(value=("Hide visualization details" if is_open else "Show visualization details"))
+
+
+# ======================== Model status ========================
+
+def get_model_status_text():
+    if MSR3D_STATUS["loaded"]:
+        return "Model status: loaded"
+    if MSR3D_STATUS["loading"]:
+        return "Model status: loading..."
+    if MSR3D_STATUS["error"] is not None:
+        return f"Model status: preload failed ({MSR3D_STATUS['error']})"
+    return "Model status: not loaded"
+
 
 # ======================== Chat stub ========================
 
@@ -1523,11 +1861,16 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
         svc.change_split(effective_split)
 
         with MSR3D_LOCK:
-            print(f"[model] Generating answer for dataset='{dataset_name}', scan_id='{scan_id}', split='{effective_split}', situation='{situation}' | user_msg='{user_msg}'")
+            print(
+                f"[model] Generating answer for dataset='{dataset_name}', "
+                f"scan_id='{scan_id}', split='{effective_split}', "
+                f"situation='{situation}' | user_msg='{user_msg}'"
+            )
             ans = svc.answer(scene_id=scene_id, question=user_msg, situation=situation)
         return ans
     except Exception as e:
         return f"[error] {type(e).__name__}: {e}"
+
 
 def chat_step(user_msg, history, dataset_name, global_idx, split_value):
     history = history or []
@@ -1541,8 +1884,10 @@ def chat_step(user_msg, history, dataset_name, global_idx, split_value):
 
     return "", history
 
+
 def clear_chat():
     return []
+
 
 # ======================== Gradio App ========================
 
@@ -1556,8 +1901,15 @@ with gr.Blocks(
         "## MSQA Multi-Dataset Scene Viewer (Gradio + Plotly)\n"
         "Select **dataset → scene(folder) → QA**, optionally filter by split.\n\n"
         "**RScan** loads `<scan_id>/pcds.pth` inside each scan folder.\n\n"
-        "Fast mode: base geometry cached; styling updates avoid disk reload."
+        "Optimized mode:\n"
+        "- raw scenes cached\n"
+        "- downsampled scenes cached\n"
+        "- colors cached\n"
+        "- bbox traces cached\n"
+        "- model can preload at startup"
     )
+
+    model_status_md = gr.Markdown(get_model_status_text())
 
     dataset_dd = gr.Dropdown(
         choices=["scannet", "arkit", "rscan"],
@@ -1587,7 +1939,6 @@ with gr.Blocks(
             interactive=True,
         )
 
-    # states for accordion + fast plot updates
     details_open = gr.State(False)
     fig_state = gr.State(None)
     key_state = gr.State(None)
@@ -1623,8 +1974,11 @@ with gr.Blocks(
                 clear = gr.Button("Clear")
 
     # ============ Init ============
-    # Load dropdowns (dataset default) then render base+style once.
-    demo.load(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd]).then(
+    demo.load(
+        fn=on_dataset_change,
+        inputs=[dataset_dd],
+        outputs=[scan_id_dd, split_filter, qa_dd],
+    ).then(
         fn=build_base,
         inputs=[dataset_dd, qa_dd, max_points, point_size],
         outputs=[plot, fig_state, key_state],
@@ -1632,17 +1986,32 @@ with gr.Blocks(
         fn=update_style,
         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
         outputs=[plot, fig_state, key_state],
+    ).then(
+        fn=get_model_status_text,
+        inputs=[],
+        outputs=[model_status_md],
     )
 
     # ============ Dataset changes ============
-    # Update dropdowns only; do not auto-render unless you want it.
-    dataset_dd.change(fn=on_dataset_change, inputs=[dataset_dd], outputs=[scan_id_dd, split_filter, qa_dd])
+    dataset_dd.change(
+        fn=on_dataset_change,
+        inputs=[dataset_dd],
+        outputs=[scan_id_dd, split_filter, qa_dd],
+    )
 
     # ============ Split changes ============
-    split_filter.change(fn=on_split_change, inputs=[dataset_dd, split_filter], outputs=[scan_id_dd, qa_dd])
+    split_filter.change(
+        fn=on_split_change,
+        inputs=[dataset_dd, split_filter],
+        outputs=[scan_id_dd, qa_dd],
+    )
 
     # ============ Scan changes ============
-    scan_id_dd.change(fn=on_scan_change, inputs=[dataset_dd, scan_id_dd, split_filter], outputs=[qa_dd])
+    scan_id_dd.change(
+        fn=on_scan_change,
+        inputs=[dataset_dd, scan_id_dd, split_filter],
+        outputs=[qa_dd],
+    )
 
     # ============ Details toggle ============
     toggle_btn.click(
@@ -1655,7 +2024,7 @@ with gr.Blocks(
         outputs=[toggle_btn],
     )
 
-    # ============ Render button (heavy then light) ============
+    # ============ Render button ============
     btn.click(
         fn=build_base,
         inputs=[dataset_dd, qa_dd, max_points, point_size],
@@ -1666,8 +2035,8 @@ with gr.Blocks(
         outputs=[plot, fig_state, key_state],
     )
 
-    # ============ Light updates (no disk reload) ============
-    # These update the cached figure in-place.
+    # ============ Light updates ============
+    # No disk access. No torch.load. No redownsample. No recolor recompute.
     color_mode.change(
         fn=update_style,
         inputs=[fig_state, key_state, dataset_dd, qa_dd, color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, max_points],
@@ -1704,7 +2073,8 @@ with gr.Blocks(
         outputs=[plot, fig_state, key_state],
     )
 
-    # Max points is a heavy trigger: rebuild base.
+    # ============ Heavy trigger ============
+    # max_points changes the downsampled cloud, so rebuild base.
     max_points.change(
         fn=build_base,
         inputs=[dataset_dd, qa_dd, max_points, point_size],
@@ -1716,9 +2086,24 @@ with gr.Blocks(
     )
 
     # ============ Chat ============
-    send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
-    user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
+    send.click(
+        fn=chat_step,
+        inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter],
+        outputs=[user_msg, chat],
+    )
+    user_msg.submit(
+        fn=chat_step,
+        inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter],
+        outputs=[user_msg, chat],
+    )
     clear.click(fn=clear_chat, inputs=[], outputs=[chat])
 
+
 if __name__ == "__main__":
+    if PRELOAD_MODEL_ON_STARTUP:
+        if PRELOAD_MODEL_BLOCKING:
+            warmup_model()
+        else:
+            warmup_model_async()
+
     demo.launch(share=True)
