@@ -318,7 +318,9 @@ class MSR3D(nn.Module):
         scene_placeholder = "景"
         scene_replace_holder = "".join([scene_placeholder]*self.scene_token_len)
         image_placeholder = "图"
-        image_replace_holder = "".join([image_placeholder])     # TODO(lhxk): if using avg pooling, then an image occupies 1 tokon, if no avg pooling, then an image occupies more tokens
+        # Reserve one LLM slot per projected image token so multimodal prompts can
+        # accept the full image embedding sequence during generate().
+        image_replace_holder = "".join([image_placeholder] * self.image_token_len)
         
         if 'msr3d_prompt' not in data_dict:
             # insert replace holder for LEO data
