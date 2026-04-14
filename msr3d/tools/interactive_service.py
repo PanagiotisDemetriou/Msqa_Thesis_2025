@@ -639,16 +639,28 @@ class MSR3DInteractiveService:
             if isinstance(imgs, list):
                 num_imgs = len(imgs)
                 if num_imgs == 0:
-                    data_dict["msr3d_imgs"] = torch.zeros((max_img_num, 3, 224, 224), dtype=torch.float32)
+                    batched_imgs = torch.zeros((max_img_num, 3, 224, 224), dtype=torch.float32)
                 else:
                     stacked = torch.stack(imgs, dim=0).float()
-                    data_dict["msr3d_imgs"] = self._pad_first_dim(stacked, max_img_num, pad_value=0.0)
+                    batched_imgs = self._pad_first_dim(stacked, max_img_num, pad_value=0.0)
+                data_dict["msr3d_imgs"] = batched_imgs.unsqueeze(0)
                 data_dict["msr3d_img_masks"] = (torch.arange(max_img_num) < num_imgs).unsqueeze(0)
             elif isinstance(imgs, torch.Tensor):
                 if imgs.dim() == 3:
                     imgs = imgs.unsqueeze(0)
-                num_imgs = int(imgs.shape[0])
-                data_dict["msr3d_imgs"] = self._pad_first_dim(imgs.float(), max_img_num, pad_value=0.0)
+                if imgs.dim() == 4:
+                    num_imgs = int(imgs.shape[0])
+                    imgs = self._pad_first_dim(imgs.float(), max_img_num, pad_value=0.0).unsqueeze(0)
+                elif imgs.dim() == 5:
+                    if imgs.shape[0] != 1:
+                        raise ValueError(f"Interactive path expects one scene, got msr3d_imgs batch size {imgs.shape[0]}")
+                    num_imgs = int(imgs.shape[1])
+                    imgs = self._pad_first_dim(imgs[0].float(), max_img_num, pad_value=0.0).unsqueeze(0)
+                else:
+                    raise ValueError(
+                        f"msr3d_imgs must have shape (num_img, 3, H, W) or (1, num_img, 3, H, W), got {tuple(imgs.shape)}"
+                    )
+                data_dict["msr3d_imgs"] = imgs
                 if "msr3d_img_masks" not in data_dict:
                     data_dict["msr3d_img_masks"] = (torch.arange(max_img_num) < num_imgs).unsqueeze(0)
 
@@ -665,7 +677,7 @@ class MSR3DInteractiveService:
             if m.dim() == 0:
                 m = m.view(1, 1)
             elif m.dim() == 1:
-                m = m.view(-1, 1)
+                m = m.view(1, -1)
             elif m.dim() > 2:
                 m = m.view(m.shape[0], -1)[:, :1]
             data_dict["img_masks"] = m.to(torch.bool)
@@ -677,9 +689,9 @@ class MSR3DInteractiveService:
             if m.dim() == 0:
                 m = m.view(1, 1)
             elif m.dim() == 1:
-                m = m.view(-1, 1)
+                m = m.view(1, -1)
             elif m.dim() > 2:
-                m = m.view(m.shape[0], -1)[:, :1]
+                m = m.view(m.shape[0], -1)
             data_dict["msr3d_img_masks"] = m.to(torch.bool)
         else:
             data_dict["msr3d_img_masks"] = data_dict["img_masks"].clone()
