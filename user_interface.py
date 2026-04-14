@@ -2192,7 +2192,20 @@ SCANNET20_TO_ID = {n: i for i, n in enumerate(SCANNET20_NAMES)}
 
 from msr3d.tools.interactive_service import MSR3DInteractiveService
 
-MSR3D_EXPERIMENT_PATH = "MSR3D_BLIPT_PTv3_VIC_LORA_2"
+def resolve_msr3d_experiment_path() -> str:
+    candidates = [
+        "msr3d/MSR3D_3DATASETS_FINAL_RESUME",
+        "MSR3D_3DATASETS_FINAL_RESUME",
+        "msr3d/MSR3D_BLIPT_PTv3_VIC_LORA_2",
+        "MSR3D_BLIPT_PTv3_VIC_LORA_2",
+    ]
+    for cand in candidates:
+        if os.path.exists(os.path.join(cand, "config.yaml")):
+            return cand
+    return "MSR3D_BLIPT_PTv3_VIC_LORA_2"
+
+
+MSR3D_EXPERIMENT_PATH = resolve_msr3d_experiment_path()
 
 MSR3D_SERVICE = None
 MSR3D_LOCK = threading.Lock()
@@ -3256,9 +3269,6 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
     if global_idx is None:
         return "No QA entry selected."
 
-    if dataset_name != "scannet":
-        return "Model chat is currently wired for ScanNet only (MSQAScanNet). Switch to scannet to ask questions."
-
     idx = int(global_idx)
     qa = DATA_BY_DATASET[dataset_name][idx]
 
@@ -3271,6 +3281,7 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
         effective_split = split_value
 
     qa_meta = {
+        "dataset_name": dataset_name,
         "scan_id": qa["scan_id"],
         "split": effective_split,
         "situation": qa.get("situation", ""),
@@ -3280,7 +3291,7 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
 
     try:
         svc = get_msr3d_service()
-        svc.change_split(effective_split)
+        svc.change_dataset(dataset_name, effective_split)
 
         with MSR3D_LOCK:
             print(

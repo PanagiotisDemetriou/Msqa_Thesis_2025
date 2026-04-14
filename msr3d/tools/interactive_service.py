@@ -224,7 +224,7 @@ from omegaconf import OmegaConf
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from model.msr3d.msr3d import MSR3D
-from data.datasets.msr3d import MSR3DBase, MSQAScanNet
+from data.datasets.msr3d import MSR3DBase, MSQAScanNet, MSQA3RScan, MSQAARkitScenes
 from data.data_utils import pad_tensors
 
 
@@ -233,36 +233,96 @@ class MSR3DInteractiveService:
     Load MSR3D once and answer repeatedly for the selected QA sample.
     """
 
+    DATASET_REGISTRY = {
+        "scannet": MSQAScanNet,
+        "rscan": MSQA3RScan,
+        "arkit": MSQAARkitScenes,
+    }
+
     def __init__(self, experiment_path: str, split: str = "test", device: str | None = None):
         self.experiment_path = experiment_path
         self.device = torch.device(device) if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         cfg_path = os.path.join(experiment_path, "config.yaml")
         if not os.path.exists(cfg_path):
-            cfg_path = "MSR3D_BLIPT_PTv3_VIC_LORA_2/config.yaml"
+            fallback_cfg_candidates = [
+                "msr3d/MSR3D_3DATASETS_FINAL_RESUME/config.yaml",
+                "msr3d/MSR3D_BLIPT_PTv3_VIC_LORA_2/config.yaml",
+                "MSR3D_3DATASETS_FINAL_RESUME/config.yaml",
+                "MSR3D_BLIPT_PTv3_VIC_LORA_2/config.yaml",
+            ]
+            for cand in fallback_cfg_candidates:
+                if os.path.exists(cand):
+                    cfg_path = cand
+                    break
         self.cfg = OmegaConf.load(cfg_path)
 
-        self.dataset = MSQAScanNet(self.cfg, split=split)
+        self.datasets = {}
+        self.current_dataset_name = "scannet"
         self.current_split = split
+        self.dataset = self._get_dataset(self.current_dataset_name, split)
 
         self.model = MSR3D(self.cfg).to(self.device)
-        ckpt_path = os.path.join(experiment_path, "best.pth", "pytorch_model.bin")
-        if not os.path.exists(ckpt_path):
-            ckpt_path = os.path.join(experiment_path, "best.pth/pytorch_model.bin")
+        ckpt_path = self._resolve_checkpoint_path(experiment_path)
 
         state = torch.load(ckpt_path, map_location="cpu")
         state_dict = state.get("model", state)
         self.model.load_state_dict(state_dict, strict=False)
         self.model.eval()
 
-    def change_split(self, split: str):
+    def _resolve_checkpoint_path(self, experiment_path: str) -> str:
+        candidates = [
+            os.path.join(experiment_path, "best.pth", "pytorch_model.bin"),
+            os.path.join(experiment_path, "best.pth/pytorch_model.bin"),
+        ]
+
+        exp_dir = self.cfg.get("exp_dir", None)
+        if exp_dir:
+            exp_dir = str(exp_dir)
+            candidates.extend([
+                os.path.join(exp_dir, "best.pth", "pytorch_model.bin"),
+                os.path.join(exp_dir, "best.pth/pytorch_model.bin"),
+            ])
+
+        pretrain_ckpt = self.cfg.get("pretrain_ckpt_path", "")
+        if pretrain_ckpt:
+            pretrain_ckpt = str(pretrain_ckpt)
+            candidates.extend([
+                os.path.join(pretrain_ckpt, "pytorch_model.bin"),
+                os.path.join(pretrain_ckpt, "best.pth", "pytorch_model.bin"),
+            ])
+
+        for cand in candidates:
+            if cand and os.path.exists(cand):
+                return cand
+
+        raise FileNotFoundError(
+            "Could not find a model checkpoint. Tried: " + ", ".join(candidates)
+        )
+
+    def _get_dataset(self, dataset_name: str, split: str):
+        dataset_name = (dataset_name or "scannet").lower()
+        if dataset_name not in self.DATASET_REGISTRY:
+            raise ValueError(f"Unsupported dataset: {dataset_name}")
+        split = (split or "test").lower()
+        cache_key = (dataset_name, split)
+        if cache_key not in self.datasets:
+            self.datasets[cache_key] = self.DATASET_REGISTRY[dataset_name](self.cfg, split=split)
+        return self.datasets[cache_key]
+
+    def change_dataset(self, dataset_name: str, split: str = "test"):
         split = (split or "test").lower()
         if split not in ("train", "val", "test"):
             raise ValueError(f"Unsupported split: {split}")
-        if split == self.current_split:
+        dataset_name = (dataset_name or "scannet").lower()
+        if dataset_name == self.current_dataset_name and split == self.current_split:
             return
-        self.dataset = MSQAScanNet(self.cfg, split=split)
+        self.dataset = self._get_dataset(dataset_name, split)
+        self.current_dataset_name = dataset_name
         self.current_split = split
+
+    def change_split(self, split: str):
+        self.change_dataset(self.current_dataset_name, split=split)
 
     # ---------- matching helpers ----------
 
@@ -822,6 +882,11 @@ class MSR3DInteractiveService:
     def answer(self, qa_meta: dict, question: str, situation: str | None = None, images=None) -> str:
         if not isinstance(qa_meta, dict):
             raise TypeError(f"qa_meta must be dict, got {type(qa_meta)}")
+
+        dataset_name = qa_meta.get("dataset_name", self.current_dataset_name)
+        target_split = qa_meta.get("split", self.current_split)
+        if dataset_name != self.current_dataset_name or target_split != self.current_split:
+            self.change_dataset(dataset_name, split=target_split)
 
         if situation is None:
             situation = qa_meta.get("situation", "")
