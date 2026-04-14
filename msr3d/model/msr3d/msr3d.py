@@ -73,7 +73,7 @@ class MSR3D(nn.Module):
         special_tokens = [self.image_placeholder, self.object_placeholder, self.scene_placeholder]
         special_tokens = special_tokens+self.llm_tokenizer.additional_special_tokens[len(special_tokens):]
         self.llm_tokenizer.add_special_tokens({'additional_special_tokens': special_tokens}) 
-        self.image_token_len = 16    # 16 tokens per image
+        self.image_token_len = 16
         self.object_token_len = 8    # 8 tokens per object
         self.scene_token_len = cfg.prompter.model.get('scene_token_len', 61)    # 60 tokens per scene
         print('!!! scene token len !!!', self.scene_token_len)
@@ -96,6 +96,8 @@ class MSR3D(nn.Module):
 
         # image encoder
         self.image_encoder = build_module('vision', cfg.vision_2d)
+        if hasattr(self.image_encoder, "qformer_query"):
+            self.image_token_len = int(self.image_encoder.qformer_query.shape[1])
         if self.cfg.vision_2d.freeze:
             for param in self.image_encoder.parameters():
                 param.requires_grad = False
