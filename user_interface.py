@@ -3015,9 +3015,19 @@ def apply_style_and_overlays(
     normals_scale: float,
     max_normals: int,
     orient_normals: bool,
+    custom_location_text: str = "",
+    custom_orientation_text: str = "",
 ):
     fig.data = fig.data[:1]
     fig.data[0].marker.size = float(point_size)
+
+    arrow_location = parse_optional_vector(custom_location_text, {3}, "Custom location", strict=False)
+    if arrow_location is None:
+        arrow_location = payload["location"]
+
+    arrow_orientation = parse_optional_vector(custom_orientation_text, {2, 3, 4}, "Custom orientation", strict=False)
+    if arrow_orientation is None:
+        arrow_orientation = payload["orientation"]
 
     if color_mode == "RGB":
         fig.data[0].marker.color = payload["rgb_colors"]
@@ -3026,9 +3036,9 @@ def apply_style_and_overlays(
     elif color_mode == "Segments":
         fig.data[0].marker.color = payload["segment_colors"]
     elif color_mode == "Normals":
-        if orient_normals and payload["location"] is not None:
+        if orient_normals and arrow_location is not None:
             normals_oriented = orient_normals_toward_viewpoint(
-                payload["xyz"], payload["normals"], np.asarray(payload["location"], dtype=np.float32)
+                payload["xyz"], payload["normals"], np.asarray(arrow_location, dtype=np.float32)
             )
             fig.data[0].marker.color = rgb01_to_plotly_strings(normals_to_rgb01(normals_oriented))
         else:
@@ -3044,11 +3054,11 @@ def apply_style_and_overlays(
         for t in make_world_axis_traces(payload["center"], axis_len=float(axis_len)):
             fig.add_trace(t)
 
-    if show_arrow and payload["location"] is not None and payload["orientation"] is not None:
+    if show_arrow and arrow_location is not None and arrow_orientation is not None:
         try:
             for t in make_situation_arrow_trace(
-                payload["location"],
-                payload["orientation"],
+                arrow_location,
+                arrow_orientation,
                 scale=float(axis_len),
             ):
                 fig.add_trace(t)
@@ -3057,8 +3067,8 @@ def apply_style_and_overlays(
 
     if show_normals and payload["normals"] is not None:
         viewpoint = None
-        if orient_normals and payload["location"] is not None:
-            viewpoint = np.asarray(payload["location"], dtype=np.float32)
+        if orient_normals and arrow_location is not None:
+            viewpoint = np.asarray(arrow_location, dtype=np.float32)
 
         for t in build_normal_glyph_traces(
             payload["xyz"],
@@ -3091,6 +3101,28 @@ def infer_split_from_scene(dataset_name: str, scan_id: str, qa_idx: int = None) 
         if pref in splits:
             return pref
     return "test"
+
+
+def parse_optional_vector(text, expected_lens, field_name: str, *, strict: bool):
+    text = (text or "").strip()
+    if not text:
+        return None
+
+    parts = [p for p in text.replace(",", " ").split() if p]
+    try:
+        values = [float(p) for p in parts]
+    except ValueError as e:
+        if strict:
+            raise ValueError(f"{field_name} must contain numeric values.")
+        return None
+
+    if len(values) not in expected_lens:
+        if strict:
+            expected = "/".join(str(x) for x in sorted(expected_lens))
+            raise ValueError(f"{field_name} must have {expected} values, got {len(values)}.")
+        return None
+
+    return values
 
 
 # ======================== Dropdown callbacks ========================
@@ -3192,6 +3224,8 @@ def update_style(
     normals_scale,
     max_normals,
     orient_normals,
+    custom_location_text="",
+    custom_orientation_text="",
 ):
     if global_idx is None:
         return fig, fig, key
@@ -3219,6 +3253,8 @@ def update_style(
         normals_scale=float(normals_scale),
         max_normals=int(max_normals),
         orient_normals=bool(orient_normals),
+        custom_location_text=custom_location_text,
+        custom_orientation_text=custom_orientation_text,
     )
     return fig, fig, new_key
 
@@ -3261,7 +3297,16 @@ def update_style(
 #         return ans
 #     except Exception as e:
 #         return f"[error] {type(e).__name__}: {e}"
-def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value: str):
+def answer_with_model(
+    user_msg: str,
+    dataset_name: str,
+    global_idx,
+    split_value: str,
+    custom_situation_text: str = "",
+    uploaded_images=None,
+    custom_location_text: str = "",
+    custom_orientation_text: str = "",
+):
     user_msg = (user_msg or "").strip()
     if not user_msg:
         return ""
@@ -3273,7 +3318,11 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
     qa = DATA_BY_DATASET[dataset_name][idx]
 
     scan_id = qa["scan_id"]
-    situation = qa.get("situation", "")
+    situation = (custom_situation_text or "").strip() or qa.get("situation", "")
+    anchor_locs_override = parse_optional_vector(custom_location_text, {3}, "Custom location", strict=True)
+    anchor_orientation_override = parse_optional_vector(
+        custom_orientation_text, {2, 3, 4}, "Custom orientation", strict=True
+    )
 
     if split_value == "all":
         effective_split = infer_split_from_scene(dataset_name, scan_id, qa_idx=global_idx)
@@ -3288,6 +3337,10 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
         "location": qa.get("location", None),
         "orientation": qa.get("orientation", None),
     }
+    if anchor_locs_override is not None:
+        qa_meta["anchor_locs_override"] = anchor_locs_override
+    if anchor_orientation_override is not None:
+        qa_meta["anchor_orientation_override"] = anchor_orientation_override
 
     try:
         svc = get_msr3d_service()
@@ -3303,7 +3356,7 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
                 qa_meta=qa_meta,
                 question=user_msg,
                 situation=situation,
-                images=[],
+                images=uploaded_images,
             )
         return ans
     except Exception as e:
@@ -3320,14 +3373,33 @@ def answer_with_model(user_msg: str, dataset_name: str, global_idx, split_value:
 #     model_answer = answer_with_model(user_msg, dataset_name, global_idx, split_value)
 #     history.append({"role": "assistant", "content": model_answer})
 #     return "", history
-def chat_step(user_msg, history, dataset_name, global_idx, split_value):
+def chat_step(
+    user_msg,
+    history,
+    dataset_name,
+    global_idx,
+    split_value,
+    custom_situation_text,
+    uploaded_images,
+    custom_location_text,
+    custom_orientation_text,
+):
     history = history or []
     user_msg = (user_msg or "").strip()
     if not user_msg:
         return "", history
 
     history.append({"role": "user", "content": user_msg})
-    model_answer = answer_with_model(user_msg, dataset_name, global_idx, split_value)
+    model_answer = answer_with_model(
+        user_msg,
+        dataset_name,
+        global_idx,
+        split_value,
+        custom_situation_text,
+        uploaded_images,
+        custom_location_text,
+        custom_orientation_text,
+    )
     history.append({"role": "assistant", "content": model_answer})
 
     return "", history
@@ -3418,6 +3490,32 @@ with gr.Blocks(
         with gr.Column(scale=3):
             gr.Markdown("### Ask your model about the scene")
             chat = gr.Chatbot(label="Dialogue", height=400)
+            custom_situation = gr.Textbox(
+                label="Custom situation override",
+                placeholder="Optional: describe your own situation. Leave empty to use the selected QA situation.",
+                lines=3,
+            )
+            with gr.Accordion("Optional Multimodal / Pose Overrides", open=False):
+                gr.Markdown(
+                    "Uploaded images are passed to the model as reference images.\n\n"
+                    "If you also want the spatial anchor and scene arrow to change, provide custom pose values below."
+                )
+                uploaded_images = gr.File(
+                    label="Reference images",
+                    file_count="multiple",
+                    file_types=["image"],
+                    type="filepath",
+                )
+                custom_location = gr.Textbox(
+                    label="Custom location xyz",
+                    placeholder="e.g. 1.2, -0.5, 1.6",
+                    lines=1,
+                )
+                custom_orientation = gr.Textbox(
+                    label="Custom orientation xyzw or facing vector xy[z]",
+                    placeholder="e.g. 0, 0, 0.707, 0.707",
+                    lines=1,
+                )
             user_msg = gr.Textbox(label="Ask a question", placeholder="Ask about the scene...", lines=3)
             with gr.Row():
                 send = gr.Button("Send")
@@ -3438,7 +3536,8 @@ with gr.Blocks(
             fig_state, key_state, dataset_dd, qa_dd,
             color_mode, point_size, show_boxes, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
-            show_normals, normals_scale, max_normals, orient_normals
+            show_normals, normals_scale, max_normals, orient_normals,
+            custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     ).then(
@@ -3463,20 +3562,25 @@ with gr.Blocks(
             fig_state, key_state, dataset_dd, qa_dd,
             color_mode, point_size, show_boxes, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
-            show_normals, normals_scale, max_normals, orient_normals
+            show_normals, normals_scale, max_normals, orient_normals,
+            custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     )
 
     # Light updates
-    for comp in [color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes, show_normals, normals_scale, max_normals, orient_normals]:
+    for comp in [
+        color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes,
+        show_normals, normals_scale, max_normals, orient_normals, custom_location, custom_orientation
+    ]:
         comp.change(
             fn=update_style,
             inputs=[
                 fig_state, key_state, dataset_dd, qa_dd,
                 color_mode, point_size, show_boxes, show_axis, show_arrow,
                 axis_len, max_boxes, max_points,
-                show_normals, normals_scale, max_normals, orient_normals
+                show_normals, normals_scale, max_normals, orient_normals,
+                custom_location, custom_orientation,
             ],
             outputs=[plot, fig_state, key_state],
         )
@@ -3492,14 +3596,29 @@ with gr.Blocks(
             fig_state, key_state, dataset_dd, qa_dd,
             color_mode, point_size, show_boxes, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
-            show_normals, normals_scale, max_normals, orient_normals
+            show_normals, normals_scale, max_normals, orient_normals,
+            custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     )
 
     # Chat
-    send.click(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
-    user_msg.submit(fn=chat_step, inputs=[user_msg, chat, dataset_dd, qa_dd, split_filter], outputs=[user_msg, chat])
+    send.click(
+        fn=chat_step,
+        inputs=[
+            user_msg, chat, dataset_dd, qa_dd, split_filter,
+            custom_situation, uploaded_images, custom_location, custom_orientation,
+        ],
+        outputs=[user_msg, chat],
+    )
+    user_msg.submit(
+        fn=chat_step,
+        inputs=[
+            user_msg, chat, dataset_dd, qa_dd, split_filter,
+            custom_situation, uploaded_images, custom_location, custom_orientation,
+        ],
+        outputs=[user_msg, chat],
+    )
     clear.click(fn=clear_chat, inputs=[], outputs=[chat])
 
 

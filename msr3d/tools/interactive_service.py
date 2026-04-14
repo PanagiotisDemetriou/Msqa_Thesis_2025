@@ -216,16 +216,18 @@
 import os
 import sys
 import copy
+import cv2
 import torch
 import numpy as np
 from omegaconf import OmegaConf
+from PIL import Image
 
 # keep your sys.path tweak
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from model.msr3d.msr3d import MSR3D
 from data.datasets.msr3d import MSR3DBase, MSQAScanNet, MSQA3RScan, MSQAARkitScenes
-from data.data_utils import pad_tensors
+from data.data_utils import pad_tensors, preprocess_2d, face_vector_in_xy_to_quaternion
 
 
 class MSR3DInteractiveService:
@@ -389,6 +391,26 @@ class MSR3DInteractiveService:
             score += 20
 
         return score
+
+    def _normalize_anchor_locs(self, location):
+        arr = self._to_np_1d(location)
+        if arr is None:
+            return None
+        if arr.shape[0] < 3:
+            raise ValueError(f"Custom location must have 3 values, got {arr.tolist()}")
+        return arr[:3].astype(np.float32)
+
+    def _normalize_anchor_orientation(self, orientation):
+        arr = self._to_np_1d(orientation)
+        if arr is None:
+            return None
+        if arr.shape[0] == 4:
+            return arr.astype(np.float32)
+        if arr.shape[0] in (2, 3):
+            return np.asarray(face_vector_in_xy_to_quaternion(arr.astype(np.float32)), dtype=np.float32)
+        raise ValueError(
+            f"Custom orientation must have either 4 quaternion values or a 2/3D facing vector, got {arr.tolist()}"
+        )
 
     def _index_for_qa_meta(self, qa_meta: dict) -> int:
         if not isinstance(qa_meta, dict):
@@ -836,10 +858,72 @@ class MSR3DInteractiveService:
             return type(x)(self._to_device(v) for v in x)
         return x
 
-    def _compose_sample(self, base_sample, question: str, situation: str, images=None):
+    def _preprocess_uploaded_image(self, image_source):
+        if torch.is_tensor(image_source):
+            return image_source.float()
+
+        if hasattr(image_source, "name") and isinstance(image_source.name, str):
+            image_source = image_source.name
+
+        loader = self.dataset.scan_data_loader
+
+        if isinstance(image_source, str):
+            img = Image.open(image_source).convert("RGB")
+        elif isinstance(image_source, np.ndarray):
+            arr = image_source
+            if arr.dtype != np.uint8:
+                arr = np.clip(arr, 0, 255).astype(np.uint8)
+            img = Image.fromarray(arr).convert("RGB")
+        elif isinstance(image_source, Image.Image):
+            img = image_source.convert("RGB")
+        else:
+            raise TypeError(f"Unsupported image source type: {type(image_source)}")
+
+        if loader.img_processer_type in ["openai/clip-vit-base-patch32"]:
+            processed = loader.img_transform(img)
+            img_tensor = processed["pixel_values"][0]
+            if not torch.is_tensor(img_tensor):
+                img_tensor = torch.from_numpy(img_tensor)
+            return img_tensor.float()
+
+        if loader.img_processer_type in ["navigation_img_processer"]:
+            img_np = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+            return torch.from_numpy(preprocess_2d(img_np, size=loader.img_process_args.tgt_img_size)).float()
+
+        raise NotImplementedError(f"Unsupported image processor: {loader.img_processer_type}")
+
+    def prepare_images(self, images):
+        if images is None:
+            return []
+
+        if isinstance(images, (str, Image.Image, np.ndarray)) or torch.is_tensor(images) or hasattr(images, "name"):
+            images = [images]
+
+        return [self._preprocess_uploaded_image(img) for img in images if img is not None]
+
+    def _compose_sample(
+        self,
+        base_sample,
+        question: str,
+        situation: str,
+        images=None,
+        anchor_locs_override=None,
+        anchor_orientation_override=None,
+    ):
         images = images or []
 
-        prompt = MSR3DBase.get_text_prompts(instruction=question, situation=situation)
+        image_placeholders = ""
+        if images:
+            holders = " ".join([f"<userimage-{i}-IMG>" for i in range(len(images))])
+            image_placeholders = f"Reference image(s): {holders}. "
+
+        prompt = (
+            MSR3DBase.prompt_dict["role_prompt"]
+            + MSR3DBase.prompt_dict["situation_prompt"].format(situation=situation)
+            + image_placeholders
+            + MSR3DBase.prompt_dict["scene_prompt"]
+            + MSR3DBase.prompt_dict["task_prompt"].format(instruction=question)
+        )
         prompt, _ = MSR3DBase.parse_place_holder(prompt)
 
         has_imgs = isinstance(images, list) and len(images) > 0
@@ -868,6 +952,11 @@ class MSR3DInteractiveService:
         data_dict["prompt_middle_2"] = data_dict.get("prompt_middle_2", "")
         data_dict["prompt_after_obj"] = data_dict.get("prompt_after_obj", "")
 
+        if anchor_locs_override is not None:
+            data_dict["anchor_locs"] = torch.tensor(anchor_locs_override, dtype=torch.float32)
+        if anchor_orientation_override is not None:
+            data_dict["anchor_orientation"] = torch.tensor(anchor_orientation_override, dtype=torch.float32)
+
         # Keep useful debug fields
         data_dict["interactive_question"] = question
         data_dict["interactive_situation"] = situation
@@ -891,6 +980,12 @@ class MSR3DInteractiveService:
         if situation is None:
             situation = qa_meta.get("situation", "")
 
+        images = self.prepare_images(images)
+        anchor_locs_override = self._normalize_anchor_locs(qa_meta.get("anchor_locs_override", None))
+        anchor_orientation_override = self._normalize_anchor_orientation(
+            qa_meta.get("anchor_orientation_override", None)
+        )
+
         idx = self._index_for_qa_meta(qa_meta)
         base_sample = self.dataset[idx]
 
@@ -898,7 +993,9 @@ class MSR3DInteractiveService:
             base_sample=base_sample,
             question=question,
             situation=situation,
-            images=images or [],
+            images=images,
+            anchor_locs_override=anchor_locs_override,
+            anchor_orientation_override=anchor_orientation_override,
         )
         data_dict = self._prepare_single_sample(data_dict)
         data_dict = self._to_device(data_dict)
