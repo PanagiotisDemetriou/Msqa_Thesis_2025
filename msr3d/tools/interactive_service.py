@@ -225,6 +225,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from model.msr3d.msr3d import MSR3D
 from data.datasets.msr3d import MSR3DBase, MSQAScanNet
+from data.data_utils import pad_tensors
 
 
 class MSR3DInteractiveService:
@@ -368,6 +369,20 @@ class MSR3DInteractiveService:
             return [default] * bs
         return [v] * bs
 
+    def _pad_first_dim(self, tensor: torch.Tensor, length: int, pad_value=0):
+        if tensor.shape[0] > length:
+            raise ValueError(f"Cannot pad tensor with first dim {tensor.shape[0]} to shorter length {length}")
+        return pad_tensors(tensor, lens=length, pad=pad_value)
+
+    def _as_singleton_list(self, value, default=""):
+        if value is None:
+            value = default
+        if isinstance(value, list):
+            if len(value) == 0:
+                return [default]
+            return [value[0]]
+        return [value]
+
     # def _ensure_batched(self, data_dict, bs=1):
     #     for k in [
     #         "msr3d_prompt",
@@ -505,7 +520,7 @@ class MSR3DInteractiveService:
 
     #     data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
     #     return data_dict
-    def _ensure_batched(self, data_dict, bs=1):
+    def _prepare_single_sample(self, data_dict):
         for k in [
             "msr3d_prompt",
             "prompt_before_obj",
@@ -517,14 +532,43 @@ class MSR3DInteractiveService:
         ]:
             if k in data_dict:
                 default = "" if k != "answer_list" else ""
-                data_dict[k] = self._broadcast_list(data_dict[k], bs, default=default)
+                data_dict[k] = self._as_singleton_list(data_dict[k], default=default)
 
-        # ---------- image tensors ----------
+        for k, default in [
+            ("scan_id", ""),
+            ("source", ""),
+            ("type", ""),
+            ("index", -1),
+        ]:
+            if k in data_dict:
+                data_dict[k] = self._as_singleton_list(data_dict[k], default=default)
+
+        # Single-scene interactive inference still needs a batch dimension for MSR3D.generate().
         if "img_fts" in data_dict:
             if not isinstance(data_dict["img_fts"], torch.Tensor):
                 data_dict["img_fts"] = torch.tensor(data_dict["img_fts"])
             if data_dict["img_fts"].dim() == 3:
                 data_dict["img_fts"] = data_dict["img_fts"].unsqueeze(0)
+            data_dict["img_fts"] = data_dict["img_fts"].float()
+
+        max_img_num = int(getattr(self.cfg.data.msqa_scannet.args, "msr3d_max_img_num", 10))
+        if "msr3d_imgs" in data_dict:
+            imgs = data_dict["msr3d_imgs"]
+            if isinstance(imgs, list):
+                num_imgs = len(imgs)
+                if num_imgs == 0:
+                    data_dict["msr3d_imgs"] = torch.zeros((max_img_num, 3, 224, 224), dtype=torch.float32)
+                else:
+                    stacked = torch.stack(imgs, dim=0).float()
+                    data_dict["msr3d_imgs"] = self._pad_first_dim(stacked, max_img_num, pad_value=0.0)
+                data_dict["msr3d_img_masks"] = (torch.arange(max_img_num) < num_imgs).unsqueeze(0)
+            elif isinstance(imgs, torch.Tensor):
+                if imgs.dim() == 3:
+                    imgs = imgs.unsqueeze(0)
+                num_imgs = int(imgs.shape[0])
+                data_dict["msr3d_imgs"] = self._pad_first_dim(imgs.float(), max_img_num, pad_value=0.0)
+                if "msr3d_img_masks" not in data_dict:
+                    data_dict["msr3d_img_masks"] = (torch.arange(max_img_num) < num_imgs).unsqueeze(0)
 
         if "img_masks" not in data_dict or not isinstance(data_dict["img_masks"], torch.Tensor):
             has_img = (
@@ -533,7 +577,7 @@ class MSR3DInteractiveService:
                 and data_dict["img_fts"].shape[0] >= 1
             )
             val = 1 if has_img else 0
-            data_dict["img_masks"] = torch.full((bs, 1), bool(val), dtype=torch.bool)
+            data_dict["img_masks"] = torch.full((1, 1), bool(val), dtype=torch.bool)
         else:
             m = data_dict["img_masks"]
             if m.dim() == 0:
@@ -559,19 +603,40 @@ class MSR3DInteractiveService:
             data_dict["msr3d_img_masks"] = data_dict["img_masks"].clone()
 
         # ---------- object tensors ----------
+        max_obj_len = int(getattr(self.cfg.data.msqa_scannet.args, "max_obj_len", 0))
+        cur_obj_len = 0
+
         if "obj_fts" in data_dict:
             if not isinstance(data_dict["obj_fts"], torch.Tensor):
                 data_dict["obj_fts"] = torch.tensor(data_dict["obj_fts"])
-            if data_dict["obj_fts"].dim() == 3:
-                data_dict["obj_fts"] = data_dict["obj_fts"].unsqueeze(0)
-            data_dict["obj_fts"] = data_dict["obj_fts"].float()
+            obj_fts = data_dict["obj_fts"].float()
+            if obj_fts.dim() == 4:
+                if obj_fts.shape[0] != 1:
+                    raise ValueError(f"Interactive path expects one scene, got obj_fts batch size {obj_fts.shape[0]}")
+                obj_fts = obj_fts[0]
+            if obj_fts.dim() != 3:
+                raise ValueError(f"obj_fts must have shape (num_obj, num_pts, feat_dim), got {tuple(obj_fts.shape)}")
+            cur_obj_len = int(obj_fts.shape[0])
+            if max_obj_len <= 0:
+                max_obj_len = cur_obj_len
+            obj_fts = self._pad_first_dim(obj_fts, max_obj_len, pad_value=1.0)
+            data_dict["obj_fts"] = obj_fts.unsqueeze(0)
 
         if "obj_locs" in data_dict:
             if not isinstance(data_dict["obj_locs"], torch.Tensor):
                 data_dict["obj_locs"] = torch.tensor(data_dict["obj_locs"])
-            if data_dict["obj_locs"].dim() == 2:
-                data_dict["obj_locs"] = data_dict["obj_locs"].unsqueeze(0)
-            data_dict["obj_locs"] = data_dict["obj_locs"].float()
+            obj_locs = data_dict["obj_locs"].float()
+            if obj_locs.dim() == 3:
+                if obj_locs.shape[0] != 1:
+                    raise ValueError(f"Interactive path expects one scene, got obj_locs batch size {obj_locs.shape[0]}")
+                obj_locs = obj_locs[0]
+            if obj_locs.dim() != 2:
+                raise ValueError(f"obj_locs must have shape (num_obj, 6), got {tuple(obj_locs.shape)}")
+            cur_obj_len = max(cur_obj_len, int(obj_locs.shape[0]))
+            if max_obj_len <= 0:
+                max_obj_len = int(obj_locs.shape[0])
+            obj_locs = self._pad_first_dim(obj_locs, max_obj_len, pad_value=0.0)
+            data_dict["obj_locs"] = obj_locs.unsqueeze(0)
 
         if "obj_boxes" in data_dict:
             if not isinstance(data_dict["obj_boxes"], torch.Tensor):
@@ -584,9 +649,14 @@ class MSR3DInteractiveService:
         if "scene_fts" in data_dict:
             if not isinstance(data_dict["scene_fts"], torch.Tensor):
                 data_dict["scene_fts"] = torch.tensor(data_dict["scene_fts"])
-            if data_dict["scene_fts"].dim() == 2:
-                data_dict["scene_fts"] = data_dict["scene_fts"].unsqueeze(0)
-            data_dict["scene_fts"] = data_dict["scene_fts"].float()
+            scene_fts = data_dict["scene_fts"].float()
+            if scene_fts.dim() == 3:
+                if scene_fts.shape[0] != 1:
+                    raise ValueError(f"Interactive path expects one scene, got scene_fts batch size {scene_fts.shape[0]}")
+                scene_fts = scene_fts[0]
+            if scene_fts.dim() != 2:
+                raise ValueError(f"scene_fts must have shape (num_scene_points, feat_dim), got {tuple(scene_fts.shape)}")
+            data_dict["scene_fts"] = scene_fts
 
         if "scene_pcds" not in data_dict and "scene_fts" in data_dict:
             data_dict["scene_pcds"] = data_dict["scene_fts"]
@@ -594,48 +664,69 @@ class MSR3DInteractiveService:
         if "scene_pcds" in data_dict:
             if not isinstance(data_dict["scene_pcds"], torch.Tensor):
                 data_dict["scene_pcds"] = torch.tensor(data_dict["scene_pcds"])
-            if data_dict["scene_pcds"].dim() == 2:
-                data_dict["scene_pcds"] = data_dict["scene_pcds"].unsqueeze(0)
-            data_dict["scene_pcds"] = data_dict["scene_pcds"].float()
+            scene_pcds = data_dict["scene_pcds"].float()
+            if scene_pcds.dim() == 3:
+                if scene_pcds.shape[0] != 1:
+                    raise ValueError(f"Interactive path expects one scene, got scene_pcds batch size {scene_pcds.shape[0]}")
+                scene_pcds = scene_pcds[0]
+            if scene_pcds.dim() != 2:
+                raise ValueError(f"scene_pcds must have shape (num_scene_points, feat_dim), got {tuple(scene_pcds.shape)}")
+            data_dict["scene_pcds"] = scene_pcds
 
         if "instance_ids" in data_dict:
             if not isinstance(data_dict["instance_ids"], torch.Tensor):
                 data_dict["instance_ids"] = torch.tensor(data_dict["instance_ids"])
-            if data_dict["instance_ids"].dim() == 1:
-                data_dict["instance_ids"] = data_dict["instance_ids"].unsqueeze(0)
-            data_dict["instance_ids"] = data_dict["instance_ids"].long()
+            instance_ids = data_dict["instance_ids"].long()
+            if instance_ids.dim() == 2:
+                if instance_ids.shape[0] != 1:
+                    raise ValueError(
+                        f"Interactive path expects one scene, got instance_ids batch size {instance_ids.shape[0]}"
+                    )
+                instance_ids = instance_ids[0]
+            if instance_ids.dim() != 1:
+                raise ValueError(f"instance_ids must have shape (num_scene_points,), got {tuple(instance_ids.shape)}")
+            data_dict["instance_ids"] = instance_ids
 
         if "segments" in data_dict:
             if not isinstance(data_dict["segments"], torch.Tensor):
                 data_dict["segments"] = torch.tensor(data_dict["segments"])
-            if data_dict["segments"].dim() == 1:
-                data_dict["segments"] = data_dict["segments"].unsqueeze(0)
-            data_dict["segments"] = data_dict["segments"].long()
+            segments = data_dict["segments"].long()
+            if segments.dim() == 2:
+                if segments.shape[0] != 1:
+                    raise ValueError(f"Interactive path expects one scene, got segments batch size {segments.shape[0]}")
+                segments = segments[0]
+            if segments.dim() != 1:
+                raise ValueError(f"segments must have shape (num_scene_points,), got {tuple(segments.shape)}")
+            data_dict["segments"] = segments
 
-        # Optional aliases from scene_fts
-        scene_tensor = None
-        if "scene_pcds" in data_dict and isinstance(data_dict["scene_pcds"], torch.Tensor):
-            scene_tensor = data_dict["scene_pcds"]
-        elif "scene_fts" in data_dict and isinstance(data_dict["scene_fts"], torch.Tensor):
-            scene_tensor = data_dict["scene_fts"]
+        if "selected_obj_ids" in data_dict:
+            if not isinstance(data_dict["selected_obj_ids"], torch.Tensor):
+                data_dict["selected_obj_ids"] = torch.tensor(data_dict["selected_obj_ids"])
+            selected_obj_ids = data_dict["selected_obj_ids"].long()
+            if selected_obj_ids.dim() == 2:
+                if selected_obj_ids.shape[0] != 1:
+                    raise ValueError(
+                        f"Interactive path expects one scene, got selected_obj_ids batch size {selected_obj_ids.shape[0]}"
+                    )
+                selected_obj_ids = selected_obj_ids[0]
+            if selected_obj_ids.dim() != 1:
+                raise ValueError(
+                    f"selected_obj_ids must have shape (num_obj,), got {tuple(selected_obj_ids.shape)}"
+                )
+            if max_obj_len <= 0:
+                max_obj_len = int(selected_obj_ids.shape[0])
+            selected_obj_ids = self._pad_first_dim(selected_obj_ids, max_obj_len, pad_value=-1)
+            data_dict["selected_obj_ids"] = selected_obj_ids.unsqueeze(0)
 
-        if scene_tensor is not None:
-            if scene_tensor.dim() == 2:
-                scene_tensor = scene_tensor.unsqueeze(0)
-
-            if scene_tensor.dim() != 3:
-                raise ValueError(f"scene tensor must have shape (B, N, C), got {tuple(scene_tensor.shape)}")
-
-            B_scene, N_scene, C_scene = scene_tensor.shape
-            if C_scene >= 9:
-                if "scene_coord" not in data_dict:
-                    data_dict["scene_coord"] = scene_tensor[:, :, 0:3].float()
-                if "scene_color" not in data_dict:
-                    data_dict["scene_color"] = scene_tensor[:, :, 3:6].float()
-                if "scene_normal" not in data_dict:
-                    data_dict["scene_normal"] = scene_tensor[:, :, 6:9].float()
-                if "scene_feat" not in data_dict:
-                    data_dict["scene_feat"] = scene_tensor[:, :, 3:9].float()
+        if "scene_fts" in data_dict and "scene_offset" not in data_dict:
+            data_dict["scene_offset"] = torch.tensor([data_dict["scene_fts"].shape[0]], dtype=torch.int32)
+        elif "scene_offset" in data_dict:
+            if not isinstance(data_dict["scene_offset"], torch.Tensor):
+                data_dict["scene_offset"] = torch.tensor(data_dict["scene_offset"])
+            scene_offset = data_dict["scene_offset"].long().view(-1)
+            if scene_offset.numel() != 1 and scene_offset.numel() > 1:
+                scene_offset = torch.tensor([int(scene_offset[-1].item())], dtype=scene_offset.dtype)
+            data_dict["scene_offset"] = scene_offset
 
         # ---------- anchors ----------
         data_dict.setdefault("anchor_orientation", torch.zeros(4).float())
@@ -658,59 +749,20 @@ class MSR3DInteractiveService:
                 m = torch.tensor(m)
             if m.dim() == 1:
                 m = m.unsqueeze(0)
+            if max_obj_len > 0 and m.shape[1] < max_obj_len:
+                pad = torch.zeros((m.shape[0], max_obj_len - m.shape[1]), dtype=m.dtype, device=m.device)
+                m = torch.cat([m, pad], dim=1)
             data_dict["obj_masks"] = m.to(torch.bool)
         else:
-            cur_obj_len = 0
-            if "obj_locs" in data_dict and isinstance(data_dict["obj_locs"], torch.Tensor):
-                cur_obj_len = int(data_dict["obj_locs"].shape[1])
-            elif "obj_fts" in data_dict and isinstance(data_dict["obj_fts"], torch.Tensor):
+            if cur_obj_len == 0 and "obj_locs" in data_dict and isinstance(data_dict["obj_locs"], torch.Tensor):
+                cur_obj_len = int((data_dict["obj_locs"][0].abs().sum(dim=-1) > 0).sum().item())
+            elif cur_obj_len == 0 and "selected_obj_ids" in data_dict and isinstance(data_dict["selected_obj_ids"], torch.Tensor):
+                cur_obj_len = int((data_dict["selected_obj_ids"][0] >= 0).sum().item())
+            elif cur_obj_len == 0 and "obj_fts" in data_dict and isinstance(data_dict["obj_fts"], torch.Tensor):
                 cur_obj_len = int(data_dict["obj_fts"].shape[1])
 
-            max_obj_len = int(getattr(self.cfg.data.msqa_scannet.args, "max_obj_len", cur_obj_len))
             max_obj_len = max(max_obj_len, cur_obj_len)
             data_dict["obj_masks"] = (torch.arange(max_obj_len) < cur_obj_len).unsqueeze(0)
-
-        # ---------- Pointcept-style object encoding keys ----------
-        # The encoder is operating on OBJECT point clouds, not the whole scene.
-        # So scene_offset must match the number of objects + 1.
-        if "obj_fts" in data_dict and isinstance(data_dict["obj_fts"], torch.Tensor):
-            obj = data_dict["obj_fts"]  # expected (1, B, P, C) in interactive mode after batching
-            if obj.dim() != 4:
-                raise ValueError(f"obj_fts must have shape (bs, num_obj, num_pts, feat_dim), got {tuple(obj.shape)}")
-
-            bs_obj, num_obj, num_pts, feat_dim = obj.shape
-            if bs_obj != 1:
-                raise ValueError(f"Interactive path expects bs=1, got obj_fts batch size {bs_obj}")
-
-            obj0 = obj[0]  # (num_obj, num_pts, feat_dim)
-
-            if feat_dim < 3:
-                raise ValueError(f"obj_fts last dim must be >= 3, got {feat_dim}")
-
-            # Flatten objects for Pointcept-style encoder input
-            # coordinates are xyz, features are remaining channels if available
-            if "scene_coord" not in data_dict:
-                data_dict["scene_coord"] = obj0[:, :, 0:3].reshape(num_obj * num_pts, 3).contiguous().float()
-
-            if "scene_feat" not in data_dict:
-                if feat_dim > 3:
-                    data_dict["scene_feat"] = obj0[:, :, 3:].reshape(num_obj * num_pts, feat_dim - 3).contiguous().float()
-                else:
-                    data_dict["scene_feat"] = obj0[:, :, 0:3].reshape(num_obj * num_pts, 3).contiguous().float()
-
-            if "scene_offset" not in data_dict:
-                # cumulative offsets with leading 0: length = num_obj + 1
-                offset = torch.arange(
-                    0,
-                    (num_obj + 1) * num_pts,
-                    step=num_pts,
-                    dtype=torch.long,
-                )
-                data_dict["scene_offset"] = offset
-            else:
-                if not isinstance(data_dict["scene_offset"], torch.Tensor):
-                    data_dict["scene_offset"] = torch.tensor(data_dict["scene_offset"], dtype=torch.long)
-                data_dict["scene_offset"] = data_dict["scene_offset"].long().view(-1)
 
         data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
         return data_dict
@@ -767,9 +819,12 @@ class MSR3DInteractiveService:
         data_dict = MSR3DBase.check_output_and_fill_dummy(data_dict)
         return data_dict
 
-    def answer(self, qa_meta: dict, question: str, situation: str, images=None) -> str:
+    def answer(self, qa_meta: dict, question: str, situation: str | None = None, images=None) -> str:
         if not isinstance(qa_meta, dict):
             raise TypeError(f"qa_meta must be dict, got {type(qa_meta)}")
+
+        if situation is None:
+            situation = qa_meta.get("situation", "")
 
         idx = self._index_for_qa_meta(qa_meta)
         base_sample = self.dataset[idx]
@@ -780,7 +835,7 @@ class MSR3DInteractiveService:
             situation=situation,
             images=images or [],
         )
-        data_dict = self._ensure_batched(data_dict, bs=1)
+        data_dict = self._prepare_single_sample(data_dict)
         data_dict = self._to_device(data_dict)
 
         with torch.no_grad():
@@ -788,3 +843,11 @@ class MSR3DInteractiveService:
 
         text = self.model.llm_tokenizer.batch_decode(out["output_tokens"], skip_special_tokens=True)
         return text[0] if text else "No answer generated."
+
+    def make_chat_callback(self, qa_meta: dict, situation: str | None = None, images=None):
+        return lambda user_text: self.answer(
+            qa_meta=qa_meta,
+            question=user_text,
+            situation=situation,
+            images=images,
+        )

@@ -3,7 +3,7 @@ import json
 import threading
 import time
 from dataclasses import dataclass
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple, Callable
 
 import numpy as np
 import torch
@@ -208,9 +208,11 @@ class SceneChatApp019:
         axis_size: float = 3.5,
         axis_thickness: float = 0.0075,
         pt_size_init: float = 2.0,
+        chat_callback: Optional[Callable[[str], str]] = None,
     ):
         self.state = AppState(point_size=float(pt_size_init))
         self.situation = situation or "Scene Viewer"
+        self.chat_callback = chat_callback
 
         # ---- Prepare point cloud ----
         self.xyz = np.asarray(points).reshape(-1, 3).astype(np.float32)
@@ -515,9 +517,10 @@ class SceneChatApp019:
         gui.Application.instance.post_to_main_thread(self.window, _update)
 
     def _run_model_inference(self, user_text: str) -> str:
-        # Replace with your real inference call
+        if self.chat_callback is not None:
+            return str(self.chat_callback(user_text))
         time.sleep(0.3)
-        return f"(stub) Received: '{user_text}'. Replace _run_model_inference()."
+        return f"(stub) Received: '{user_text}'. Replace _run_model_inference() or pass chat_callback."
 
     # ---------- Run ----------
 
