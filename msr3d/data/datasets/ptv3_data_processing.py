@@ -57,9 +57,10 @@ def pool_features_scatter(obj_data,device):
    return pooled_embeds, valid_mask
 
 class PTV3DataProcessing():
-   def __init__(self, cfg):
+   def __init__(self, cfg, deterministic_transform=False):
       #self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.args.ptv3_cfg_path)
       self.ptv3_cfg = ptv3_cfg = PCConfig.fromfile(cfg.model.prompter.model.vision.args.ptv3_cfg_path)
+      self.deterministic_transform = deterministic_transform
 
       self.train_transform_cfg = ptv3_cfg.data.train.datasets[1]['transform']
       self.train_transform = Compose(self.train_transform_cfg)
@@ -105,7 +106,7 @@ class PTV3DataProcessing():
       return collated_batch
      
    def prepare_data(self, data_dict, mode):
-      if mode == "train":
+      if mode == "train" and not self.deterministic_transform:
          #print("doing training ----------")
          result_dict = self.train_transform(data_dict)
       else:
@@ -257,79 +258,63 @@ class PTV3DataProcessing():
    #    obj_embeds, obj_mask = pool_features_scatter(obj_data, device = device)
    #    return obj_embeds, obj_mask
    def pool_object_features(self, data, obj_ids):
-    MAX_OBJECTS = 60
     K = 100000
     device = data['feat'].device
 
-    # Must have offset!
     if 'offset' not in data:
         raise ValueError("pool_object_features requires 'offset' in data")
 
-    offset = data['offset'].cpu()  # (B+1,)
-    feat = data['feat']            # (total_points, dim)
-    inst_id = data['inst_id']      # (total_points,)
+    offset = data['offset'].cpu()
+    feat = data['feat']
+    inst_id = data['inst_id']
 
     assert offset[-1] == feat.shape[0], "Offset doesn't match feat length"
 
-    obj_data = []
+    batch_size = len(obj_ids)
+    max_objects = obj_ids.shape[1]
+    feat_dim = feat.shape[1]
 
-    for b in range(len(obj_ids)):
+    obj_embeds = torch.zeros(batch_size, max_objects, feat_dim, device=device, dtype=feat.dtype)
+    obj_mask = torch.zeros(batch_size, max_objects, dtype=torch.bool, device=device)
+
+    for b in range(batch_size):
         start = offset[b].item()
-        end   = offset[b + 1].item()
+        end = offset[b + 1].item()
 
-        # Slice only this scene's points and labels
         scene_feat = feat[start:end]
         scene_inst = inst_id[start:end]
 
-        # Build local dict: global_id → features (only this scene)
         global_inst_dct = {}
         unique_globals = torch.unique(scene_inst)
         for g in unique_globals:
             g_int = int(g.item())
             if g_int < 0:
                 continue
-            mask = (scene_inst == g)
-            global_inst_dct[g_int] = scene_feat[mask]
-
-        print(f"[Scene {b}] Available global ids: {sorted(global_inst_dct.keys())}")
+            global_inst_dct[g_int] = scene_feat[scene_inst == g]
 
         row = obj_ids[b]
-        scene_objects = []
-        seen = set()
+        valid_slots = 0
+        matched_slots = 0
 
-        # 1. Priority objects (local → global)
-        for lid_t in row:
+        for slot, lid_t in enumerate(row):
             lid = int(lid_t.item())
-            if lid < 0 or lid in seen:
+            if lid < 0:
                 continue
-            seen.add(lid)
 
+            valid_slots += 1
             global_id = b * K + lid
-            if global_id in global_inst_dct:
-                scene_objects.append(global_inst_dct[global_id])
-                print(f"  Matched priority {lid} → global {global_id}")
+            obj_points = global_inst_dct.get(global_id)
+            if obj_points is None or obj_points.numel() == 0:
+                continue
 
-            if len(scene_objects) >= MAX_OBJECTS:
-                break
+            obj_embeds[b, slot] = obj_points.mean(dim=0)
+            obj_mask[b, slot] = True
+            matched_slots += 1
 
-        # 2. Random fill from this scene only
-        if len(scene_objects) < MAX_OBJECTS:
-            remaining_globals = [gid for gid in global_inst_dct if gid not in seen]
-            import random
-            random.shuffle(remaining_globals)
+        print(
+            f"[Scene {b}] matched {matched_slots}/{valid_slots} selected objects after PTv3 preprocessing"
+        )
 
-            for gid in remaining_globals:
-                if len(scene_objects) >= MAX_OBJECTS:
-                    break
-                scene_objects.append(global_inst_dct[gid])
-                local = gid - b * K
-                seen.add(local)
-
-        print(f"[Scene {b}] Final objects: {len(scene_objects)} (priority: {len(seen)})")
-        obj_data.append(scene_objects)
-
-    # Pool as before
-    obj_embeds, obj_mask = pool_features_scatter(obj_data, device=device)
     return obj_embeds, obj_mask
    
    

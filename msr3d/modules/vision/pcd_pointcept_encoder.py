@@ -78,7 +78,9 @@ class PTv3PcdObjEncoder(nn.Module):
         model = build_model(self.ptv3_cfg.model)
         #model = build_model(self.ptv3_cfg.model.backbone)
 
-        self.ptv3_processor = PTV3DataProcessing(self.cfg)
+        self.ptv3_processor = PTV3DataProcessing(
+            self.cfg, deterministic_transform=self.freeze
+        )
        
         if weight_path is not None:
             model = load_pointcept_checkpoint(model, weight_path, strict=False)
