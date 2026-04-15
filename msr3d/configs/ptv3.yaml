@@ -9,7 +9,7 @@ mode: inference
 naming_keywords: [note]
 base_dir: '' # the output directory, must be set 
 exp_dir: "" # must be empty, will be set by run.py as base_dir + name + *naming_keywords
-pretrain_ckpt_path: ""
+pretrain_ckpt_path: "/path/to/exp_dir/best.pth"
 hf_hub_cache_dir: '/lustreFS/data/vcg/pdemetriou/hub' # the cache directory for huggingface models, optional
 
 resume: False

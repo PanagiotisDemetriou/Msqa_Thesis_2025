@@ -4,8 +4,8 @@ from pathlib import Path
 from collections import defaultdict
 
 #IN_PATH = "BLIPT_PNF_VIC_LORA/eval_results/msqa_scannet/results.pt"   # change if different
-IN_PATH = "/home/panagiotis/msqa/Msqa_Thesis_2025/msr3d/MSR3D_BLIPT_PTv3_VIC_LORA_2/eval_results/msqa_scannet/results.pt"
-OUT_PATH = "msqa_scannet_ptv3.json"
+IN_PATH = "/home/panagiotis/msqa/Msqa_Thesis_2025/msr3d/MSR3D_3DATASETS_FINAL_RESUME/eval_results/msqa_3rscan/results.pt"
+OUT_PATH = "3ds_3rscan.json"
 
 data = torch.load(IN_PATH, map_location="cpu")
 print("Loaded:", type(data), "Num items:", len(data))
