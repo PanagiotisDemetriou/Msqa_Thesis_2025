@@ -4,6 +4,7 @@ import torch
 from torch import nn
 import torch_scatter
 from collections import OrderedDict
+from contextlib import nullcontext
 from triton import Config
 import numpy as np
 import os
@@ -106,6 +107,11 @@ class PTv3PcdObjEncoder(nn.Module):
     def _get_core(self):
         core = self.model.module if hasattr(self.model, "module") else self.model
         return core
+
+    def _autocast_context(self):
+        if torch.cuda.is_available():
+            return torch.amp.autocast(device_type='cuda', dtype=torch.float16)
+        return nullcontext()
  
     def forward(self, data, mode = "train"):
         obj_masks = data.get('obj_masks', None).to(self.device) if 'obj_masks' in data else None
@@ -187,11 +193,11 @@ class PTv3PcdObjEncoder(nn.Module):
             print("Scene point counts:", torch.diff(data_dict['offset']).tolist())
         #print(data_dict.keys())
         if self.freeze:
-            with torch.no_grad(),torch.inference_mode(), torch.amp.autocast(device_type='cuda', dtype=torch.float16):
+            with torch.no_grad(), torch.inference_mode(), self._autocast_context():
                 point_out = core.backbone(data_dict)
                 #point_out = core(data_dict)
         else:
-            with torch.inference_mode(), torch.amp.autocast(device_type='cuda', dtype=torch.float16):
+            with self._autocast_context():
                 point_out = core.backbone(data_dict)
             #point_out = core(data_dict)
         if torch.isnan(point_out['feat']).any():

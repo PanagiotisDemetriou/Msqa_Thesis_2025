@@ -200,7 +200,7 @@ model:
         name: PTv3PcdObjEncoder
         args:
           embedding_size: 64
-          freeze: True
+          freeze: False
           grid_size: 0.02
           feat_reduce: "max"
           sem_num_classes: 607
