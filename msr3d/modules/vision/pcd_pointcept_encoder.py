@@ -8,6 +8,7 @@ from contextlib import nullcontext
 from triton import Config
 import numpy as np
 import os
+import random
 os.environ["SPCONV_ALGO"] = "native"  # force Native globally before import
 from modules.build import VISION_REGISTRY # XXXX # was modules, the one below as well
 from modules.utils import get_mlp_head
@@ -116,7 +117,11 @@ class PTv3PcdObjEncoder(nn.Module):
     def forward(self, data, mode = "train"):
         obj_masks = data.get('obj_masks', None).to(self.device) if 'obj_masks' in data else None
         obj_ids = data.get('selected_obj_ids', None).to(self.device) if 'selected_obj_ids' in data else None
+        obj_ids_source = data.get('selected_obj_ids', None)
         offset = data['scene_offset']
+        raw_anchor_locs = data.get('anchor_locs_raw', data.get('anchor_locs', None))
+        raw_anchor_oris = data.get('anchor_orientation_raw', data.get('anchor_orientation', None))
+        current_obj_locs = data.get('obj_locs', None)
 
         if isinstance(offset, torch.Tensor):
             offset = offset.cpu().numpy().tolist()
@@ -156,10 +161,57 @@ class PTv3PcdObjEncoder(nn.Module):
             }
             per_scene_inputs.append(single)
         processed_scenes = []
+        transformed_anchor_locs = []
+        transformed_anchor_oris = []
+        transformed_obj_locs = []
         for single_scene_dict in per_scene_inputs:
             # Apply the same transform pipeline that was used before
+            raw_scene_coord = single_scene_dict['coord'].copy()
+            raw_scene_inst = single_scene_dict['inst_id'].copy()
+            py_state = random.getstate()
+            np_state = np.random.get_state()
             processed_dict = self.ptv3_processor.prepare_data(single_scene_dict, mode)
             processed_scenes.append(processed_dict)
+
+            scene_idx = len(processed_scenes) - 1
+            if (
+                raw_anchor_locs is not None
+                and raw_anchor_oris is not None
+                and current_obj_locs is not None
+                and obj_ids_source is not None
+            ):
+                anchor_loc_np, anchor_ori_np, obj_locs_np = self.ptv3_processor.transform_spatial_metadata(
+                    scene_coord=raw_scene_coord,
+                    scene_inst=raw_scene_inst,
+                    anchor_loc=raw_anchor_locs[scene_idx].detach().cpu().numpy(),
+                    anchor_ori=raw_anchor_oris[scene_idx].detach().cpu().numpy(),
+                    selected_obj_ids=obj_ids_source[scene_idx].detach().cpu().numpy(),
+                    current_obj_locs=current_obj_locs[scene_idx].detach().cpu().numpy(),
+                    scene_index=scene_idx,
+                    mode=mode,
+                    py_state=py_state,
+                    np_state=np_state,
+                )
+                transformed_anchor_locs.append(anchor_loc_np)
+                transformed_anchor_oris.append(anchor_ori_np)
+                transformed_obj_locs.append(obj_locs_np)
+
+        if transformed_anchor_locs:
+            data['anchor_locs'] = torch.as_tensor(
+                np.stack(transformed_anchor_locs, axis=0),
+                device=data['anchor_locs'].device,
+                dtype=data['anchor_locs'].dtype,
+            )
+            data['anchor_orientation'] = torch.as_tensor(
+                np.stack(transformed_anchor_oris, axis=0),
+                device=data['anchor_orientation'].device,
+                dtype=data['anchor_orientation'].dtype,
+            )
+            data['obj_locs'] = torch.as_tensor(
+                np.stack(transformed_obj_locs, axis=0),
+                device=data['obj_locs'].device,
+                dtype=data['obj_locs'].dtype,
+            )
 
         data_dict = self.ptv3_processor.collate_pointcloud(processed_scenes)
         # ── DEBUG PRINTS ────────────────────────────────────────────────────────
