@@ -124,9 +124,9 @@ class PTv3PcdObjEncoder(nn.Module):
         B = len(data['scan_id'])
         assert len(offset) == B + 1, f"Expected {B+1} offsets, got {len(offset)}"
 
-        print(f"Offset: {offset}")
-        print(data['scene_fts'])
-        print(f"scene1:{len(data['scene_fts'])}")
+        # print(f"Offset: {offset}")
+        # print(data['scene_fts'])
+        # print(f"scene1:{len(data['scene_fts'])}")
         # print(f"scene2:{len(data['scene_fts'][1])}")
         # print(data['scan_id'])
         # print("----------------")
@@ -163,20 +163,20 @@ class PTv3PcdObjEncoder(nn.Module):
 
         data_dict = self.ptv3_processor.collate_pointcloud(processed_scenes)
         # ── DEBUG PRINTS ────────────────────────────────────────────────────────
-        print("\n" + "="*60)
-        print("AFTER PER-SCENE TRANSFORM + COLLATE")
-        print(f"  Number of scenes processed: {len(processed_scenes)}")
-        print(f"  offset shape:               {data_dict.get('offset').shape if 'offset' in data_dict else 'missing'}")
-        print(f"  offset values:              {data_dict.get('offset').tolist() if 'offset' in data_dict else 'missing'}")
-        print(f"  total points (coord):       {data_dict['coord'].shape[0] if 'coord' in data_dict else 'missing'}")
+        # print("\n" + "="*60)
+        # print("AFTER PER-SCENE TRANSFORM + COLLATE")
+        # print(f"  Number of scenes processed: {len(processed_scenes)}")
+        # print(f"  offset shape:               {data_dict.get('offset').shape if 'offset' in data_dict else 'missing'}")
+        # print(f"  offset values:              {data_dict.get('offset').tolist() if 'offset' in data_dict else 'missing'}")
+        # print(f"  total points (coord):       {data_dict['coord'].shape[0] if 'coord' in data_dict else 'missing'}")
         # print(f"  unique instance ids:        {np.unique(data_dict.get('inst_id', np.array([-999])))}")
-        inst = data_dict.get('inst_id', torch.tensor([-999], device='cpu'))
-        if isinstance(inst, torch.Tensor):
-            inst = inst.cpu().numpy()   # <--- crucial: .cpu() first
-        print(f" unique instance ids: {np.unique(inst)}")
+        # inst = data_dict.get('inst_id', torch.tensor([-999], device='cpu'))
+        # if isinstance(inst, torch.Tensor):
+        #     inst = inst.cpu().numpy()   # <--- crucial: .cpu() first
+        # print(f" unique instance ids: {np.unique(inst)}")
 
-        print(f"  keys in data_dict:          {sorted(data_dict.keys())}")
-        print("="*60 + "\n")
+        # print(f"  keys in data_dict:          {sorted(data_dict.keys())}")
+        # print("="*60 + "\n")
         # Prepare data by applying Pointcept transforms
         #data_dict = self.ptv3_processor.prepare_data(data_dict, mode)
         
@@ -188,9 +188,10 @@ class PTv3PcdObjEncoder(nn.Module):
         core = self._get_core().to(self.device).eval() if self.freeze else self._get_core().to(self.device)
         #core = self.model.to(self.device).eval()
 
-        print(f"Going into backbone with {B} scenes, {data_dict['coord'].shape[0]} points total")
+        # print(f"Going into backbone with {B} scenes, {data_dict['coord'].shape[0]} points total")
         if 'offset' in data_dict:
-            print("Scene point counts:", torch.diff(data_dict['offset']).tolist())
+            pass
+            # print("Scene point counts:", torch.diff(data_dict['offset']).tolist())
         #print(data_dict.keys())
         if self.freeze:
             with torch.no_grad(), torch.inference_mode(), self._autocast_context():
@@ -239,25 +240,28 @@ class PTv3PcdObjEncoder(nn.Module):
             )
             # point_out['inst_id'] = data_dict['inst_id']
 
-        print("\n=== POST-INVERSE / POST-REMAPPING DEBUG ===")
-        print("point_out['feat'].shape:", point_out['feat'].shape)
-        print("point_out has 'inst_id':", 'inst_id' in point_out)
+        # print("\n=== POST-INVERSE / POST-REMAPPING DEBUG ===")
+        # print("point_out['feat'].shape:", point_out['feat'].shape)
+        # print("point_out has 'inst_id':", 'inst_id' in point_out)
         if 'inst_id' in point_out:
-            u = torch.unique(point_out['inst_id'])
-            print("Unique inst_ids AFTER remapping:", u.tolist())
-            print("Min/Max inst_id AFTER remapping:", u.min().item(), u.max().item())
-            print("Number of points:", point_out['feat'].shape[0])
-            print("offset in point_out?", 'offset' in point_out)
+            pass
+            # u = torch.unique(point_out['inst_id'])
+            # print("Unique inst_ids AFTER remapping:", u.tolist())
+            # print("Min/Max inst_id AFTER remapping:", u.min().item(), u.max().item())
+            # print("Number of points:", point_out['feat'].shape[0])
+            # print("offset in point_out?", 'offset' in point_out)
             if 'offset' in point_out:
-                print("offset values:", point_out['offset'].tolist())
+                pass
+                # print("offset values:", point_out['offset'].tolist())
         # print(len(point_out['feat']))
         # point_out['offset'] = offset # Prepei na mpei sto data dict?
         # Pool point features to object features
-        print(f"ID: {data['scan_id']}")
-        print(f"Kept IDs:")
-        print("Going to pooling with obj_ids shape:", obj_ids.shape if obj_ids is not None else "None")
+        # print(f"ID: {data['scan_id']}")
+        # print(f"Kept IDs:")
+        # print("Going to pooling with obj_ids shape:", obj_ids.shape if obj_ids is not None else "None")
         if obj_ids is not None:
-            print("Scene 0 obj_ids:", obj_ids[0].tolist()[:35])
+            pass
+            # print("Scene 0 obj_ids:", obj_ids[0].tolist()[:35])
             #print("Scene 1 obj_ids:", obj_ids[1].tolist()[:35])
         obj_embeds, obj_mask = self.ptv3_processor.pool_object_features(point_out, obj_ids) 
         obj_embeds = torch.nan_to_num(
