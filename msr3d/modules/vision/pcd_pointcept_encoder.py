@@ -28,12 +28,6 @@ def move_pointcept_data_to_device(data_dict, device):
         return type(data_dict)(move_pointcept_data_to_device(v, device) for v in data_dict)
     return data_dict
 
-
-def to_numpy_copy(x):
-    if isinstance(x, torch.Tensor):
-        return x.detach().cpu().numpy().copy()
-    return np.asarray(x).copy()
-
 def load_pointcept_checkpoint(model, weight_path, strict=False):
     checkpoint = torch.load(weight_path, map_location="cpu", weights_only=False)
     sd = checkpoint["state_dict"] if isinstance(checkpoint, dict) and "state_dict" in checkpoint else checkpoint
@@ -172,8 +166,8 @@ class PTv3PcdObjEncoder(nn.Module):
         transformed_obj_locs = []
         for single_scene_dict in per_scene_inputs:
             # Apply the same transform pipeline that was used before
-            raw_scene_coord = to_numpy_copy(single_scene_dict['coord'])
-            raw_scene_inst = to_numpy_copy(single_scene_dict['inst_id'])
+            raw_scene_coord = single_scene_dict['coord'].copy()
+            raw_scene_inst = single_scene_dict['inst_id'].copy()
             py_state = random.getstate()
             np_state = np.random.get_state()
             processed_dict = self.ptv3_processor.prepare_data(single_scene_dict, mode)
