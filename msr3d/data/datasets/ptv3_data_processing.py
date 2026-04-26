@@ -85,7 +85,9 @@ class PTV3DataProcessing():
       # normals = scene_fts[:,6:9].numpy()
 
       coord = scene_fts[:,:3].detach().cpu().numpy()
-      color = scene_fts[:,3:6].detach().cpu().numpy()
+      # MSR3D stores colors in [-1, 1], while Pointcept's NormalizeColor
+      # expects raw 0..255 RGB and divides by 255 internally.
+      color = ((scene_fts[:,3:6].detach().cpu().numpy() + 1.0) * 127.5).clip(0, 255)
       normals = scene_fts[:,6:9].detach().cpu().numpy()
       condition = self.condition
       segments = data['segments']
@@ -311,9 +313,9 @@ class PTV3DataProcessing():
             obj_mask[b, slot] = True
             matched_slots += 1
 
-        print(
-            f"[Scene {b}] matched {matched_slots}/{valid_slots} selected objects after PTv3 preprocessing"
-        )
+      #   print(
+      #       f"[Scene {b}] matched {matched_slots}/{valid_slots} selected objects after PTv3 preprocessing"
+      #   )
 
     return obj_embeds, obj_mask
    
