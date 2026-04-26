@@ -248,13 +248,12 @@ class MSR3DBase(Dataset):
         }
 
         if situation is not None:
-            pos, ori = situation
-            pos = np.asarray(pos, dtype=np.float32)
-            ori = np.asarray(ori, dtype=np.float32)
-            output_dict["situation_raw"] = (pos.copy(), ori.copy())
             if rot_matrix is None:
-                output_dict["situation"] = (pos, ori)
+                output_dict["situation"] = situation
             else:
+                pos, ori = situation
+                pos = np.asarray(pos, dtype=np.float32)
+                ori = np.asarray(ori, dtype=np.float32)
                 pos_new = (pos.reshape(1, 3) @ rot_matrix.T).reshape(-1)
                 ori_new = R.from_quat(ori).as_matrix()
                 ori_new = rot_matrix @ ori_new
@@ -565,8 +564,6 @@ class MSQAScanNet(MSR3DBase):
             'msr3d_imgs': img_list,
             'anchor_orientation': torch.tensor(anchor_orientation).float(),
             'anchor_locs' : torch.tensor(anchor_loc).float(),
-            'anchor_orientation_raw': torch.tensor(output_dict['situation_raw'][1]).float(),
-            'anchor_locs_raw': torch.tensor(output_dict['situation_raw'][0]).float(),
             'index': index,
             'type': qa_type,
             'scene_fts': scene_fts,
@@ -611,8 +608,6 @@ class SQA3DScanNet(ScanNetSQA3D, MSR3DBase):
             'img_masks': torch.LongTensor([0]).bool(),
             'anchor_locs': torch.from_numpy(data_dict['situation_pos']).float(),
             'anchor_orientation': torch.from_numpy(data_dict['situation_rot']).float(),
-            'anchor_locs_raw': torch.from_numpy(data_dict['situation_pos']).float(),
-            'anchor_orientation_raw': torch.from_numpy(data_dict['situation_rot']).float(),
             'task': 'sqa3d'
         })
         data_dict = MSR3DBase.transfer_leo_to_msr3d(data_dict)
@@ -769,8 +764,6 @@ class MSQA3RScan(MSR3DBase):
             'msr3d_imgs': img_list,
             'anchor_orientation': torch.tensor(anchor_orientation).float(),
             'anchor_locs' : torch.tensor(anchor_loc).float(),
-            'anchor_orientation_raw': torch.tensor(output_dict['situation_raw'][1]).float(),
-            'anchor_locs_raw': torch.tensor(output_dict['situation_raw'][0]).float(),
             'index': index,
             'type': qa_type,
             'scene_fts': scan_data['scene_fts'],
@@ -943,8 +936,6 @@ class MSQAARkitScenes(MSR3DBase):
             'msr3d_imgs': img_list,
             'anchor_orientation': torch.tensor(anchor_orientation).float(),
             'anchor_locs' : torch.tensor(anchor_loc).float(),
-            'anchor_orientation_raw': torch.tensor(output_dict['situation_raw'][1]).float(),
-            'anchor_locs_raw': torch.tensor(output_dict['situation_raw'][0]).float(),
             'index': qa_type,
             'type': qa_type,
             'scene_fts': scan_data['scene_fts'],
@@ -973,8 +964,6 @@ class MSR3DMSNN(ScanNetOneStepNavi):
             'img_masks': torch.LongTensor([0]).bool(),
             'anchor_locs': torch.from_numpy(data_dict['situation_pos']).float(),
             'anchor_orientation': torch.from_numpy(data_dict['situation_rot']).float(),
-            'anchor_locs_raw': torch.from_numpy(data_dict['situation_pos']).float(),
-            'anchor_orientation_raw': torch.from_numpy(data_dict['situation_rot']).float(),
             'task': 'one_step_navi'
         })
 
