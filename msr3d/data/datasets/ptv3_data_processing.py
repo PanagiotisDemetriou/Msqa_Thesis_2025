@@ -565,9 +565,9 @@ class PTV3DataProcessing():
             obj_mask[b, slot] = True
             matched_slots += 1
 
-      #   print(
-      #       f"[Scene {b}] matched {matched_slots}/{valid_slots} selected objects after PTv3 preprocessing"
-      #   )
+        print(
+            f"[Scene {b}] matched {matched_slots}/{valid_slots} selected objects after PTv3 preprocessing"
+        )
 
     return obj_embeds, obj_mask
    
