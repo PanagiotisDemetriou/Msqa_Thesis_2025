@@ -1395,6 +1395,12 @@ with gr.Blocks(
             interactive=True,
         )
 
+        question_dd = gr.Dropdown(
+            choices=[],
+            label="Question (within scene)",
+            interactive=True,
+        )
+
     fig_state = gr.State(None)
     key_state = gr.State(None)
 
@@ -1430,11 +1436,6 @@ with gr.Blocks(
         with gr.Column(scale=3, min_width=300, elem_id="chat-panel"):
             gr.Markdown("### Ask your model about the scene")
             chat = gr.Chatbot(label="Dialogue", height=360)
-            question_dd = gr.Dropdown(
-                choices=[],
-                label="Question from selected scene",
-                interactive=True,
-            )
             with gr.Accordion("Optional Situation Override", open=False):
                 custom_situation = gr.Textbox(
                     label="Custom situation override",
