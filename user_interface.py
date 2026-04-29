@@ -444,13 +444,37 @@ def instance_ids_matching_question(payload, question_text: str, max_matches: int
     return list(dict.fromkeys(matches))[: int(max_matches)]
 
 
+def semantic_class_ids_matching_question(payload, question_text: str, max_matches: int = 8):
+    q_tokens = simple_word_tokens(question_text)
+    if not q_tokens or "segments" not in payload:
+        return []
+
+    matches = []
+    available = set(np.asarray(payload["segments"]).reshape(-1).astype(np.int64).tolist())
+    for cls_id, label in enumerate(SCANNET20_NAMES):
+        if cls_id not in available:
+            continue
+        label_tokens = simple_word_tokens(label)
+        if label_tokens and q_tokens.intersection(label_tokens):
+            matches.append(cls_id)
+
+    return matches[: int(max_matches)]
+
+
 def build_target_bbox_traces(payload, question_text: str, max_matches: int = 8):
     target_ids = instance_ids_matching_question(payload, question_text, max_matches=max_matches)
-    if not target_ids:
+    target_semantic_ids = semantic_class_ids_matching_question(
+        payload,
+        question_text,
+        max_matches=max(0, int(max_matches) - len(target_ids)),
+    )
+    if not target_ids and not target_semantic_ids:
+        print(f"[target-box] no object/semantic label matched question: {question_text!r}")
         return []
 
     xyz = np.asarray(payload["xyz"], dtype=np.float32).reshape(-1, 3)
     inst = np.asarray(payload["instance_ids"]).reshape(-1)
+    segments = np.asarray(payload["segments"]).reshape(-1) if "segments" in payload else None
     inst_to_label = payload.get("instance_to_label", {}) or {}
 
     traces = []
@@ -476,6 +500,35 @@ def build_target_bbox_traces(payload, question_text: str, max_matches: int = 8):
             showlegend=True,
         ))
 
+    for cls_id in target_semantic_ids:
+        if segments is None:
+            continue
+        pts = xyz[segments == cls_id]
+        if pts.shape[0] < 2:
+            continue
+
+        minb = pts.min(0)
+        maxb = pts.max(0)
+        xs, ys, zs = [], [], []
+        for p0, p1 in aabb_edges(minb, maxb):
+            xs += [p0[0], p1[0], None]
+            ys += [p0[1], p1[1], None]
+            zs += [p0[2], p1[2], None]
+
+        label = SCANNET20_NAMES[int(cls_id)]
+        traces.append(go.Scatter3d(
+            x=xs, y=ys, z=zs,
+            mode="lines",
+            line=dict(width=9, color="rgb(0,220,255)"),
+            name=f"target semantic: {label}",
+            showlegend=True,
+        ))
+
+    print(
+        "[target-box] matched "
+        f"instances={[(i, inst_to_label.get(i, 'instance')) for i in target_ids]} "
+        f"semantics={[SCANNET20_NAMES[i] for i in target_semantic_ids]}"
+    )
     return traces
 
 
