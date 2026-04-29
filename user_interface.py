@@ -358,6 +358,109 @@ def build_instance_bboxes_as_traces(xyz, instance_labels, max_boxes=200, seed=12
     return traces
 
 
+def build_instance_to_label_map(instance_ids, semantic_segments=None):
+    inst = np.asarray(instance_ids).reshape(-1)
+    if semantic_segments is None:
+        return {int(u): f"instance {int(u)}" for u in np.unique(inst)}
+
+    seg = np.asarray(semantic_segments).reshape(-1)
+    labels = {}
+    for u in np.unique(inst):
+        mask = inst == u
+        vals = seg[mask]
+        vals = vals[vals >= 0]
+        if vals.size == 0:
+            labels[int(u)] = f"instance {int(u)}"
+            continue
+        counts = np.bincount(vals.astype(np.int64))
+        cls_id = int(np.argmax(counts))
+        if 0 <= cls_id < len(SCANNET20_NAMES):
+            labels[int(u)] = SCANNET20_NAMES[cls_id]
+        else:
+            labels[int(u)] = f"instance {int(u)}"
+    return labels
+
+
+def clean_instance_to_label_map(inst_to_label):
+    labels = {}
+    for k, v in (inst_to_label or {}).items():
+        try:
+            inst_id = int(k)
+        except Exception:
+            continue
+        if isinstance(v, torch.Tensor):
+            v = v.detach().cpu().item() if v.numel() == 1 else v.detach().cpu().tolist()
+        if isinstance(v, (list, tuple)) and v:
+            v = v[0]
+        labels[inst_id] = str(v)
+    return labels
+
+
+def normalize_search_text(text: str) -> str:
+    return " ".join((text or "").lower().replace("_", " ").replace("-", " ").split())
+
+
+def parse_instance_ids_from_text(text: str):
+    ids = []
+    for part in (text or "").replace(",", " ").split():
+        try:
+            ids.append(int(part))
+        except ValueError:
+            continue
+    return ids
+
+
+def build_target_bbox_traces(payload, target_text: str, fallback_text: str = "", max_matches: int = 8):
+    query = (target_text or "").strip() or (fallback_text or "").strip()
+    if not query:
+        return []
+
+    xyz = np.asarray(payload["xyz"], dtype=np.float32).reshape(-1, 3)
+    inst = np.asarray(payload["instance_ids"]).reshape(-1)
+    inst_to_label = payload.get("instance_to_label", {}) or {}
+
+    target_ids = []
+    numeric_ids = parse_instance_ids_from_text(query)
+    available = {int(u) for u in np.unique(inst)}
+    target_ids.extend([i for i in numeric_ids if i in available])
+
+    q_norm = normalize_search_text(query)
+    if not target_ids and q_norm:
+        for inst_id, label in inst_to_label.items():
+            label_norm = normalize_search_text(label)
+            if label_norm and (label_norm in q_norm or q_norm in label_norm):
+                target_ids.append(int(inst_id))
+
+    target_ids = list(dict.fromkeys(target_ids))[: int(max_matches)]
+    if not target_ids:
+        return []
+
+    traces = []
+    for inst_id in target_ids:
+        pts = xyz[inst == inst_id]
+        if pts.shape[0] < 2:
+            continue
+
+        minb = pts.min(0)
+        maxb = pts.max(0)
+        xs, ys, zs = [], [], []
+        for p0, p1 in aabb_edges(minb, maxb):
+            xs += [p0[0], p1[0], None]
+            ys += [p0[1], p1[1], None]
+            zs += [p0[2], p1[2], None]
+
+        label = inst_to_label.get(int(inst_id), f"instance {inst_id}")
+        traces.append(go.Scatter3d(
+            x=xs, y=ys, z=zs,
+            mode="lines",
+            line=dict(width=9, color="rgb(255,230,0)"),
+            name=f"target: {label} ({inst_id})",
+            showlegend=True,
+        ))
+
+    return traces
+
+
 def make_world_axis_traces(origin, axis_len=1.0):
     origin = np.asarray(origin, dtype=np.float32).reshape(3)
     O = origin
@@ -595,11 +698,14 @@ def load_scannet_scene(scan_id: str):
         if np.any(mask):
             obj_pcds[int(inst_id)] = scene_fts[mask]
 
+    instance_to_label = build_instance_to_label_map(instance_labels, segments_scannet20)
+
     return {
         "scene_fts": scene_fts,            # (N,9) [xyz rgb(-1,1) normals]
         "instance_ids": instance_labels,   # matches your loader
         "segments": segments_scannet20,    # matches your loader
         "obj_pcds": obj_pcds,              # object clouds in same feature space
+        "instance_to_label": instance_to_label,
     }
 
 
@@ -644,6 +750,7 @@ def load_rscan_scene(scan_id: str):
         "instance_ids": instance_labels,
         "segments": segments,
         "obj_pcds": obj_pcds,
+        "instance_to_label": clean_instance_to_label_map(inst_to_label),
     }
 
 
@@ -689,6 +796,7 @@ def load_arkit_scene(scan_id: str):
         "instance_ids": instance_labels,
         "segments": segments,
         "obj_pcds": obj_pcds,
+        "instance_to_label": clean_instance_to_label_map(inst_to_label),
     }
 
 
@@ -764,6 +872,7 @@ def get_raw_scene(dataset_name: str, idx: int):
         "instance_ids": np.asarray(one_scan["instance_ids"]).reshape(-1).astype(np.int32),
         "segments": np.asarray(one_scan["segments"]).reshape(-1).astype(np.int64),
         "obj_pcds": one_scan["obj_pcds"],
+        "instance_to_label": one_scan.get("instance_to_label", {}),
         "xyz": xyz,
         "rgb01": rgb01,
         "rgb_m11": rgb_m11,
@@ -840,6 +949,7 @@ def get_downsampled_scene(dataset_name: str, idx: int, max_points: int):
         "instance_ids": instance_ids.astype(np.int32),
         "segments": segments.astype(np.int64),
         "obj_pcds": raw["obj_pcds"],
+        "instance_to_label": raw.get("instance_to_label", {}),
         "rgb_colors": rgb_colors,
         "instance_colors": instance_colors,
         "segment_colors": segment_colors,
@@ -916,6 +1026,9 @@ def apply_style_and_overlays(
     color_mode: str,
     point_size: float,
     show_boxes: bool,
+    show_target_box: bool,
+    target_box_text: str,
+    target_box_max_matches: int,
     show_axis: bool,
     show_arrow: bool,
     axis_len: float,
@@ -958,6 +1071,17 @@ def apply_style_and_overlays(
     if show_boxes:
         for t in get_bbox_traces(dataset_name, idx, max_points, max_boxes):
             fig.add_trace(copy.deepcopy(t))
+
+    if show_target_box:
+        qa = DATA_BY_DATASET[dataset_name][idx]
+        question_text = qa.get("question", "")
+        for t in build_target_bbox_traces(
+            payload,
+            target_text=target_box_text,
+            fallback_text=question_text,
+            max_matches=int(target_box_max_matches),
+        ):
+            fig.add_trace(t)
 
     if show_axis:
         for t in make_world_axis_traces(payload["center"], axis_len=float(axis_len)):
@@ -1151,6 +1275,9 @@ def update_style(
     color_mode,
     point_size,
     show_boxes,
+    show_target_box,
+    target_box_text,
+    target_box_max_matches,
     show_axis,
     show_arrow,
     axis_len,
@@ -1181,6 +1308,9 @@ def update_style(
         color_mode=color_mode,
         point_size=float(point_size),
         show_boxes=bool(show_boxes),
+        show_target_box=bool(show_target_box),
+        target_box_text=target_box_text,
+        target_box_max_matches=int(target_box_max_matches),
         show_axis=bool(show_axis),
         show_arrow=bool(show_arrow),
         axis_len=float(axis_len),
@@ -1419,6 +1549,14 @@ with gr.Blocks(
             show_boxes = gr.Checkbox(value=False, label="Show instance bounding boxes")
             max_boxes = gr.Slider(10, 500, value=200, step=10, label="Max boxes")
 
+            show_target_box = gr.Checkbox(value=False, label="Show target object bounding box")
+            target_box_text = gr.Textbox(
+                label="Target object name or instance id",
+                placeholder="e.g. chair, table, 12. Leave empty to use selected question.",
+                lines=1,
+            )
+            target_box_max_matches = gr.Slider(1, 20, value=8, step=1, label="Max target matches")
+
             show_axis = gr.Checkbox(value=False, label="Show world axis")
             show_arrow = gr.Checkbox(value=True, label="Show situation arrow")
             axis_len = gr.Slider(0.5, 5.0, value=1.5, step=0.1, label="Axis / arrow scale")
@@ -1481,7 +1619,8 @@ with gr.Blocks(
         fn=update_style,
         inputs=[
             fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_axis, show_arrow,
+            color_mode, point_size, show_boxes, show_target_box, target_box_text,
+            target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
             custom_location, custom_orientation,
@@ -1529,7 +1668,8 @@ with gr.Blocks(
         fn=update_style,
         inputs=[
             fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_axis, show_arrow,
+            color_mode, point_size, show_boxes, show_target_box, target_box_text,
+            target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
             custom_location, custom_orientation,
@@ -1539,14 +1679,16 @@ with gr.Blocks(
 
     # Light updates
     for comp in [
-        color_mode, point_size, show_boxes, show_axis, show_arrow, axis_len, max_boxes,
+        color_mode, point_size, show_boxes, show_target_box, target_box_text,
+        target_box_max_matches, show_axis, show_arrow, axis_len, max_boxes,
         show_normals, normals_scale, max_normals, orient_normals, custom_location, custom_orientation
     ]:
         comp.change(
             fn=update_style,
             inputs=[
                 fig_state, key_state, dataset_dd, qa_dd,
-                color_mode, point_size, show_boxes, show_axis, show_arrow,
+                color_mode, point_size, show_boxes, show_target_box, target_box_text,
+                target_box_max_matches, show_axis, show_arrow,
                 axis_len, max_boxes, max_points,
                 show_normals, normals_scale, max_normals, orient_normals,
                 custom_location, custom_orientation,
@@ -1563,7 +1705,8 @@ with gr.Blocks(
         fn=update_style,
         inputs=[
             fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_axis, show_arrow,
+            color_mode, point_size, show_boxes, show_target_box, target_box_text,
+            target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
             custom_location, custom_orientation,
