@@ -429,15 +429,31 @@ def simple_word_tokens(text: str):
     return set(toks)
 
 
+OBJECT_TOKEN_ALIASES = {
+    "bookshelf": {"book", "shelf", "bookshelf"},
+    "refridgerator": {"fridge", "refrigerator", "refridgerator"},
+    "otherfurniture": {"furniture", "object", "item", "thing", "otherfurniture"},
+}
+
+
+def expand_object_tokens(tokens):
+    expanded = set(tokens)
+    for canonical, aliases in OBJECT_TOKEN_ALIASES.items():
+        if canonical in expanded or expanded.intersection(aliases):
+            expanded.update(aliases)
+            expanded.add(canonical)
+    return expanded
+
+
 def instance_ids_matching_question(payload, question_text: str, max_matches: int = 8):
-    q_tokens = simple_word_tokens(question_text)
+    q_tokens = expand_object_tokens(simple_word_tokens(question_text))
     if not q_tokens:
         return []
 
     matches = []
     inst_to_label = payload.get("instance_to_label", {}) or {}
     for inst_id, label in inst_to_label.items():
-        label_tokens = simple_word_tokens(label)
+        label_tokens = expand_object_tokens(simple_word_tokens(label))
         if label_tokens and q_tokens.intersection(label_tokens):
             matches.append(int(inst_id))
 
@@ -445,7 +461,7 @@ def instance_ids_matching_question(payload, question_text: str, max_matches: int
 
 
 def semantic_class_ids_matching_question(payload, question_text: str, max_matches: int = 8):
-    q_tokens = simple_word_tokens(question_text)
+    q_tokens = expand_object_tokens(simple_word_tokens(question_text))
     if not q_tokens or "segments" not in payload:
         return []
 
@@ -454,7 +470,7 @@ def semantic_class_ids_matching_question(payload, question_text: str, max_matche
     for cls_id, label in enumerate(SCANNET20_NAMES):
         if cls_id not in available:
             continue
-        label_tokens = simple_word_tokens(label)
+        label_tokens = expand_object_tokens(simple_word_tokens(label))
         if label_tokens and q_tokens.intersection(label_tokens):
             matches.append(cls_id)
 
@@ -1146,8 +1162,9 @@ def apply_style_and_overlays(
     if show_target_box:
         qa = DATA_BY_DATASET[dataset_name][idx]
         question_text = (target_question_text or "").strip() or qa.get("question", "")
+        target_payload = get_raw_scene(dataset_name, idx)
         for t in build_target_bbox_traces(
-            payload,
+            target_payload,
             question_text=question_text,
             max_matches=int(target_box_max_matches),
         ):
