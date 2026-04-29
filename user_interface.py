@@ -400,40 +400,58 @@ def normalize_search_text(text: str) -> str:
     return " ".join((text or "").lower().replace("_", " ").replace("-", " ").split())
 
 
-def parse_instance_ids_from_text(text: str):
-    ids = []
-    for part in (text or "").replace(",", " ").split():
-        try:
-            ids.append(int(part))
-        except ValueError:
+QUESTION_OBJECT_STOPWORDS = {
+    "a", "an", "the", "this", "that", "these", "those", "my", "me", "i", "you",
+    "your", "there", "is", "are", "am", "be", "being", "been", "was", "were",
+    "do", "does", "did", "can", "could", "should", "would", "will", "what",
+    "which", "where", "when", "who", "why", "how", "many", "much", "of", "to",
+    "in", "on", "at", "by", "for", "from", "with", "without", "and", "or",
+    "if", "than", "then", "near", "nearer", "nearest", "left", "right",
+    "front", "back", "behind", "around", "direction", "clock", "oclock",
+    "o", "go", "turn", "find", "see", "use", "used", "want", "need", "based",
+    "provide", "please", "relationship", "between", "comparison", "located",
+}
+
+
+def simple_word_tokens(text: str):
+    cleaned = []
+    for ch in normalize_search_text(text):
+        cleaned.append(ch if ch.isalnum() else " ")
+    toks = []
+    for tok in "".join(cleaned).split():
+        if tok in QUESTION_OBJECT_STOPWORDS or len(tok) < 3:
             continue
-    return ids
+        if tok.endswith("ies") and len(tok) > 4:
+            tok = tok[:-3] + "y"
+        elif tok.endswith("s") and not tok.endswith("ss") and len(tok) > 3:
+            tok = tok[:-1]
+        toks.append(tok)
+    return set(toks)
 
 
-def build_target_bbox_traces(payload, target_text: str, fallback_text: str = "", max_matches: int = 8):
-    query = (target_text or "").strip() or (fallback_text or "").strip()
-    if not query:
+def instance_ids_matching_question(payload, question_text: str, max_matches: int = 8):
+    q_tokens = simple_word_tokens(question_text)
+    if not q_tokens:
+        return []
+
+    matches = []
+    inst_to_label = payload.get("instance_to_label", {}) or {}
+    for inst_id, label in inst_to_label.items():
+        label_tokens = simple_word_tokens(label)
+        if label_tokens and q_tokens.intersection(label_tokens):
+            matches.append(int(inst_id))
+
+    return list(dict.fromkeys(matches))[: int(max_matches)]
+
+
+def build_target_bbox_traces(payload, question_text: str, max_matches: int = 8):
+    target_ids = instance_ids_matching_question(payload, question_text, max_matches=max_matches)
+    if not target_ids:
         return []
 
     xyz = np.asarray(payload["xyz"], dtype=np.float32).reshape(-1, 3)
     inst = np.asarray(payload["instance_ids"]).reshape(-1)
     inst_to_label = payload.get("instance_to_label", {}) or {}
-
-    target_ids = []
-    numeric_ids = parse_instance_ids_from_text(query)
-    available = {int(u) for u in np.unique(inst)}
-    target_ids.extend([i for i in numeric_ids if i in available])
-
-    q_norm = normalize_search_text(query)
-    if not target_ids and q_norm:
-        for inst_id, label in inst_to_label.items():
-            label_norm = normalize_search_text(label)
-            if label_norm and (label_norm in q_norm or q_norm in label_norm):
-                target_ids.append(int(inst_id))
-
-    target_ids = list(dict.fromkeys(target_ids))[: int(max_matches)]
-    if not target_ids:
-        return []
 
     traces = []
     for inst_id in target_ids:
@@ -1027,7 +1045,6 @@ def apply_style_and_overlays(
     point_size: float,
     show_boxes: bool,
     show_target_box: bool,
-    target_box_text: str,
     target_box_max_matches: int,
     show_axis: bool,
     show_arrow: bool,
@@ -1077,8 +1094,7 @@ def apply_style_and_overlays(
         question_text = qa.get("question", "")
         for t in build_target_bbox_traces(
             payload,
-            target_text=target_box_text,
-            fallback_text=question_text,
+            question_text=question_text,
             max_matches=int(target_box_max_matches),
         ):
             fig.add_trace(t)
@@ -1276,7 +1292,6 @@ def update_style(
     point_size,
     show_boxes,
     show_target_box,
-    target_box_text,
     target_box_max_matches,
     show_axis,
     show_arrow,
@@ -1309,7 +1324,6 @@ def update_style(
         point_size=float(point_size),
         show_boxes=bool(show_boxes),
         show_target_box=bool(show_target_box),
-        target_box_text=target_box_text,
         target_box_max_matches=int(target_box_max_matches),
         show_axis=bool(show_axis),
         show_arrow=bool(show_arrow),
@@ -1550,11 +1564,6 @@ with gr.Blocks(
             max_boxes = gr.Slider(10, 500, value=200, step=10, label="Max boxes")
 
             show_target_box = gr.Checkbox(value=False, label="Show target object bounding box")
-            target_box_text = gr.Textbox(
-                label="Target object name or instance id",
-                placeholder="e.g. chair, table, 12. Leave empty to use selected question.",
-                lines=1,
-            )
             target_box_max_matches = gr.Slider(1, 20, value=8, step=1, label="Max target matches")
 
             show_axis = gr.Checkbox(value=False, label="Show world axis")
@@ -1619,7 +1628,7 @@ with gr.Blocks(
         fn=update_style,
         inputs=[
             fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_target_box, target_box_text,
+            color_mode, point_size, show_boxes, show_target_box,
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
@@ -1652,11 +1661,33 @@ with gr.Blocks(
         fn=on_question_change,
         inputs=[dataset_dd, question_dd],
         outputs=[qa_dd, user_msg],
+    ).then(
+        fn=update_style,
+        inputs=[
+            fig_state, key_state, dataset_dd, qa_dd,
+            color_mode, point_size, show_boxes, show_target_box,
+            target_box_max_matches, show_axis, show_arrow,
+            axis_len, max_boxes, max_points,
+            show_normals, normals_scale, max_normals, orient_normals,
+            custom_location, custom_orientation,
+        ],
+        outputs=[plot, fig_state, key_state],
     )
     qa_dd.change(
         fn=on_qa_change,
         inputs=[dataset_dd, qa_dd],
         outputs=[question_dd, user_msg],
+    ).then(
+        fn=update_style,
+        inputs=[
+            fig_state, key_state, dataset_dd, qa_dd,
+            color_mode, point_size, show_boxes, show_target_box,
+            target_box_max_matches, show_axis, show_arrow,
+            axis_len, max_boxes, max_points,
+            show_normals, normals_scale, max_normals, orient_normals,
+            custom_location, custom_orientation,
+        ],
+        outputs=[plot, fig_state, key_state],
     )
 
     # Heavy render
@@ -1668,7 +1699,7 @@ with gr.Blocks(
         fn=update_style,
         inputs=[
             fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_target_box, target_box_text,
+            color_mode, point_size, show_boxes, show_target_box,
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
@@ -1679,15 +1710,15 @@ with gr.Blocks(
 
     # Light updates
     for comp in [
-        color_mode, point_size, show_boxes, show_target_box, target_box_text,
-        target_box_max_matches, show_axis, show_arrow, axis_len, max_boxes,
+        color_mode, point_size, show_boxes, show_target_box, target_box_max_matches,
+        show_axis, show_arrow, axis_len, max_boxes,
         show_normals, normals_scale, max_normals, orient_normals, custom_location, custom_orientation
     ]:
         comp.change(
             fn=update_style,
             inputs=[
                 fig_state, key_state, dataset_dd, qa_dd,
-                color_mode, point_size, show_boxes, show_target_box, target_box_text,
+                color_mode, point_size, show_boxes, show_target_box,
                 target_box_max_matches, show_axis, show_arrow,
                 axis_len, max_boxes, max_points,
                 show_normals, normals_scale, max_normals, orient_normals,
@@ -1705,7 +1736,7 @@ with gr.Blocks(
         fn=update_style,
         inputs=[
             fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_target_box, target_box_text,
+            color_mode, point_size, show_boxes, show_target_box,
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
