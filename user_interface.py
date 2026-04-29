@@ -2977,9 +2977,6 @@ def make_base_figure(payload, point_size: float):
     ))
 
     title = f"{payload['scan_id']} | split: {payload.get('split','?')}"
-    if payload.get("situation"):
-        title += f" | {payload['situation']}"
-
     fig.update_layout(
         title=title,
         margin=dict(l=0, r=0, b=0, t=40),
@@ -3415,7 +3412,7 @@ with gr.Blocks(
     css="""
     #main-layout { align-items: stretch; }
     #viz-details, #chat-panel { min-width: 280px; }
-    #scene-plot { height: 85vh !important; min-height: 620px; }
+    #scene-plot { height: 62vh !important; min-height: 460px; max-height: 640px; }
     #scene-plot > div { height: 100% !important; }
     #chat-panel .wrap { height: 100%; }
     """
@@ -3494,11 +3491,12 @@ with gr.Blocks(
         with gr.Column(scale=3, min_width=300, elem_id="chat-panel"):
             gr.Markdown("### Ask your model about the scene")
             chat = gr.Chatbot(label="Dialogue", height=520)
-            custom_situation = gr.Textbox(
-                label="Custom situation override",
-                placeholder="Optional: describe your own situation. Leave empty to use the selected QA situation.",
-                lines=3,
-            )
+            with gr.Accordion("Optional Situation Override", open=False):
+                custom_situation = gr.Textbox(
+                    label="Custom situation override",
+                    placeholder="Optional: describe your own situation. Leave empty to use the selected QA situation.",
+                    lines=3,
+                )
             with gr.Accordion("Optional Multimodal / Pose Overrides", open=False):
                 gr.Markdown(
                     "Uploaded images are passed to the model as reference images.\n\n"
