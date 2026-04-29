@@ -3413,8 +3413,11 @@ def clear_chat():
 
 with gr.Blocks(
     css="""
-    #scene-plot { height: 85vh !important; }
+    #main-layout { align-items: stretch; }
+    #viz-details, #chat-panel { min-width: 280px; }
+    #scene-plot { height: 85vh !important; min-height: 620px; }
     #scene-plot > div { height: 100% !important; }
+    #chat-panel .wrap { height: 100%; }
     """
 ) as demo:
     gr.Markdown(
@@ -3459,37 +3462,38 @@ with gr.Blocks(
     fig_state = gr.State(None)
     key_state = gr.State(None)
 
-    with gr.Row():
-        color_mode = gr.Dropdown(
-            choices=["RGB", "Instance", "Segments", "Normals"],
-            value="RGB",
-            label="Color mode",
-        )
-        point_size = gr.Slider(1, 10, value=2, step=1, label="Point size")
-        max_points = gr.Slider(10_000, 500_000, value=200_000, step=10_000, label="Max points")
+    with gr.Row(elem_id="main-layout"):
+        with gr.Column(scale=3, min_width=280, elem_id="viz-details"):
+            gr.Markdown("### Visualization details")
 
-    with gr.Row():
-        show_boxes = gr.Checkbox(value=False, label="Show instance bounding boxes")
-        show_axis = gr.Checkbox(value=False, label="Show world axis")
-        show_arrow = gr.Checkbox(value=True, label="Show situation arrow")
-        axis_len = gr.Slider(0.5, 5.0, value=1.5, step=0.1, label="Axis / arrow scale")
-        max_boxes = gr.Slider(10, 500, value=200, step=10, label="Max boxes")
+            color_mode = gr.Dropdown(
+                choices=["RGB", "Instance", "Segments", "Normals"],
+                value="RGB",
+                label="Color mode",
+            )
+            point_size = gr.Slider(1, 10, value=2, step=1, label="Point size")
+            max_points = gr.Slider(10_000, 500_000, value=200_000, step=10_000, label="Max points")
 
-    with gr.Row():
-        show_normals = gr.Checkbox(value=False, label="Show normals glyphs")
-        orient_normals = gr.Checkbox(value=False, label="Orient normals toward viewpoint")
-        normals_scale = gr.Slider(0.02, 0.5, value=0.12, step=0.01, label="Normals glyph scale")
-        max_normals = gr.Slider(100, 10000, value=2500, step=100, label="Max normals glyphs")
+            show_boxes = gr.Checkbox(value=False, label="Show instance bounding boxes")
+            max_boxes = gr.Slider(10, 500, value=200, step=10, label="Max boxes")
 
-    with gr.Row():
-        btn = gr.Button("Render")
+            show_axis = gr.Checkbox(value=False, label="Show world axis")
+            show_arrow = gr.Checkbox(value=True, label="Show situation arrow")
+            axis_len = gr.Slider(0.5, 5.0, value=1.5, step=0.1, label="Axis / arrow scale")
 
-    with gr.Row():
-        with gr.Column(scale=7):
+            show_normals = gr.Checkbox(value=False, label="Show normals glyphs")
+            orient_normals = gr.Checkbox(value=False, label="Orient normals toward viewpoint")
+            normals_scale = gr.Slider(0.02, 0.5, value=0.12, step=0.01, label="Normals glyph scale")
+            max_normals = gr.Slider(100, 10000, value=2500, step=100, label="Max normals glyphs")
+
+            btn = gr.Button("Render")
+
+        with gr.Column(scale=7, min_width=520):
             plot = gr.Plot(elem_id="scene-plot", scale=5)
-        with gr.Column(scale=3):
+
+        with gr.Column(scale=3, min_width=300, elem_id="chat-panel"):
             gr.Markdown("### Ask your model about the scene")
-            chat = gr.Chatbot(label="Dialogue", height=400)
+            chat = gr.Chatbot(label="Dialogue", height=520)
             custom_situation = gr.Textbox(
                 label="Custom situation override",
                 placeholder="Optional: describe your own situation. Leave empty to use the selected QA situation.",
