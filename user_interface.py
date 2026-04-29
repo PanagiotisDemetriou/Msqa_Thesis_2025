@@ -1056,6 +1056,7 @@ def apply_style_and_overlays(
     orient_normals: bool,
     custom_location_text: str = "",
     custom_orientation_text: str = "",
+    target_question_text: str = "",
 ):
     fig.data = fig.data[:1]
     fig.data[0].marker.size = float(point_size)
@@ -1091,7 +1092,7 @@ def apply_style_and_overlays(
 
     if show_target_box:
         qa = DATA_BY_DATASET[dataset_name][idx]
-        question_text = qa.get("question", "")
+        question_text = (target_question_text or "").strip() or qa.get("question", "")
         for t in build_target_bbox_traces(
             payload,
             question_text=question_text,
@@ -1304,6 +1305,7 @@ def update_style(
     orient_normals,
     custom_location_text="",
     custom_orientation_text="",
+    target_question_text="",
 ):
     if global_idx is None:
         return fig, fig, key
@@ -1335,6 +1337,7 @@ def update_style(
         orient_normals=bool(orient_normals),
         custom_location_text=custom_location_text,
         custom_orientation_text=custom_orientation_text,
+        target_question_text=target_question_text,
     )
     return fig, fig, new_key
 
@@ -1563,7 +1566,7 @@ with gr.Blocks(
             show_boxes = gr.Checkbox(value=False, label="Show instance bounding boxes")
             max_boxes = gr.Slider(10, 500, value=200, step=10, label="Max boxes")
 
-            show_target_box = gr.Checkbox(value=False, label="Show target object bounding box")
+            show_target_box = gr.Checkbox(value=True, label="Show target object bounding box")
             target_box_max_matches = gr.Slider(1, 20, value=8, step=1, label="Max target matches")
 
             show_axis = gr.Checkbox(value=False, label="Show world axis")
@@ -1632,7 +1635,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation,
+            custom_location, custom_orientation, user_msg,
         ],
         outputs=[plot, fig_state, key_state],
     ).then(
@@ -1669,7 +1672,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation,
+            custom_location, custom_orientation, user_msg,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1685,7 +1688,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation,
+            custom_location, custom_orientation, user_msg,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1703,7 +1706,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation,
+            custom_location, custom_orientation, user_msg,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1712,7 +1715,7 @@ with gr.Blocks(
     for comp in [
         color_mode, point_size, show_boxes, show_target_box, target_box_max_matches,
         show_axis, show_arrow, axis_len, max_boxes,
-        show_normals, normals_scale, max_normals, orient_normals, custom_location, custom_orientation
+        show_normals, normals_scale, max_normals, orient_normals, custom_location, custom_orientation, user_msg
     ]:
         comp.change(
             fn=update_style,
@@ -1722,7 +1725,7 @@ with gr.Blocks(
                 target_box_max_matches, show_axis, show_arrow,
                 axis_len, max_boxes, max_points,
                 show_normals, normals_scale, max_normals, orient_normals,
-                custom_location, custom_orientation,
+                custom_location, custom_orientation, user_msg,
             ],
             outputs=[plot, fig_state, key_state],
         )
@@ -1740,7 +1743,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation,
+            custom_location, custom_orientation, user_msg,
         ],
         outputs=[plot, fig_state, key_state],
     )
