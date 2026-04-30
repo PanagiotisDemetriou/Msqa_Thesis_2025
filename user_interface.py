@@ -548,6 +548,93 @@ def build_target_bbox_traces(payload, question_text: str, max_matches: int = 8):
     return traces
 
 
+def scene_object_choices(dataset_name: str, global_idx):
+    if global_idx is None:
+        return []
+
+    payload = get_raw_scene(dataset_name, int(global_idx))
+    inst = np.asarray(payload["instance_ids"]).reshape(-1)
+    if inst.size == 0:
+        return []
+
+    inst_to_label = payload.get("instance_to_label", {}) or {}
+    counts = {int(k): int(v) for k, v in zip(*np.unique(inst, return_counts=True))}
+    choices = []
+    sorted_counts = sorted(
+        counts.items(),
+        key=lambda item: (str(inst_to_label.get(item[0], "")), item[0]),
+    )
+    for inst_id, point_count in sorted_counts:
+        if inst_id < 0:
+            continue
+        label = inst_to_label.get(inst_id, f"instance {inst_id}")
+        display = f"{label} (instance {inst_id}, {point_count:,} pts)"
+        choices.append((display, f"inst:{inst_id}"))
+    return choices
+
+
+def on_object_dropdown_update(dataset_name: str, global_idx):
+    return gr.update(choices=scene_object_choices(dataset_name, global_idx), value=[])
+
+
+def selected_object_ids(selected_objects):
+    if not selected_objects:
+        return []
+    ids = []
+    for value in selected_objects:
+        value = str(value)
+        if not value.startswith("inst:"):
+            continue
+        try:
+            ids.append(int(value.split(":", 1)[1]))
+        except ValueError:
+            continue
+    return list(dict.fromkeys(ids))
+
+
+def build_selected_object_bbox_traces(payload, selected_objects):
+    target_ids = selected_object_ids(selected_objects)
+    if not target_ids:
+        return []
+
+    xyz = np.asarray(payload["xyz"], dtype=np.float32).reshape(-1, 3)
+    inst = np.asarray(payload["instance_ids"]).reshape(-1)
+    inst_to_label = payload.get("instance_to_label", {}) or {}
+    palette = [
+        "rgb(255,230,0)",
+        "rgb(0,220,255)",
+        "rgb(255,80,180)",
+        "rgb(80,255,120)",
+        "rgb(255,140,40)",
+        "rgb(180,120,255)",
+    ]
+
+    traces = []
+    for i, inst_id in enumerate(target_ids):
+        pts = xyz[inst == inst_id]
+        if pts.shape[0] < 2:
+            continue
+
+        minb = pts.min(0)
+        maxb = pts.max(0)
+        xs, ys, zs = [], [], []
+        for p0, p1 in aabb_edges(minb, maxb):
+            xs += [p0[0], p1[0], None]
+            ys += [p0[1], p1[1], None]
+            zs += [p0[2], p1[2], None]
+
+        label = inst_to_label.get(int(inst_id), f"instance {inst_id}")
+        traces.append(go.Scatter3d(
+            x=xs, y=ys, z=zs,
+            mode="lines",
+            line=dict(width=9, color=palette[i % len(palette)]),
+            name=f"selected: {label} ({inst_id})",
+            showlegend=True,
+        ))
+
+    return traces
+
+
 def make_world_axis_traces(origin, axis_len=1.0):
     origin = np.asarray(origin, dtype=np.float32).reshape(3)
     O = origin
@@ -1123,6 +1210,7 @@ def apply_style_and_overlays(
     normals_scale: float,
     max_normals: int,
     orient_normals: bool,
+    selected_objects=None,
     custom_location_text: str = "",
     custom_orientation_text: str = "",
     target_question_text: str = "",
@@ -1160,15 +1248,20 @@ def apply_style_and_overlays(
             fig.add_trace(copy.deepcopy(t))
 
     if show_target_box:
-        qa = DATA_BY_DATASET[dataset_name][idx]
-        question_text = (target_question_text or "").strip() or qa.get("question", "")
         target_payload = get_raw_scene(dataset_name, idx)
-        for t in build_target_bbox_traces(
-            target_payload,
-            question_text=question_text,
-            max_matches=int(target_box_max_matches),
-        ):
-            fig.add_trace(t)
+        selected_traces = build_selected_object_bbox_traces(target_payload, selected_objects)
+        if selected_traces:
+            for t in selected_traces:
+                fig.add_trace(t)
+        else:
+            qa = DATA_BY_DATASET[dataset_name][idx]
+            question_text = (target_question_text or "").strip() or qa.get("question", "")
+            for t in build_target_bbox_traces(
+                target_payload,
+                question_text=question_text,
+                max_matches=int(target_box_max_matches),
+            ):
+                fig.add_trace(t)
 
     if show_axis:
         for t in make_world_axis_traces(payload["center"], axis_len=float(axis_len)):
@@ -1373,6 +1466,7 @@ def update_style(
     normals_scale,
     max_normals,
     orient_normals,
+    selected_objects=None,
     custom_location_text="",
     custom_orientation_text="",
     target_question_text="",
@@ -1405,6 +1499,7 @@ def update_style(
         normals_scale=float(normals_scale),
         max_normals=int(max_normals),
         orient_normals=bool(orient_normals),
+        selected_objects=selected_objects,
         custom_location_text=custom_location_text,
         custom_orientation_text=custom_orientation_text,
         target_question_text=target_question_text,
@@ -1636,7 +1731,7 @@ with gr.Blocks(
             show_boxes = gr.Checkbox(value=False, label="Show instance bounding boxes")
             max_boxes = gr.Slider(10, 500, value=200, step=10, label="Max boxes")
 
-            show_target_box = gr.Checkbox(value=True, label="Show target object bounding box")
+            show_target_box = gr.Checkbox(value=True, label="Show selected / target object bounding boxes")
             target_box_max_matches = gr.Slider(1, 20, value=8, step=1, label="Max target matches")
 
             show_axis = gr.Checkbox(value=False, label="Show world axis")
@@ -1652,6 +1747,14 @@ with gr.Blocks(
 
         with gr.Column(scale=7, min_width=520):
             plot = gr.Plot(elem_id="scene-plot", scale=5)
+            object_select = gr.Dropdown(
+                choices=[],
+                value=[],
+                label="Search scene objects",
+                multiselect=True,
+                filterable=True,
+                interactive=True,
+            )
 
         with gr.Column(scale=3, min_width=300, elem_id="chat-panel"):
             gr.Markdown("### Ask your model about the scene")
@@ -1694,6 +1797,10 @@ with gr.Blocks(
         inputs=[dataset_dd],
         outputs=[scan_id_dd, split_filter, qa_dd, question_dd, user_msg],
     ).then(
+        fn=on_object_dropdown_update,
+        inputs=[dataset_dd, qa_dd],
+        outputs=[object_select],
+    ).then(
         fn=build_base,
         inputs=[dataset_dd, qa_dd, max_points, point_size],
         outputs=[plot, fig_state, key_state],
@@ -1705,7 +1812,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation, user_msg,
+            object_select, custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     ).then(
@@ -1719,16 +1826,28 @@ with gr.Blocks(
         fn=on_dataset_change,
         inputs=[dataset_dd],
         outputs=[scan_id_dd, split_filter, qa_dd, question_dd, user_msg],
+    ).then(
+        fn=on_object_dropdown_update,
+        inputs=[dataset_dd, qa_dd],
+        outputs=[object_select],
     )
     split_filter.change(
         fn=on_split_change,
         inputs=[dataset_dd, split_filter],
         outputs=[scan_id_dd, qa_dd, question_dd, user_msg],
+    ).then(
+        fn=on_object_dropdown_update,
+        inputs=[dataset_dd, qa_dd],
+        outputs=[object_select],
     )
     scan_id_dd.change(
         fn=on_scan_change,
         inputs=[dataset_dd, scan_id_dd, split_filter],
         outputs=[qa_dd, question_dd, user_msg],
+    ).then(
+        fn=on_object_dropdown_update,
+        inputs=[dataset_dd, qa_dd],
+        outputs=[object_select],
     )
     question_dd.change(
         fn=on_question_change,
@@ -1742,7 +1861,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation, user_msg,
+            object_select, custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1758,7 +1877,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation, user_msg,
+            object_select, custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1776,7 +1895,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation, user_msg,
+            object_select, custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1785,7 +1904,8 @@ with gr.Blocks(
     for comp in [
         color_mode, point_size, show_boxes, show_target_box, target_box_max_matches,
         show_axis, show_arrow, axis_len, max_boxes,
-        show_normals, normals_scale, max_normals, orient_normals, custom_location, custom_orientation, user_msg
+        show_normals, normals_scale, max_normals, orient_normals,
+        object_select, custom_location, custom_orientation,
     ]:
         comp.change(
             fn=update_style,
@@ -1795,7 +1915,7 @@ with gr.Blocks(
                 target_box_max_matches, show_axis, show_arrow,
                 axis_len, max_boxes, max_points,
                 show_normals, normals_scale, max_normals, orient_normals,
-                custom_location, custom_orientation, user_msg,
+                object_select, custom_location, custom_orientation,
             ],
             outputs=[plot, fig_state, key_state],
         )
@@ -1813,7 +1933,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            custom_location, custom_orientation, user_msg,
+            object_select, custom_location, custom_orientation,
         ],
         outputs=[plot, fig_state, key_state],
     )
