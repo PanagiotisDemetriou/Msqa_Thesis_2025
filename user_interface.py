@@ -1249,19 +1249,8 @@ def apply_style_and_overlays(
 
     if show_target_box:
         target_payload = get_raw_scene(dataset_name, idx)
-        selected_traces = build_selected_object_bbox_traces(target_payload, selected_objects)
-        if selected_traces:
-            for t in selected_traces:
-                fig.add_trace(t)
-        else:
-            qa = DATA_BY_DATASET[dataset_name][idx]
-            question_text = (target_question_text or "").strip() or qa.get("question", "")
-            for t in build_target_bbox_traces(
-                target_payload,
-                question_text=question_text,
-                max_matches=int(target_box_max_matches),
-            ):
-                fig.add_trace(t)
+        for t in build_selected_object_bbox_traces(target_payload, selected_objects):
+            fig.add_trace(t)
 
     if show_axis:
         for t in make_world_axis_traces(payload["center"], axis_len=float(axis_len)):
