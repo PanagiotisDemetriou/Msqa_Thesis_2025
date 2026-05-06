@@ -1,19 +1,4 @@
-"""
-MSQA Multi-Dataset Scene Viewer (Gradio + Plotly)
-Drop-in replacement:
-- scene loading now matches your dataloader logic for ScanNet / 3RScan / ARKit
-- scene format includes:
-    scene_fts   : (N,9) = [xyz, rgb(-1..1), normals]
-    instance_ids
-    segments
-    obj_pcds
-- normals visualization added:
-    * color by normals
-    * orient normals toward viewpoint
-    * draw normals as glyphs (subsampled line segments)
-- model preloads on startup
-- no accordion / no show-hide details button
-"""
+"""MSQA Multi-Dataset Scene Viewer."""
 
 import os
 import json
@@ -1684,14 +1669,7 @@ with gr.Blocks(
     #chat-panel .wrap { height: 100%; }
     """
 ) as demo:
-    gr.Markdown(
-        "## MSQA Multi-Dataset Scene Viewer (Gradio + Plotly)\n"
-        "Loader-matching scene format for **ScanNet / ARKit / 3RScan**.\n\n"
-        "**scene_fts** is built exactly like your loader scripts:\n"
-        "- ScanNet: xyz + rgb(-1,1) + scene_normals, with ScanNet20 remapped segments\n"
-        "- 3RScan: xyz + rgb(-1,1) + scene_normals, segments = instance ids\n"
-        "- ARKit: xyz + rgb(-1,1) + scene_normals, segments = instance ids\n"
-    )
+    gr.Markdown("## MSQA Multi-Dataset Scene Viewer")
 
     model_status_md = gr.Markdown(get_model_status_text())
 
@@ -1763,6 +1741,7 @@ with gr.Blocks(
             btn = gr.Button("Render")
 
         with gr.Column(scale=7, min_width=520):
+            gr.Markdown("### Scene")
             plot = gr.Plot(elem_id="scene-plot", scale=5)
             object_select = gr.Dropdown(
                 choices=[],
@@ -1774,7 +1753,7 @@ with gr.Blocks(
             )
 
         with gr.Column(scale=3, min_width=300, elem_id="chat-panel"):
-            gr.Markdown("### Ask your model about the scene")
+            gr.Markdown("### Model Chat")
             chat = gr.Chatbot(label="Dialogue", height=360)
             with gr.Accordion("Optional Situation Override", open=False):
                 custom_situation = gr.Textbox(
