@@ -119,13 +119,7 @@ def warmup_model():
 
 
 def get_model_status_text():
-    if MSR3D_STATUS["loaded"]:
-        return "Model status: loaded"
-    if MSR3D_STATUS["loading"]:
-        return "Model status: loading..."
-    if MSR3D_STATUS["error"]:
-        return f"Model status: preload failed ({MSR3D_STATUS['error']})"
-    return "Model status: not loaded"
+    return "Model MSR3D with PTv3 Object Encoder"
 
 
 # ======================== Utils ========================
