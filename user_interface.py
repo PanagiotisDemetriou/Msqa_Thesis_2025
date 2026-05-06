@@ -1886,17 +1886,6 @@ with gr.Blocks(
         fn=clear_target_search,
         inputs=[],
         outputs=[target_search_state],
-    ).then(
-        fn=update_style,
-        inputs=[
-            fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_target_box,
-            target_box_max_matches, show_axis, show_arrow,
-            axis_len, max_boxes, max_points,
-            show_normals, normals_scale, max_normals, orient_normals,
-            object_select, custom_location, custom_orientation, target_search_state,
-        ],
-        outputs=[plot, fig_state, key_state],
     )
     qa_dd.change(
         fn=on_qa_change,
@@ -1906,17 +1895,6 @@ with gr.Blocks(
         fn=clear_target_search,
         inputs=[],
         outputs=[target_search_state],
-    ).then(
-        fn=update_style,
-        inputs=[
-            fig_state, key_state, dataset_dd, qa_dd,
-            color_mode, point_size, show_boxes, show_target_box,
-            target_box_max_matches, show_axis, show_arrow,
-            axis_len, max_boxes, max_points,
-            show_normals, normals_scale, max_normals, orient_normals,
-            object_select, custom_location, custom_orientation, target_search_state,
-        ],
-        outputs=[plot, fig_state, key_state],
     )
 
     # Heavy render
