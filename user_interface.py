@@ -548,6 +548,15 @@ def build_target_bbox_traces(payload, question_text: str, max_matches: int = 8):
     return traces
 
 
+def object_search_context_text(question_text: str, situation_text: str, answer_text: str) -> str:
+    parts = [
+        f"Question: {(question_text or '').strip()}",
+        f"Situation: {(situation_text or '').strip()}",
+        f"Answer: {(answer_text or '').strip()}",
+    ]
+    return "\n".join(p for p in parts if p.split(":", 1)[-1].strip())
+
+
 def scene_object_choices(dataset_name: str, global_idx):
     if global_idx is None:
         return []
@@ -1251,6 +1260,13 @@ def apply_style_and_overlays(
         target_payload = get_raw_scene(dataset_name, idx)
         for t in build_selected_object_bbox_traces(target_payload, selected_objects):
             fig.add_trace(t)
+        if target_question_text:
+            for t in build_target_bbox_traces(
+                target_payload,
+                target_question_text,
+                max_matches=int(target_box_max_matches),
+            ):
+                fig.add_trace(t)
 
     if show_axis:
         for t in make_world_axis_traces(payload["center"], axis_len=float(axis_len)):
@@ -1624,9 +1640,11 @@ def chat_step(
     history = history or []
     user_msg = (user_msg or "").strip()
     if not user_msg:
-        return "", history
+        return "", history, ""
 
     history.append({"role": "user", "content": user_msg})
+    qa = DATA_BY_DATASET[dataset_name][int(global_idx)] if global_idx is not None else {}
+    situation = (custom_situation_text or "").strip() or qa.get("situation", "")
     model_answer = answer_with_model(
         user_msg,
         dataset_name,
@@ -1638,12 +1656,21 @@ def chat_step(
         custom_orientation_text,
     )
     history.append({"role": "assistant", "content": model_answer})
+    target_search_text = object_search_context_text(user_msg, situation, model_answer)
 
-    return "", history
+    return "", history, target_search_text
 
 
 def clear_chat():
     return []
+
+
+def clear_target_search():
+    return ""
+
+
+def clear_chat_and_target_search():
+    return [], ""
 
 
 # ======================== App ========================
@@ -1704,6 +1731,7 @@ with gr.Blocks(
 
     fig_state = gr.State(None)
     key_state = gr.State(None)
+    target_search_state = gr.State("")
 
     with gr.Row(elem_id="main-layout"):
         with gr.Column(scale=3, min_width=280, elem_id="viz-details"):
@@ -1801,7 +1829,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            object_select, custom_location, custom_orientation,
+            object_select, custom_location, custom_orientation, target_search_state,
         ],
         outputs=[plot, fig_state, key_state],
     ).then(
@@ -1819,6 +1847,10 @@ with gr.Blocks(
         fn=on_object_dropdown_update,
         inputs=[dataset_dd, qa_dd],
         outputs=[object_select],
+    ).then(
+        fn=clear_target_search,
+        inputs=[],
+        outputs=[target_search_state],
     )
     split_filter.change(
         fn=on_split_change,
@@ -1828,6 +1860,10 @@ with gr.Blocks(
         fn=on_object_dropdown_update,
         inputs=[dataset_dd, qa_dd],
         outputs=[object_select],
+    ).then(
+        fn=clear_target_search,
+        inputs=[],
+        outputs=[target_search_state],
     )
     scan_id_dd.change(
         fn=on_scan_change,
@@ -1837,11 +1873,19 @@ with gr.Blocks(
         fn=on_object_dropdown_update,
         inputs=[dataset_dd, qa_dd],
         outputs=[object_select],
+    ).then(
+        fn=clear_target_search,
+        inputs=[],
+        outputs=[target_search_state],
     )
     question_dd.change(
         fn=on_question_change,
         inputs=[dataset_dd, question_dd],
         outputs=[qa_dd, user_msg],
+    ).then(
+        fn=clear_target_search,
+        inputs=[],
+        outputs=[target_search_state],
     ).then(
         fn=update_style,
         inputs=[
@@ -1850,7 +1894,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            object_select, custom_location, custom_orientation,
+            object_select, custom_location, custom_orientation, target_search_state,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1859,6 +1903,10 @@ with gr.Blocks(
         inputs=[dataset_dd, qa_dd],
         outputs=[question_dd, user_msg],
     ).then(
+        fn=clear_target_search,
+        inputs=[],
+        outputs=[target_search_state],
+    ).then(
         fn=update_style,
         inputs=[
             fig_state, key_state, dataset_dd, qa_dd,
@@ -1866,7 +1914,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            object_select, custom_location, custom_orientation,
+            object_select, custom_location, custom_orientation, target_search_state,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1884,7 +1932,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            object_select, custom_location, custom_orientation,
+            object_select, custom_location, custom_orientation, target_search_state,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1904,7 +1952,7 @@ with gr.Blocks(
                 target_box_max_matches, show_axis, show_arrow,
                 axis_len, max_boxes, max_points,
                 show_normals, normals_scale, max_normals, orient_normals,
-                object_select, custom_location, custom_orientation,
+                object_select, custom_location, custom_orientation, target_search_state,
             ],
             outputs=[plot, fig_state, key_state],
         )
@@ -1922,7 +1970,7 @@ with gr.Blocks(
             target_box_max_matches, show_axis, show_arrow,
             axis_len, max_boxes, max_points,
             show_normals, normals_scale, max_normals, orient_normals,
-            object_select, custom_location, custom_orientation,
+            object_select, custom_location, custom_orientation, target_search_state,
         ],
         outputs=[plot, fig_state, key_state],
     )
@@ -1934,7 +1982,18 @@ with gr.Blocks(
             user_msg, chat, dataset_dd, qa_dd, split_filter,
             custom_situation, uploaded_images, custom_location, custom_orientation,
         ],
-        outputs=[user_msg, chat],
+        outputs=[user_msg, chat, target_search_state],
+    ).then(
+        fn=update_style,
+        inputs=[
+            fig_state, key_state, dataset_dd, qa_dd,
+            color_mode, point_size, show_boxes, show_target_box,
+            target_box_max_matches, show_axis, show_arrow,
+            axis_len, max_boxes, max_points,
+            show_normals, normals_scale, max_normals, orient_normals,
+            object_select, custom_location, custom_orientation, target_search_state,
+        ],
+        outputs=[plot, fig_state, key_state],
     )
     user_msg.submit(
         fn=chat_step,
@@ -1942,9 +2001,35 @@ with gr.Blocks(
             user_msg, chat, dataset_dd, qa_dd, split_filter,
             custom_situation, uploaded_images, custom_location, custom_orientation,
         ],
-        outputs=[user_msg, chat],
+        outputs=[user_msg, chat, target_search_state],
+    ).then(
+        fn=update_style,
+        inputs=[
+            fig_state, key_state, dataset_dd, qa_dd,
+            color_mode, point_size, show_boxes, show_target_box,
+            target_box_max_matches, show_axis, show_arrow,
+            axis_len, max_boxes, max_points,
+            show_normals, normals_scale, max_normals, orient_normals,
+            object_select, custom_location, custom_orientation, target_search_state,
+        ],
+        outputs=[plot, fig_state, key_state],
     )
-    clear.click(fn=clear_chat, inputs=[], outputs=[chat])
+    clear.click(
+        fn=clear_chat_and_target_search,
+        inputs=[],
+        outputs=[chat, target_search_state],
+    ).then(
+        fn=update_style,
+        inputs=[
+            fig_state, key_state, dataset_dd, qa_dd,
+            color_mode, point_size, show_boxes, show_target_box,
+            target_box_max_matches, show_axis, show_arrow,
+            axis_len, max_boxes, max_points,
+            show_normals, normals_scale, max_normals, orient_normals,
+            object_select, custom_location, custom_orientation, target_search_state,
+        ],
+        outputs=[plot, fig_state, key_state],
+    )
 
 
 if __name__ == "__main__":
